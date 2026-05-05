@@ -68,6 +68,63 @@ This section captures the early plan in plain language to keep scope clear while
 - Auth: JWT-based authentication for API and role-based permissions for views/actions.
 - RBAC: explicit roles and permission checks (Super Admin vs School Admin vs Teacher vs Student vs Parent).
 
+#### Delivery timeline (May 10 → July 1)
+
+The goal is to have the application in a stable, deployable state by **July 1**, leaving **July 1 → July 7** as buffer for final polish, assessor checks, and contingency.
+
+- **May 10 – May 14 (Foundation)**
+  - Create Django project + settings (env-based config, Postgres, static/media structure).
+  - Add core apps scaffolding (`accounts`, `schools`, etc.) and baseline URL structure.
+  - Create custom user model and authentication foundations (JWT).
+  - Establish tenant model (`School`) and a consistent way to scope data to a school.
+
+- **May 15 – May 21 (RBAC + tenant isolation)**
+  - Define roles and permission strategy (Super Admin / School Admin / Teacher / Student / Parent).
+  - Implement permission checks and tenant query scoping in DRF and template views.
+  - Add audit logging foundations for sensitive actions.
+
+- **May 22 – May 28 (School setup flows)**
+  - School Admin can create/manage teachers, students, parents (CRUD).
+  - Year groups / classes models and assignment flows.
+  - Bulk student import (CSV) initial version.
+
+- **May 29 – June 4 (Subjects + timetable)**
+  - Custom subjects per school (Hifz / Alimiyah / General) + teacher assignment.
+  - Timetable creation and student/teacher views.
+  - Attendance tracking basics linked to timetable/class.
+
+- **June 5 – June 11 (Homework + worksheets + sign-off)**
+  - Homework/worksheet assignment and submission flows.
+  - Teacher sign-off verification: approve/reject submissions with secure server-side rules.
+  - Notifications for assignments and sign-off outcomes (in-app first).
+
+- **June 12 – June 18 (Hifz tracking + sign-off)**
+  - Hifz records (status: Not Started / In Progress / Completed only via sign-off).
+  - Smart revision suggestions (basic rules first, improve iteratively).
+  - Teacher sign-off flow with re-auth requirement (password re-entry).
+
+- **June 19 – June 23 (Qur’an annotation system)**
+  - Qur’an text display and per-student session annotation model.
+  - Mistake tagging (Tajweed / Memorisation / Fluency), timestamps, comments.
+  - Audio upload and playback for recitations + teacher audio feedback.
+
+- **June 24 – June 28 (Exams + sign-off finalisation)**
+  - Exam creation (MCQ auto-mark + written/manual).
+  - Results with “finalised” teacher sign-off requirement before being official.
+  - Parent/student reporting views show only verified/finalised outcomes where required.
+
+- **June 29 – July 1 (Payments + deployment-ready pass)**
+  - Fees: pending vs completed payments, parent payment journey.
+  - Stripe Connect onboarding for schools + payment routing to school accounts (platform fee optional).
+  - Webhooks + receipts (PDF basic) + overdue reminders (email + in-app).
+  - Stabilisation: permissions review, tenant isolation review, and deployment checklist.
+
+**July 1 – July 7 (Buffer)**
+
+- Full regression testing and bug fixes.
+- Evidence collection (screenshots, test runs, validation, deployment notes).
+- README expansion (data schema, deployment steps, testing evidence, assessor quick links).
+
 #### Build order (high level)
 
 - Project setup (Django + DRF) and configuration for Postgres + environment variables.
