@@ -1,0 +1,32 @@
+### Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+### Django
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+
+### Env / secrets
+.env
+.env.*
+
+### Virtualenv
+.venv/
+venv/
+ENV/
+
+### Node (in case we add later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+### OS/editor
+.DS_Store
+.idea/
+.vscode/
+
