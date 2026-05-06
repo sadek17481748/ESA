@@ -55,3 +55,90 @@ a:hover {
 .skip:focus {
   left: 0;
 }
+
+/* —— Site chrome —— */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: linear-gradient(180deg, #050505, #0a0a0a);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-geometry {
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    #8a7020 0 6px,
+    transparent 6px 14px
+  );
+  opacity: 0.4;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.brand-mark {
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.brand-tag {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.top-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+}
+
+.top-nav a {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.top-nav a:hover {
+  color: var(--gold);
+}
+
+.top-nav .btn-outline {
+  border: 1px solid var(--gold);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius);
+  color: var(--gold);
+}
+
+.top-nav .btn-outline:hover {
+  background: var(--gold-soft);
+  text-decoration: none;
+}
+
+.site-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding: 1.25rem;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
