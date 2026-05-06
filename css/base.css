@@ -261,3 +261,138 @@ a:hover {
   font-size: 0.88rem;
   color: var(--muted);
 }
+
+/* —— App shell (dashboards) —— */
+.app-shell {
+  display: flex;
+  min-height: calc(100vh - 80px);
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 1.25rem 0;
+}
+
+.sidebar-title {
+  padding: 0 1rem 0.75rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.sidebar-nav a {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-nav a:hover {
+  background: var(--gold-soft);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.sidebar-nav a[aria-current="page"] {
+  border-left-color: var(--gold);
+  color: var(--gold);
+  background: var(--gold-soft);
+}
+
+.app-main {
+  flex: 1;
+  padding: 1.5rem 1.75rem;
+  overflow-x: auto;
+}
+
+.page-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.45rem;
+}
+
+.page-meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0 0 1.5rem;
+}
+
+/* —— Tables / lists (empty structure) —— */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-top: 1rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.65rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+  background: var(--surface-up);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.placeholder-row td {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.pill {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .split {
+    grid-template-columns: 1fr;
+  }
+}
