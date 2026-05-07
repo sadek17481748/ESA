@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESA — School Admin (structure)</title>
+  <link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-geometry" aria-hidden="true"></div>
+    <div class="header-inner">
+      <div class="brand">
+        <a href="index.html" style="color:inherit;text-decoration:none;">
+          <span class="brand-mark">ESA</span>
+          <span class="brand-tag">School Admin</span>
+        </a>
+      </div>
+      <nav class="top-nav" aria-label="Account">
+        <a href="analytics.html">Analytics</a>
+        <a href="payments.html">Payments</a>
+        <a href="login.html">Log out</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Section navigation">
+      <p class="sidebar-title">School</p>
+      <nav class="sidebar-nav">
+        <a href="dashboard-school-admin.html" aria-current="page">Overview</a>
+        <a href="dashboard-school-admin.html#people">People</a>
+        <a href="dashboard-school-admin.html#curriculum">Curriculum</a>
+        <a href="dashboard-school-admin.html#finance">Finance</a>
+        <a href="dashboard-school-admin.html#stripe">Stripe Connect</a>
+      </nav>
+      <p class="sidebar-title">Modules</p>
+      <nav class="sidebar-nav">
+        <a href="timetable.html">Timetable</a>
+        <a href="attendance.html">Attendance</a>
+        <a href="worksheets.html">Worksheets</a>
+        <a href="exams.html">Exams</a>
+        <a href="messages.html">Messages</a>
+      </nav>
+    </aside>
+    <main id="main" class="app-main">
+      <h1 class="page-title">School dashboard</h1>
+      <p class="page-meta">Tenant-scoped administration shell.</p>
+
+      <div class="grid-cards" style="margin-bottom:1.5rem;">
+        <article class="card"><h2>Teachers</h2><p>Count / quick link region</p></article>
+        <article class="card"><h2>Students</h2><p>Count / bulk import region</p></article>
+        <article class="card"><h2>Parents</h2><p>Linked guardians region</p></article>
+      </div>
+
+      <section id="people" class="panel" style="margin-bottom:1.25rem;">
+        <h2 style="margin-top:0;font-size:1.1rem;">People directory</h2>
+        <div class="accent-bar"></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Name</th><th>Role</th><th>Class / year</th></tr>
+            </thead>
+            <tbody>
+              <tr class="placeholder-row"><td colspan="3">Rows placeholder</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="split">
+        <section id="curriculum" class="panel">
+          <h2 style="margin-top:0;font-size:1.1rem;">Subjects &amp; classes</h2>
+          <div class="accent-bar"></div>
+          <p class="lead" style="margin:0;">Links to cohorts, subject kinds (Hifz / Alimiyah / General).</p>
+        </section>
+        <section id="finance" class="panel">
+          <h2 style="margin-top:0;font-size:1.1rem;">Fees overview</h2>
+          <div class="accent-bar"></div>
+          <p class="lead" style="margin:0;"><a href="payments.html">Open payments module</a></p>
+        </section>
+      </div>
+
+      <section id="stripe" class="panel" style="margin-top:1.25rem;">
+        <h2 style="margin-top:0;font-size:1.1rem;">Stripe Connect onboarding</h2>
+        <div class="accent-bar"></div>
+        <p class="lead" style="margin:0;">Placeholder for Connect status, bank details copy, webhooks note.</p>
+      </section>
+    </main>
+  </div>
+  <footer class="site-footer">ESA — static HTML/CSS structure prototype</footer>
+</body>
+</html>
