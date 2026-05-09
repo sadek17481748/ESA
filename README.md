@@ -17,6 +17,10 @@ Then visit http://127.0.0.1:8080/
 - **`css/base.css`** — shared theme (black, white, gold; sidebar “app shell” for dashboards).
 - **Pages** — links between `.html` files are relative (see the index table on the home page).
 
+## Palette
+
+Black and near-black backgrounds, off-white body text, gold reserved for accents and primary actions.
+
 ## Milestones
 
 Further integration with application logic follows the module delivery schedule.
