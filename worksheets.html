@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESA — Worksheets (structure)</title>
+  <link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-geometry" aria-hidden="true"></div>
+    <div class="header-inner">
+      <div class="brand">
+        <a href="index.html" style="color:inherit;text-decoration:none;">
+          <span class="brand-mark">ESA</span>
+          <span class="brand-tag">Worksheets</span>
+        </a>
+      </div>
+      <nav class="top-nav" aria-label="Primary">
+        <a href="dashboard-teacher.html">Dashboard</a>
+        <a href="login.html">Log out</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Work">
+      <p class="sidebar-title">Teacher</p>
+      <nav class="sidebar-nav">
+        <a href="worksheets.html">Assigned</a>
+        <a href="worksheets.html#create">Create</a>
+        <a href="worksheets.html#pending">Pending review</a>
+      </nav>
+      <p class="sidebar-title">Student</p>
+      <nav class="sidebar-nav">
+        <a href="worksheets.html#submit">Submit</a>
+      </nav>
+    </aside>
+    <main id="main" class="app-main">
+      <h1 class="page-title">Worksheets &amp; homework</h1>
+      <p class="page-meta">Assign → submit → teacher approve / reject (sign-off fields).</p>
+
+      <section id="create" class="panel" style="margin-bottom:1.25rem;">
+        <h2 style="margin-top:0;font-size:1.1rem;">Create assignment</h2>
+        <div class="accent-bar"></div>
+        <form class="form-stack" action="#" method="get">
+          <div class="field">
+            <label for="ws-title">Title</label>
+            <input id="ws-title" name="title" type="text" readonly>
+          </div>
+          <div class="field">
+            <label for="ws-inst">Instructions</label>
+            <textarea id="ws-inst" name="instructions" readonly></textarea>
+          </div>
+          <button type="button" class="btn-primary">Save structure</button>
+        </form>
+      </section>
+
+      <section id="pending" class="panel" style="margin-bottom:1.25rem;">
+        <h2 style="margin-top:0;font-size:1.1rem;">Submissions queue</h2>
+        <div class="accent-bar"></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Student</th><th>Worksheet</th><th>Status</th><th>Sign off</th></tr>
+            </thead>
+            <tbody>
+              <tr class="placeholder-row"><td colspan="4">Approve / reject / feedback column</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="submit" class="panel">
+        <h2 style="margin-top:0;font-size:1.1rem;">Student submission</h2>
+        <div class="accent-bar"></div>
+        <div class="field">
+          <label for="file">File</label>
+          <input id="file" name="file" type="text" placeholder="file input placeholder" readonly>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer class="site-footer">ESA — static HTML/CSS structure prototype</footer>
+</body>
+</html>
