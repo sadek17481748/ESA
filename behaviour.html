@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESA — Behaviour (structure)</title>
+  <link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-geometry" aria-hidden="true"></div>
+    <div class="header-inner">
+      <div class="brand">
+        <a href="index.html" style="color:inherit;text-decoration:none;">
+          <span class="brand-mark">ESA</span>
+          <span class="brand-tag">Behaviour</span>
+        </a>
+      </div>
+      <nav class="top-nav" aria-label="Primary">
+        <a href="dashboard-teacher.html">Dashboard</a>
+        <a href="login.html">Log out</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Logs">
+      <p class="sidebar-title">Incidents</p>
+      <nav class="sidebar-nav">
+        <a href="behaviour.html" aria-current="page">Log incident</a>
+        <a href="behaviour.html#history">History</a>
+      </nav>
+    </aside>
+    <main id="main" class="app-main">
+      <h1 class="page-title">Behaviour log</h1>
+      <p class="page-meta">Teachers record; parents read linked students.</p>
+
+      <section class="panel" style="margin-bottom:1.25rem;">
+        <h2 style="margin-top:0;font-size:1.1rem;">New entry</h2>
+        <div class="accent-bar"></div>
+        <form class="form-stack" action="#" method="get">
+          <div class="field">
+            <label for="stu">Student</label>
+            <select id="stu" disabled><option>—</option></select>
+          </div>
+          <div class="field">
+            <label for="inc">Incident</label>
+            <textarea id="inc" readonly></textarea>
+          </div>
+          <button type="button" class="btn-primary">Save entry</button>
+        </form>
+      </section>
+
+      <section id="history" class="panel">
+        <h2 style="margin-top:0;font-size:1.1rem;">History</h2>
+        <div class="accent-bar"></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Date</th><th>Student</th><th>Teacher</th><th>Summary</th></tr>
+            </thead>
+            <tbody>
+              <tr class="placeholder-row"><td colspan="4">Read-only for parents</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer class="site-footer">ESA — static HTML/CSS structure prototype</footer>
+</body>
+</html>
