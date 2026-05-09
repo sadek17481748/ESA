@@ -1,13 +1,20 @@
 <!DOCTYPE html>
+<!--
+  ESA wireframe — Feature — behaviour log
+  Purpose: Incident capture form + read-only history table.
+-->
 <html lang="en">
 <head>
+  <!-- Head: charset, viewport, page title, shared stylesheet at css/base.css -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ESA — Behaviour (structure)</title>
   <link rel="stylesheet" href="css/base.css">
 </head>
 <body>
+  <!-- Body: accessible skip link, header, then page or app layout -->
   <a class="skip" href="#main">Skip to content</a>
+  <!-- Header: geometric accent strip + brand + contextual top navigation -->
   <header class="site-header">
     <div class="header-geometry" aria-hidden="true"></div>
     <div class="header-inner">
@@ -24,7 +31,9 @@
     </div>
   </header>
 
+  <!-- Layout: sidebar + main workspace (dashboard / feature pages) -->
   <div class="app-shell">
+    <!-- Sidebar: secondary navigation for this screen -->
     <aside class="sidebar" aria-label="Logs">
       <p class="sidebar-title">Incidents</p>
       <nav class="sidebar-nav">
@@ -32,6 +41,7 @@
         <a href="behaviour.html#history">History</a>
       </nav>
     </aside>
+    <!-- Main: primary content region -->
     <main id="main" class="app-main">
       <h1 class="page-title">Behaviour log</h1>
       <p class="page-meta">Teachers record; parents read linked students.</p>
@@ -68,6 +78,7 @@
       </section>
     </main>
   </div>
+  <!-- Footer: repository / prototype attribution line -->
   <footer class="site-footer">ESA — static HTML/CSS structure prototype</footer>
 </body>
 </html>
