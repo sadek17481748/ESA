@@ -21,6 +21,10 @@ Then visit http://127.0.0.1:8080/
 
 Black and near-black backgrounds, off-white body text, gold reserved for accents and primary actions.
 
+## Page inventory
+
+The home page lists each wireframe file and how it links to the rest of the set.
+
 ## Milestones
 
 Further integration with application logic follows the module delivery schedule.
