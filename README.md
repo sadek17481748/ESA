@@ -28,3 +28,7 @@ The home page lists each wireframe file and how it links to the rest of the set.
 ## Milestones
 
 Further integration with application logic follows the module delivery schedule.
+
+## Author
+
+Mohammed Sadek Hussain
