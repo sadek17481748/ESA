@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESA — Exams (structure)</title>
+  <link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-geometry" aria-hidden="true"></div>
+    <div class="header-inner">
+      <div class="brand">
+        <a href="index.html" style="color:inherit;text-decoration:none;">
+          <span class="brand-mark">ESA</span>
+          <span class="brand-tag">Exams</span>
+        </a>
+      </div>
+      <nav class="top-nav" aria-label="Primary">
+        <a href="dashboard-teacher.html">Dashboard</a>
+        <a href="login.html">Log out</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Exams">
+      <p class="sidebar-title">Assessment</p>
+      <nav class="sidebar-nav">
+        <a href="exams.html" aria-current="page">List</a>
+        <a href="exams.html#build">Build exam</a>
+        <a href="exams.html#finalise">Finalise results</a>
+      </nav>
+    </aside>
+    <main id="main" class="app-main">
+      <h1 class="page-title">Exams</h1>
+      <p class="page-meta">MCQ auto-mark + written; results official only when finalised.</p>
+
+      <section id="build" class="panel" style="margin-bottom:1.25rem;">
+        <h2 style="margin-top:0;font-size:1.1rem;">Exam builder</h2>
+        <div class="accent-bar"></div>
+        <div class="split">
+          <div class="card"><h2>Questions</h2><p>MCQ block placeholder</p></div>
+          <div class="card"><h2>Written</h2><p>Manual marking queue placeholder</p></div>
+        </div>
+      </section>
+
+      <section id="finalise" class="panel">
+        <h2 style="margin-top:0;font-size:1.1rem;">Results</h2>
+        <div class="accent-bar"></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Auto score</th>
+                <th>Final score</th>
+                <th>Finalised</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="placeholder-row"><td colspan="4">Teacher sign-off + re-auth column placeholder</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer class="site-footer">ESA — static HTML/CSS structure prototype</footer>
+</body>
+</html>
