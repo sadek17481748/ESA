@@ -1,0 +1,7 @@
+# ESA — pinned ranges for reproducible deploys; bump intentionally.
+Django>=5.1,<5.3
+djangorestframework>=3.15,<4
+django-environ>=0.11
+psycopg2-binary>=2.9
+djangorestframework-simplejwt>=5.3
+gunicorn>=22
