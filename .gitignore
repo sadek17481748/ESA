@@ -2,3 +2,19 @@
 .idea/
 .vscode/
 .cursor/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+db.sqlite3
+
+# Environment
+.env
+
+# Static collection
+staticfiles/
+
+# Media uploads
+media/
