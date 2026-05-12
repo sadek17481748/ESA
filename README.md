@@ -9,37 +9,58 @@
 - [Overview](#overview)
   - [Project goals](#project-goals)
   - [Planning notes (written at project start)](#planning-notes-written-at-project-start)
-- [Quick links (assessor)](#quick-links-assessor)
+- [Quick links](#quick-links)
+- [Key UI screenshots](#key-ui-screenshots)
 - [Features](#features)
 - [User Experience (UX)](#user-experience-ux)
+  - [Responsive behaviour](#responsive-behaviour)
+  - [How responsiveness was tested](#how-responsiveness-was-tested)
   - [User stories](#user-stories)
 - [Wireframes](#wireframes)
   - [Wireframe inventory](#wireframe-inventory)
 - [Design](#design)
+  - [Data model and ERD (entity relationships)](#data-model-and-erd-entity-relationships)
   - [Visual language](#visual-language)
   - [Colour palette](#colour-palette)
   - [Typography](#typography)
   - [Accessibility](#accessibility)
 - [Technologies Used](#technologies-used)
 - [File Structure](#file-structure)
-- [Data model](#data-model)
-  - [Entity-Relationship Diagram (ERD)](#entity-relationship-diagram-erd)
-  - [Tenant model](#tenant-model)
-  - [Core entities (planned)](#core-entities-planned)
 - [Development](#development)
   - [Local setup](#local-setup)
   - [Environment variables](#environment-variables)
   - [Run locally](#run-locally)
-- [API overview](#api-overview)
-- [Payments (Stripe Connect)](#payments-stripe-connect)
-- [Testing and Bugs](#testing-and-bugs)
-  - [Manual testing](#manual-testing)
-  - [Bugs](#bugs)
-  - [Automated testing](#automated-testing)
 - [Deployment](#deployment)
+- [Testing and Bugs](#testing-and-bugs)
+  - [Assessment test matrix](#assessment-test-matrix)
+  - [Manual testing](#manual-testing)
+  - [Automated testing](#automated-testing)
+  - [Testing summary table](#testing-summary-table)
+  - [Bugs encountered during development](#bugs-encountered-during-development)
+  - [Use of AI (assistance log)](#use-of-ai-assistance-log)
+  - [Lighthouse testing](#lighthouse-testing)
+  - [HTML, CSS and JS validation](#html-css-and-js-validation)
 - [Security](#security)
 - [Sources and references](#sources-and-references)
 - [Author](#author)
+
+---
+
+## Quick links
+
+Assessor-facing links and evidence paths:
+
+| Resource | Link or path |
+|----------|--------------|
+| **Source repository** | https://github.com/sadek17481748/ESA |
+| **Live deployment** | (to be added) |
+| **Bug tracker (GitHub Project board)** | https://github.com/users/sadek17481748/projects/8/views/1 |
+| **Wireframes (README anchor)** | [Wireframes](#wireframes) |
+| **ERD / data model** | [Data model and ERD](#data-model-and-erd-entity-relationships) |
+| **Test credentials** | (to be added) |
+| **Manual test evidence (screenshots)** | `docs/images/manual-testing/` |
+| **Validation evidence** | `docs/images/validation/` |
+| **Sprint checklist** | Follow the delivery timeline under [Planning notes](#planning-notes-written-at-project-start) |
 
 ---
 
@@ -151,38 +172,63 @@ The goal is to have the application in a stable, deployable state by **July 1**,
 - Notifications + messaging.
 - Analytics dashboards.
 
-## Quick links (assessor)
+---
 
-- **Repository**: https://github.com/sadek17481748/ESA
-- **Live app**: (to be added)
-- **Test credentials**: (to be added)
-- **Wireframes**: (to be added)
-- **Sprint checklist**: Follow the delivery timeline under [Planning notes](#planning-notes-written-at-project-start) (begin with **May 10–14 Foundation**). Optional: track weekly bullets as GitHub Issues on the repository above.
+## Key UI screenshots
+
+Screenshots will be stored under `docs/images/manual-testing/` so key screens are visible directly in this README.
+
+| Screen | Screenshot |
+|--------|------------|
+| Landing page | (to be added) |
+| Login | (to be added) |
+| Super Admin dashboard | (to be added) |
+| School Admin dashboard | (to be added) |
+| Teacher dashboard | (to be added) |
+| Student dashboard | (to be added) |
+| Parent dashboard | (to be added) |
+| Timetable | (to be added) |
+| Attendance register | (to be added) |
+| Hifz progress | (to be added) |
+| Payments / fees | (to be added) |
+
+---
 
 ## Features
 
-This section will be expanded as features are implemented and tested.
+- **Multi-tenant schools** — each school is a fully isolated tenant.
+- **RBAC (roles + permissions)** — five roles with explicit permission checks.
+- **Custom subjects per school** — Hifz, Alimiyah, General categories.
+- **Timetable system** — weekly grid with conflict detection.
+- **Attendance tracking** — per-session register with absence flagging.
+- **Hifz tracking** — surah/juz progress with teacher sign-off.
+- **Qur'an annotation** — recitation tagging (Tajweed / Memorisation / Fluency) with audio.
+- **Teacher sign-off verification** — Hifz, worksheets, and exams require authenticated sign-off.
+- **Payments with Stripe Connect** — fees routed directly to school bank accounts.
+- **Notifications (email + in-app)** — assignment alerts, absence alerts, overdue fees.
+- **Messaging** — teacher–parent direct messaging.
+- **Analytics dashboards** — attendance rates, Hifz progress, fee collection.
 
-- **Multi-tenant schools**
-- **RBAC (roles + permissions)**
-- **Custom subjects per school**
-- **Timetable system**
-- **Attendance tracking**
-- **Hifz tracking**
-- **Qur'an annotation**
-- **Teacher sign-off verification** (Hifz, worksheets, exams)
-- **Payments with Stripe Connect**
-- **Notifications (email + in-app)**
-- **Messaging (real-time)**
-- **Analytics dashboards**
+---
 
 ## User Experience (UX)
 
+### Responsive behaviour
+
+The UI is designed mobile-first. Navigation collapses to a hamburger menu on small screens, dashboard cards stack vertically, and data tables scroll horizontally. Touch targets meet the 44x44px minimum on mobile viewports.
+
+### How responsiveness was tested
+
+| Device class | Typical width | What was checked |
+|--------------|---------------|------------------|
+| **Phone** | ~375px (portrait) | Hamburger menu, single-column stacking, readable text, usable buttons |
+| **Tablet** | ~768px–834px | Grid layout transitions, navigation balance, form usability |
+| **Laptop** | ~1024px–1280px | Multi-column grids, sidebar navigation, dashboard readability |
+| **Desktop** | 1440px+ | Content respects max-width, tables use extra space, no awkward stretching |
+
+Responsiveness testing evidence screenshots will be added to `docs/images/validation/`.
+
 ### User stories
-
-User stories are grouped by role. Each story follows the standard format: *"As a [role], I want to [action] so that [benefit]."* Acceptance criteria are listed beneath each story to clarify when the story is considered done.
-
----
 
 #### Super Admin stories
 
@@ -350,119 +396,41 @@ Acceptance criteria:
 **US-19 — View my timetable and assigned classes**
 As a Teacher, I want to see my personal timetable showing which classes I teach and when so that I know where I need to be each day.
 
-Acceptance criteria:
-- Teacher dashboard shows a weekly grid with their assigned lessons.
-- Each cell shows the subject, class name, and room (if set).
-- Tapping a cell links to the class detail page for that session.
-
 **US-20 — Take a class register**
 As a Teacher, I want to take a class register at the start of each lesson by marking each student as present, late, or absent so that attendance is recorded in real time.
-
-Acceptance criteria:
-- On the class page for the current session, all enrolled students are listed.
-- Teacher can mark each student as Present, Late, or Absent with one tap.
-- A "Save register" action persists the attendance records with the current date and session.
-- The register can be edited until the end of the school day; after that it is locked.
 
 **US-21 — Create and assign homework or worksheets**
 As a Teacher, I want to create homework or worksheet assignments with a title, description, optional file attachment, and due date, and assign them to a class so that students know what to complete and by when.
 
-Acceptance criteria:
-- Teacher fills in a form with title, description, optional file upload, and due date.
-- Teacher selects the target class (or multiple classes).
-- On save, all students in the selected class(es) see the assignment on their dashboard.
-- Students and parents receive an in-app notification about the new assignment.
-
 **US-22 — Review and approve or reject student submissions**
 As a Teacher, I want to review each student's homework or worksheet submission, leave feedback, and mark it as approved or rejected so that the student receives clear, recorded feedback.
-
-Acceptance criteria:
-- A submissions list shows all students in the class with their submission status (Not submitted, Submitted, Approved, Rejected).
-- Teacher can open a submission to view the uploaded file or text response.
-- Teacher can leave a text comment and set the status to Approved or Rejected.
-- The status change is recorded with the teacher's user ID and a timestamp.
-- The student and parent receive a notification when feedback is given.
 
 **US-23 — Sign off Hifz progress**
 As a Teacher, I want to sign off a student's Hifz progress for a specific surah or juz, moving its status from In Progress to Completed, so that completion is verified and trustworthy.
 
-Acceptance criteria:
-- On the student's Hifz record page, the teacher sees each surah/juz with its current status (Not Started, In Progress, Completed).
-- Teacher can select a surah/juz that is In Progress and initiate a sign-off.
-- The system prompts the teacher to re-enter their password before the sign-off is confirmed.
-- On confirmation the status moves to Completed, and the record stores the teacher's ID, timestamp, and optional notes.
-- An AuditLog entry of type SIGN_OFF is created.
-- The student and parent see the updated status on their dashboards.
-
 **US-24 — Re-authenticate before signing off**
 As a Teacher, I want to be required to re-enter my password when performing any sign-off action so that the action is securely authenticated and cannot be performed by someone who found an unlocked device.
-
-Acceptance criteria:
-- Any sign-off action (Hifz, homework, exam) presents a password re-entry prompt before processing.
-- If the password is incorrect the sign-off is rejected and an error message is shown.
-- The re-authentication window is valid for that single action only; the next sign-off requires re-entry again.
 
 **US-25 — Annotate a Qur'an recitation session**
 As a Teacher, I want to annotate a student's Qur'an recitation session by tagging specific mistakes with categories (Tajweed, Memorisation, Fluency), adding timestamps and written comments, so that the student can see exactly where they need to improve.
 
-Acceptance criteria:
-- Teacher opens a student's recitation session page.
-- Teacher can add one or more annotation entries, each with: mistake category (Tajweed / Memorisation / Fluency), a timestamp or ayah reference, and a text comment.
-- Saved annotations appear in a list on the session page, visible to the student and parent.
-- Annotations can be edited or deleted by the authoring teacher until the session is marked as reviewed.
-
 **US-26 — Upload audio feedback on a recitation**
 As a Teacher, I want to record or upload an audio clip as feedback on a student's recitation so that the student can listen to the correct pronunciation or pacing and self-correct.
-
-Acceptance criteria:
-- On the recitation session page, a file upload or record button allows the teacher to attach an audio file (MP3, WAV, or M4A, max 10 MB).
-- The uploaded audio appears as a playable player on the session page.
-- The student and parent can play the audio from their view of the session.
 
 **US-27 — Create exams and enter results**
 As a Teacher, I want to create exams with a title, date, subject, and question format (MCQ or written), and enter or auto-mark results for each student, so that assessment is handled in one place.
 
-Acceptance criteria:
-- Teacher creates an exam with title, date, subject, and type (MCQ / Written / Mixed).
-- For MCQ exams, teacher enters questions with options and correct answers; the system auto-marks student responses.
-- For written exams, teacher manually enters a score and optional comments per student.
-- Results are saved as draft until the teacher finalises them.
-
 **US-28 — Finalise exam results with sign-off**
 As a Teacher, I want to finalise exam results with a sign-off so that only verified scores appear on student and parent reports, and draft scores remain internal.
-
-Acceptance criteria:
-- A "Finalise results" button is available on the exam results page when results are in draft status.
-- Clicking it triggers a password re-entry prompt (same as US-24).
-- On confirmation, all results for that exam move from draft to finalised.
-- Finalised results become visible to students and parents.
-- An AuditLog entry of type SIGN_OFF is created for the exam.
-- Finalised results cannot be edited without creating a new correction record.
 
 **US-29 — Log a behaviour incident**
 As a Teacher, I want to log a behaviour incident against a student with a date, category (positive or negative), severity, and description so that there is a dated record that School Admin and parents can review.
 
-Acceptance criteria:
-- Teacher fills in a form with student name (searchable dropdown), date, category (Positive / Negative), severity (Low / Medium / High), and description.
-- The incident is saved and immediately visible on the school-wide behaviour log.
-- The parent of the student receives a notification about the logged incident.
-
 **US-30 — Message parents**
 As a Teacher, I want to send a message to an individual parent or to all parents of a class so that I can communicate about progress, concerns, or upcoming events.
 
-Acceptance criteria:
-- Teacher can compose a message and select a recipient: a specific parent, or "All parents of [class name]".
-- The message appears in the recipient's messaging inbox.
-- Recipients receive an in-app notification (and optionally an email notification).
-- Sent messages are stored in the teacher's sent-items view.
-
 **US-31 — View a teacher dashboard with class metrics**
 As a Teacher, I want to see a dashboard summarising my classes' attendance rates, homework submission rates, and Hifz progress so that I can prioritise support where it is most needed.
-
-Acceptance criteria:
-- Teacher dashboard shows a card per assigned class with: attendance % this week, homework on-time %, and Hifz completion % (where applicable).
-- Clicking a card navigates to the full class detail page.
-- Metrics update each time the dashboard is loaded.
 
 ---
 
@@ -471,70 +439,26 @@ Acceptance criteria:
 **US-32 — View my personalised dashboard**
 As a Student, I want to log in and see a personalised dashboard showing my timetable for today, upcoming homework deadlines, and recent progress updates so that I can quickly understand what needs my attention.
 
-Acceptance criteria:
-- Dashboard shows today's timetable slots at the top.
-- An "Upcoming homework" section lists assignments due in the next 7 days, sorted by due date.
-- A "Recent updates" section shows the last 5 notifications (e.g. new assignment, feedback received, Hifz status change).
-
 **US-33 — View my weekly timetable**
 As a Student, I want to view my full weekly timetable showing subjects, teachers, and times so that I can plan my week.
-
-Acceptance criteria:
-- A weekly grid shows Monday–Friday with time slots.
-- Each filled slot shows the subject name and teacher name.
-- The current day is highlighted.
 
 **US-34 — View assigned homework and worksheets**
 As a Student, I want to see a list of all homework and worksheet assignments with their titles, descriptions, due dates, and submission status so that I can plan my work.
 
-Acceptance criteria:
-- An assignments page lists all current and past assignments.
-- Each row shows title, subject, due date, and status (Not submitted / Submitted / Approved / Rejected).
-- Overdue assignments that have not been submitted are flagged.
-- Clicking an assignment shows the full description and any teacher feedback.
-
 **US-35 — Submit homework or upload a file**
 As a Student, I want to submit my completed homework by entering text or uploading a file so that my teacher can review and provide feedback.
-
-Acceptance criteria:
-- On the assignment detail page, a "Submit" section allows text entry or file upload (PDF, DOCX, image, max 20 MB).
-- The student can resubmit until the teacher has approved or rejected the submission.
-- After submission the status changes to Submitted and the teacher is notified.
 
 **US-36 — Upload a Qur'an recitation recording**
 As a Student, I want to upload an audio recording of my Qur'an recitation so that my teacher can listen, annotate mistakes, and give feedback.
 
-Acceptance criteria:
-- On the Hifz or Qur'an recitation page, an upload button accepts audio files (MP3, WAV, M4A, max 10 MB).
-- The uploaded file is stored against the student's current recitation session.
-- The teacher is notified that a new recording is available for review.
-- The student can re-upload until the session is marked as reviewed.
-
 **US-37 — View my Hifz progress**
 As a Student, I want to view my Hifz progress showing each surah or juz with its status (Not Started, In Progress, Completed) so that I know which parts have been verified by my teacher.
-
-Acceptance criteria:
-- A Hifz progress page lists all surahs or juz entries.
-- Each entry shows its current status with a colour indicator (grey = Not Started, amber = In Progress, green = Completed).
-- Completed entries show the sign-off date and teacher name.
-- The student cannot change a status themselves; only teacher sign-off moves it to Completed.
 
 **US-38 — View finalised exam results**
 As a Student, I want to see my exam results once they have been finalised by my teacher so that I can track my academic performance over time.
 
-Acceptance criteria:
-- An exam results page lists all exams the student has taken.
-- Only finalised (signed-off) results are shown; draft results are hidden from the student.
-- Each result shows the exam title, date, subject, score, and any teacher comments.
-
 **US-39 — Receive in-app notifications**
 As a Student, I want to receive in-app notifications when new homework is assigned, when my teacher gives feedback, or when my exam results are published so that I do not miss important updates.
-
-Acceptance criteria:
-- A notification bell icon shows a count of unread notifications.
-- Clicking the bell opens a dropdown listing recent notifications with a title, short description, and timestamp.
-- Clicking a notification navigates to the relevant page (e.g. the assignment, the exam result).
-- Notifications are marked as read once opened.
 
 ---
 
@@ -543,75 +467,29 @@ Acceptance criteria:
 **US-40 — View a summary dashboard for each child**
 As a Parent, I want to log in and see a summary dashboard for each of my children showing their attendance percentage, latest Hifz status, recent homework feedback, and outstanding fees so that I have a single overview without needing to navigate multiple pages.
 
-Acceptance criteria:
-- If a parent has multiple children, a child selector or tabbed view lets them switch between children.
-- For each child the dashboard shows: attendance % this term, Hifz completion %, most recent homework feedback (title + status), and total outstanding fees.
-- All progress data shown is based on teacher-verified (signed-off) records only.
-
 **US-41 — View verified Hifz progress**
 As a Parent, I want to view my child's Hifz progress showing which surahs have been signed off by a teacher so that I can see authentic, verified completion rather than self-reported data.
-
-Acceptance criteria:
-- The Hifz progress page mirrors the student's view (US-37) but is accessed from the parent's account.
-- Each Completed entry shows the teacher's name and sign-off date.
-- The parent cannot modify any status.
 
 **US-42 — View homework submissions and teacher feedback**
 As a Parent, I want to view my child's homework submissions along with the teacher's feedback and approval status so that I can support their learning at home and follow up on rejected work.
 
-Acceptance criteria:
-- A homework page lists all of the child's assignments with status (Not submitted, Submitted, Approved, Rejected).
-- Clicking an assignment shows the teacher's comments and the submission file or text.
-- The parent cannot submit on behalf of the child.
-
 **US-43 — View finalised exam results**
 As a Parent, I want to see my child's finalised exam results and any teacher comments so that I understand their academic performance and can discuss it with them.
-
-Acceptance criteria:
-- An exam results page shows finalised results only (same visibility rules as US-38).
-- Each result shows exam title, date, subject, score, and teacher comments.
 
 **US-44 — View outstanding fees and pay online**
 As a Parent, I want to view a list of outstanding fee items with amounts and due dates and pay them online via card so that payments are convenient and instantly recorded.
 
-Acceptance criteria:
-- A fees page lists all fee items for the parent's children with amount, due date, and status (Outstanding / Paid / Overdue).
-- A "Pay now" button on an outstanding item initiates a Stripe Checkout session.
-- On successful payment the status changes to Paid and the payment date is recorded.
-- The parent is redirected back to the fees page with a confirmation message.
-
 **US-45 — Receive a payment receipt**
 As a Parent, I want to receive a receipt after each payment so that I have proof of what I have paid for my records.
-
-Acceptance criteria:
-- After a successful payment, the parent receives an in-app notification with a link to the receipt.
-- The receipt shows school name, child name, fee item description, amount paid, payment date, and a reference number.
-- The parent can view past receipts from a payment history page.
 
 **US-46 — Receive absence and overdue fee notifications**
 As a Parent, I want to receive a notification when my child is marked absent and when a fee becomes overdue so that I can take action promptly.
 
-Acceptance criteria:
-- An in-app notification is sent on the day a student is marked absent, including the date and session.
-- An in-app notification is sent on the day a fee becomes overdue, including the fee name and amount.
-- Optionally, an email is also sent for both notification types (configurable in parent settings).
-
 **US-47 — Message my child's teacher**
 As a Parent, I want to send a message to my child's teacher so that I can raise concerns, ask questions, or discuss progress directly without needing a separate communication tool.
 
-Acceptance criteria:
-- From the child's class page or teacher list, the parent can open a message composer.
-- Messages are sent to the teacher's messaging inbox.
-- The teacher receives an in-app notification for new messages.
-- Conversation history is preserved and visible to both parties.
-
 **US-48 — View behaviour incidents**
 As a Parent, I want to view any behaviour incident reports involving my child so that I am aware of conduct issues (positive or negative) and can discuss them at home.
-
-Acceptance criteria:
-- A behaviour page lists all incidents for the child with date, category (Positive / Negative), severity, and description.
-- The parent receives a notification when a new incident is logged.
-- The parent cannot edit or delete incidents.
 
 ---
 
@@ -620,39 +498,16 @@ Acceptance criteria:
 **US-49 — Tenant data isolation**
 As any user, I want my data to be completely isolated to my school so that I never see another school's students, teachers, classes, or financial information.
 
-Acceptance criteria:
-- Every database query is scoped to the authenticated user's school tenant.
-- API responses never include records belonging to a different school.
-- Attempting to access a resource from another school via direct URL returns a 403 Forbidden or 404 Not Found.
-- Automated tests verify tenant isolation for all major models.
-
 **US-50 — Responsive design**
 As any user, I want the interface to be fully responsive so that I can use it comfortably on a mobile phone, tablet, or desktop computer.
-
-Acceptance criteria:
-- All pages render correctly at viewport widths of 320px, 768px, and 1280px.
-- Navigation collapses to a hamburger menu on small screens.
-- Tables scroll horizontally on small screens rather than breaking the layout.
-- Touch targets (buttons, links) are at least 44x44px on mobile.
 
 **US-51 — Clear form validation**
 As any user, I want to see clear, specific validation messages next to the relevant form field when I make an input error so that I can correct it without confusion.
 
-Acceptance criteria:
-- Required fields show an error message if left empty on submission.
-- Invalid formats (e.g. email, date) show a message describing the expected format.
-- Error messages appear inline next to the field, not only as a page-level banner.
-- The first errored field is scrolled into view and focused.
-
 **US-52 — Accessibility (WCAG AA)**
 As any user, I want the site to meet WCAG AA standards for colour contrast, keyboard navigation, and screen-reader support so that it is accessible to users with disabilities.
 
-Acceptance criteria:
-- All text meets a minimum contrast ratio of 4.5:1 against its background.
-- All interactive elements are reachable and operable via keyboard (Tab, Enter, Escape).
-- All form inputs have associated `<label>` elements or `aria-label` attributes.
-- Headings follow a logical hierarchy (h1 → h2 → h3) with no skipped levels.
-- Focus states are visible on all interactive elements.
+---
 
 ## Wireframes
 
@@ -670,26 +525,62 @@ Then open http://127.0.0.1:8080/ in a browser.
 
 | Page | File | Description |
 |------|------|-------------|
-| Landing / module index | `index.html` | Public-facing landing page with a module overview table listing all platform features. Acts as the entry point and marketing page for the platform. |
-| Login | `login.html` | Login form with email and password fields, "forgot password" link, and role-aware redirect logic. Demonstrates the authentication entry point for all roles. |
-| Registration | `register.html` | Registration form for new users with fields for name, email, password, and role selection. Includes inline validation placeholders. |
-| Super Admin dashboard | `dashboard-super-admin.html` | Platform-level overview showing total schools, active users, revenue metrics, and a list of recent tenant sign-ups. Provides quick-action links for tenant management. |
-| School Admin dashboard | `dashboard-school-admin.html` | School-level overview with cards for student count, teacher count, attendance rate, and fee collection status. Sidebar navigation links to all school management areas. |
-| Teacher dashboard | `dashboard-teacher.html` | Teacher workspace showing today's timetable, class-level metrics (attendance %, submission rate, Hifz progress), and quick links to take a register or assign homework. |
-| Student dashboard | `dashboard-student.html` | Student portal showing today's lessons, upcoming homework deadlines, recent notifications, and a Hifz progress summary bar. |
-| Parent dashboard | `dashboard-parent.html` | Parent portal with a child selector, per-child attendance summary, latest homework feedback, Hifz progress, and outstanding fees with a "Pay now" action. |
-| Analytics | `analytics.html` | School-wide analytics page with placeholder charts for attendance trends, Hifz completion rates, homework submission rates, and fee collection over time. |
-| Timetable | `timetable.html` | Weekly timetable grid (Monday–Friday) with configurable time slots. Shows subject, teacher, and room per cell. Designed for both viewing and editing modes. |
-| Attendance register | `attendance.html` | Class register layout listing all students with present/late/absent toggle buttons per row. Includes a date selector and a "Save register" action. |
-| Hifz progress tracker | `hifz-progress.html` | Per-student Hifz tracker showing each surah/juz with status indicators (Not Started / In Progress / Completed). Completed entries display the sign-off teacher and date. |
-| Qur'an annotation | `quran-annotation.html` | Recitation session page with an audio player, a list of teacher annotations (mistake category, ayah reference, comment), and an upload area for student recordings. |
-| Worksheets / homework | `worksheets.html` | Assignment list with title, subject, due date, and status columns. Detail view shows the assignment description, submission upload area, and teacher feedback. |
-| Exams and results | `exams.html` | Exam list with title, date, subject, and status (Draft / Finalised). Detail view shows per-student scores and a "Finalise results" sign-off button. |
-| Payments / fees | `payments.html` | Fee list with amount, due date, and status (Outstanding / Paid / Overdue). Includes a Stripe Checkout "Pay now" button and a payment history section with receipts. |
-| Behaviour log | `behaviour.html` | Incident log table with date, student, teacher, category (Positive / Negative), severity, and description. Includes filters and a "Log incident" form. |
-| Staff messaging | `messages.html` | Messaging interface with a conversation list sidebar and a message thread view. Compose area supports selecting individual parents or all parents of a class. |
+| Landing / module index | `index.html` | Public-facing landing page with a module overview table listing all platform features. |
+| Login | `login.html` | Login form with email and password fields and role-aware redirect logic. |
+| Registration | `register.html` | Registration form with name, email, password, and role selection. |
+| Super Admin dashboard | `dashboard-super-admin.html` | Platform-level overview with school count, user count, revenue metrics. |
+| School Admin dashboard | `dashboard-school-admin.html` | School-level overview with student/teacher counts, attendance, fee status. |
+| Teacher dashboard | `dashboard-teacher.html` | Teacher workspace with today's timetable and class-level metrics. |
+| Student dashboard | `dashboard-student.html` | Student portal with lessons, homework deadlines, and Hifz summary. |
+| Parent dashboard | `dashboard-parent.html` | Parent portal with child selector, attendance, homework, and fees. |
+| Analytics | `analytics.html` | School-wide analytics with placeholder charts. |
+| Timetable | `timetable.html` | Weekly timetable grid (Monday–Friday) with time slots. |
+| Attendance register | `attendance.html` | Class register with present/late/absent toggles per student. |
+| Hifz progress tracker | `hifz-progress.html` | Per-student Hifz tracker with status indicators and sign-off details. |
+| Qur'an annotation | `quran-annotation.html` | Recitation session with audio player, annotations, and upload area. |
+| Worksheets / homework | `worksheets.html` | Assignment list with submission upload and teacher feedback. |
+| Exams and results | `exams.html` | Exam list with per-student scores and finalise sign-off button. |
+| Payments / fees | `payments.html` | Fee list with pay button and payment history. |
+| Behaviour log | `behaviour.html` | Incident log table with filters and log-incident form. |
+| Staff messaging | `messages.html` | Messaging interface with conversation list and compose area. |
+
+---
 
 ## Design
+
+### Data model and ERD (entity relationships)
+
+The ERD describes the planned relational structure for the ESA database. The diagram will be produced using dbdiagram.io or Lucidchart and added to `docs/erd.png`.
+
+#### Design principles
+
+- **School as tenant root** — `School` is the top-level entity. Almost every other table carries a `school_id` foreign key so that all queries can be scoped to a single tenant.
+- **Single User model with role field** — A single custom `User` model stores authentication credentials and a `role` enum. Role-specific profile tables (TeacherProfile, StudentProfile, ParentProfile) extend the user.
+- **Sign-off fields on progress records** — HifzRecord, WorksheetSubmission, and ExamResult all share: `signed_off`, `signed_off_by`, `signed_off_at`.
+- **AuditLog for traceability** — A dedicated AuditLog table records sign-offs, payment confirmations, and role changes.
+
+#### Cardinality summary
+
+| From | Relationship | To | Notes |
+|------|--------------|-----|-------|
+| School | 1 → many | User | A school has many users across all roles |
+| User | 1 → 1 | TeacherProfile / StudentProfile / ParentProfile | Each user has at most one role-specific profile |
+| ParentProfile | many ↔ many | StudentProfile | Via ParentChild junction table |
+| School | 1 → many → many | YearGroup → Class | A school contains year groups, each containing classes |
+| Class | 1 → many | StudentProfile | A student belongs to one class |
+| TeacherProfile | many ↔ many ↔ many | Subject ↔ Class | Via TeacherSubjectClass junction table |
+| Class | 1 → many | TimetableSlot | A class has many scheduled time slots per week |
+| StudentProfile | 1 → many | AttendanceRecord | A student has an attendance record per session |
+| StudentProfile | 1 → many | HifzRecord | A student has one record per surah/juz |
+| StudentProfile | 1 → many → many | QuranSession → QuranAnnotation | Sessions contain annotations |
+| Class | 1 → many → many | Worksheet → WorksheetSubmission | Worksheets are per-class; submissions are per-student |
+| Class | 1 → many → many | Exam → ExamResult | Exams are per-class; results are per-student |
+| FeeItem | 1 → many | Payment | A fee can have multiple payment attempts |
+| User | 1 → many | Notification | A user receives many notifications |
+| User | 1 → many | Message | Messages link a sender and recipient |
+| User | 1 → many | AuditLog | Every audited action records the acting user |
+
+The full ERD diagram image will be added to `docs/erd.png` and linked here once generated.
 
 ### Visual language
 
@@ -702,17 +593,17 @@ The UI theme is **black, white, and hints of gold**:
 
 - **Black / near-black** — primary background and primary navigation.
 - **White / off-white** — content surfaces and high-contrast body text on dark areas.
-- **Gold (accent)** — sparing use for primary actions, focus rings, active nav states, and key metrics (not large fills).
+- **Gold (accent)** — sparing use for primary actions, focus rings, active nav states, and key metrics.
 
-Concrete CSS variables and component tokens will be added with the first template theme; contrast targets WCAG AA where feasible.
+CSS variables and component tokens are defined in `css/base.css`; contrast targets WCAG AA.
 
 ### Teacher sign-off & verification (product requirement)
 
-- **Hifz**: surah/lesson status moves to *Completed* only after teacher sign-off; students and parents never self-approve completion.
+- **Hifz**: surah/lesson status moves to *Completed* only after teacher sign-off.
 - **Homework / worksheets**: submissions move through pending → approved/rejected with teacher id and timestamp.
-- **Exams**: auto-marking may produce a draft score; results are **official** only when a teacher finalises (signs off) the record.
-- **Security**: sign-off actions require **password re-entry** (2FA optional later); each sign-off creates an **AuditLog** entry (`SIGN_OFF`, target type, target id, timestamp).
-- **Analytics**: parent dashboards and school reports prioritise **signed-off / finalised** data for progress percentages.
+- **Exams**: results are **official** only when a teacher finalises (signs off) the record.
+- **Security**: sign-off actions require **password re-entry**; each sign-off creates an **AuditLog** entry.
+- **Analytics**: parent dashboards and school reports prioritise **signed-off / finalised** data.
 
 ### Typography
 
@@ -722,208 +613,77 @@ Concrete CSS variables and component tokens will be added with the first templat
 
 - Keyboard navigable UI, readable contrast, clear focus states, and semantic HTML.
 - Accessible form labels and validation feedback.
+- Skip link to main content for keyboard users.
+
+---
 
 ## Technologies Used
 
-### Backend
+### Languages
 
-- Django (Python)
-- Django REST Framework
+- **Python** — application logic, ORM, views.
+- **HTML** — structure via Django templates.
+- **CSS** — layout and theme.
+- **JavaScript** — client-side progressive enhancements.
+
+### Frameworks & libraries
+
+| Package | Role |
+|---------|------|
+| **Django 6.0** | Web framework, MVT, admin |
+| **Django REST Framework** | API endpoints, serialisation |
+| **SimpleJWT** | JWT authentication (obtain / refresh) |
+| **django-environ** | Environment variable management |
+| **dj-database-url** | Database config from URL |
+| **psycopg2-binary** | PostgreSQL driver |
+| **gunicorn** | Production WSGI server |
+| **whitenoise** | Static file serving in production |
+| **django-cors-headers** | CORS policy management |
 
 ### Database
 
-- PostgreSQL
+- **PostgreSQL** (production) / **SQLite** (local development fallback)
 
 ### Payments
 
-- Stripe Connect
+- **Stripe Connect** (planned)
 
-### Frontend
+### Tools
 
-- Django templates with HTML/CSS/JavaScript (initial approach)
+| Tool | Used for |
+|------|----------|
+| **Git** | Version control |
+| **GitHub** | Repository hosting, Issues, Projects |
+| **PostgreSQL / psql** | Database, ad-hoc SQL checks |
+| **VS Code / Cursor** | Editing and integrated terminal |
+| **Chrome DevTools** | Network tab, responsive mode, Lighthouse |
+
+---
 
 ## File Structure
 
-- `manage.py` — Django entrypoint
-- `core/` — project settings, root URLconf, WSGI/ASGI
-- Reusable apps (each in its own Django app):
+> Paths are relative to the project root.
 
-- `accounts`
-- `schools`
-- `students`
-- `teachers`
-- `subjects`
-- `timetable`
-- `payments`
-- `hifz`
-- `alimiyah`
-- `exams`
-- `analytics`
-- `messaging`
-- `notifications`
+| Path | Description |
+|------|-------------|
+| `manage.py` | Django management entrypoint |
+| `core/` | Project settings, root URLconf, WSGI/ASGI |
+| `core/settings.py` | Env-based config, database, DRF, JWT, static files |
+| `core/urls.py` | Root URL routing (admin, JWT endpoints) |
+| `accounts/` | Custom User model with role field, admin registration |
+| `accounts/models.py` | User model (super_admin / school_admin / teacher / student / parent) |
+| `requirements.txt` | Python dependencies with pinned versions |
+| `.env.example` | Documents required environment variables (no secrets) |
+| `Procfile` | Gunicorn process for production deployment |
+| `.gitignore` | Ignores `.env`, `.venv`, `__pycache__`, `db.sqlite3`, media, staticfiles |
+| `PROGRESS.md` | Development progress tracker |
+| `css/base.css` | Shared wireframe stylesheet (colour tokens, layout, navigation) |
+| `*.html` | Static wireframe pages (18 files — see [Wireframe inventory](#wireframe-inventory)) |
+| `templates/` | Django templates (to be populated as apps are built) |
+| `static/` | Django static assets (to be populated) |
+| `docs/` | Documentation, ERD, screenshots, validation evidence (to be populated) |
 
-This section will be filled out with actual paths as the project is generated.
-
-**Static wireframes (present in repo):** `index.html`, role and feature `*.html` pages, and `css/base.css` — these mirror the planned app areas above until Django apps are recreated.
-
-## Data model
-
-### Entity-Relationship Diagram (ERD)
-
-The ERD below describes the planned relational structure for the ESA database. It captures every core entity, its key attributes, and the relationships between entities. The diagram will be produced using a tool such as dbdiagram.io or Lucidchart and added to the `docs/` folder; the textual description here serves as the specification it is built from.
-
-#### Design principles
-
-- **School as tenant root** — `School` is the top-level entity. Almost every other table carries a `school_id` foreign key so that all queries can be scoped to a single tenant with a simple filter. This is the foundation of multi-tenant data isolation.
-- **Single User model with role field** — Rather than separate login tables per role, a single custom `User` model stores authentication credentials and a `role` enum (super_admin, school_admin, teacher, student, parent). Role-specific profile tables (TeacherProfile, StudentProfile, ParentProfile) extend the user with additional fields relevant to that role.
-- **Sign-off fields on progress records** — Entities that require teacher verification (HifzRecord, WorksheetSubmission, ExamResult) all share a common pattern: `signed_off` (boolean), `signed_off_by` (FK to User), and `signed_off_at` (datetime). This makes the trust layer consistent and auditable.
-- **AuditLog for traceability** — A dedicated AuditLog table records sensitive actions (sign-offs, payment confirmations, role changes) with the acting user, action type, target model, target ID, and timestamp.
-
-#### Entities and relationships
-
-**User**
-- `id` (PK), `email` (unique), `password_hash`, `first_name`, `last_name`, `role` (enum: super_admin / school_admin / teacher / student / parent), `school_id` (FK to School, nullable for super_admin), `is_active`, `date_joined`
-- One User belongs to one School (except Super Admins who have no school).
-
-**School**
-- `id` (PK), `name`, `address`, `contact_email`, `subscription_tier`, `stripe_account_id` (nullable), `status` (active / suspended / deactivated), `created_at`
-- One School has many Users, Classes, Subjects, FeeItems, and all other tenant-scoped records.
-
-**TeacherProfile**
-- `id` (PK), `user_id` (FK to User, one-to-one), `school_id` (FK to School), `qualifications`, `hire_date`
-- Extends a User whose role is teacher.
-
-**StudentProfile**
-- `id` (PK), `user_id` (FK to User, one-to-one), `school_id` (FK to School), `date_of_birth`, `class_id` (FK to Class), `enrolment_date`
-- Extends a User whose role is student. Belongs to one Class.
-
-**ParentProfile**
-- `id` (PK), `user_id` (FK to User, one-to-one), `school_id` (FK to School), `phone_number`
-- Extends a User whose role is parent.
-
-**ParentChild** (junction table)
-- `parent_id` (FK to ParentProfile), `child_id` (FK to StudentProfile)
-- Many-to-many: a parent can have multiple children; a child can have up to two parent accounts.
-
-**YearGroup**
-- `id` (PK), `school_id` (FK to School), `name` (e.g. "Year 1"), `academic_year`
-- One School has many YearGroups.
-
-**Class**
-- `id` (PK), `school_id` (FK to School), `year_group_id` (FK to YearGroup), `name`, `capacity`
-- One YearGroup has many Classes. One Class has many Students.
-
-**Subject**
-- `id` (PK), `school_id` (FK to School), `category` (enum: hifz / alimiyah / general), `display_name`, `is_archived`
-- One School has many Subjects.
-
-**TeacherSubjectClass** (junction table)
-- `teacher_id` (FK to TeacherProfile), `subject_id` (FK to Subject), `class_id` (FK to Class)
-- Assigns a teacher to a subject within a specific class.
-
-**TimetableSlot**
-- `id` (PK), `school_id` (FK to School), `class_id` (FK to Class), `subject_id` (FK to Subject), `teacher_id` (FK to TeacherProfile), `day_of_week` (enum: mon–fri), `start_time`, `end_time`, `room` (nullable)
-- One Class has many TimetableSlots across the week.
-
-**AttendanceRecord**
-- `id` (PK), `school_id` (FK to School), `student_id` (FK to StudentProfile), `class_id` (FK to Class), `date`, `status` (enum: present / late / absent), `recorded_by` (FK to User), `created_at`
-- One Student has many AttendanceRecords.
-
-**HifzRecord**
-- `id` (PK), `school_id` (FK to School), `student_id` (FK to StudentProfile), `surah_or_juz` (string), `status` (enum: not_started / in_progress / completed), `signed_off` (boolean, default false), `signed_off_by` (FK to User, nullable), `signed_off_at` (datetime, nullable), `notes`
-- One Student has many HifzRecords (one per surah/juz). Status can only move to completed via teacher sign-off.
-
-**QuranSession**
-- `id` (PK), `school_id` (FK to School), `student_id` (FK to StudentProfile), `teacher_id` (FK to TeacherProfile), `date`, `audio_file` (file path, nullable), `teacher_audio_feedback` (file path, nullable), `is_reviewed` (boolean)
-- One Student has many QuranSessions.
-
-**QuranAnnotation**
-- `id` (PK), `session_id` (FK to QuranSession), `category` (enum: tajweed / memorisation / fluency), `ayah_reference` (string), `comment`, `created_at`
-- One QuranSession has many QuranAnnotations.
-
-**Worksheet**
-- `id` (PK), `school_id` (FK to School), `title`, `description`, `file_attachment` (nullable), `subject_id` (FK to Subject), `class_id` (FK to Class), `due_date`, `created_by` (FK to User), `created_at`
-- One Class has many Worksheets.
-
-**WorksheetSubmission**
-- `id` (PK), `worksheet_id` (FK to Worksheet), `student_id` (FK to StudentProfile), `submitted_file` (nullable), `submitted_text` (nullable), `status` (enum: not_submitted / submitted / approved / rejected), `teacher_comment`, `signed_off_by` (FK to User, nullable), `signed_off_at` (datetime, nullable), `submitted_at`
-- One Worksheet has many WorksheetSubmissions (one per student).
-
-**Exam**
-- `id` (PK), `school_id` (FK to School), `title`, `subject_id` (FK to Subject), `class_id` (FK to Class), `exam_type` (enum: mcq / written / mixed), `date`, `created_by` (FK to User), `created_at`
-- One Class has many Exams.
-
-**ExamResult**
-- `id` (PK), `exam_id` (FK to Exam), `student_id` (FK to StudentProfile), `score`, `max_score`, `teacher_comment`, `status` (enum: draft / finalised), `signed_off_by` (FK to User, nullable), `signed_off_at` (datetime, nullable)
-- One Exam has many ExamResults (one per student). Results are hidden from students and parents until status is finalised.
-
-**BehaviourLog**
-- `id` (PK), `school_id` (FK to School), `student_id` (FK to StudentProfile), `logged_by` (FK to User), `date`, `category` (enum: positive / negative), `severity` (enum: low / medium / high), `description`, `follow_up_notes` (nullable), `created_at`
-- One Student has many BehaviourLog entries.
-
-**FeeItem**
-- `id` (PK), `school_id` (FK to School), `name`, `amount` (decimal), `due_date`, `target_type` (enum: school / year_group / student), `target_id` (polymorphic reference), `created_at`
-- Defines a fee that can target the whole school, a year group, or an individual student.
-
-**Payment**
-- `id` (PK), `school_id` (FK to School), `fee_item_id` (FK to FeeItem), `parent_id` (FK to ParentProfile), `student_id` (FK to StudentProfile), `amount_paid` (decimal), `status` (enum: pending / completed / failed), `stripe_payment_intent_id` (nullable), `paid_at` (datetime, nullable), `receipt_url` (nullable)
-- One FeeItem has many Payments. Status moves to completed on Stripe webhook confirmation.
-
-**Notification**
-- `id` (PK), `school_id` (FK to School), `recipient_id` (FK to User), `title`, `body`, `link` (nullable), `is_read` (boolean, default false), `created_at`
-- One User has many Notifications.
-
-**Message**
-- `id` (PK), `school_id` (FK to School), `sender_id` (FK to User), `recipient_id` (FK to User), `subject`, `body`, `is_read` (boolean, default false), `sent_at`
-- Supports direct messaging between teachers and parents.
-
-**AuditLog**
-- `id` (PK), `school_id` (FK to School, nullable), `user_id` (FK to User), `action` (enum: sign_off / payment_confirmed / role_changed / tenant_suspended / …), `target_model` (string), `target_id` (integer), `metadata` (JSON, nullable), `created_at`
-- Records every sensitive action for traceability and compliance.
-
-#### Key relationships summary
-
-| Relationship | Type | Description |
-|-------------|------|-------------|
-| School → User | One-to-many | A school has many users across all roles. |
-| User → TeacherProfile / StudentProfile / ParentProfile | One-to-one | Each user has at most one role-specific profile. |
-| ParentProfile ↔ StudentProfile | Many-to-many | Via ParentChild junction table. |
-| School → YearGroup → Class | One-to-many chain | A school contains year groups, each containing classes. |
-| Class → StudentProfile | One-to-many | A student belongs to one class. |
-| TeacherProfile ↔ Subject ↔ Class | Many-to-many | Via TeacherSubjectClass junction table. |
-| Class → TimetableSlot | One-to-many | A class has many scheduled time slots per week. |
-| StudentProfile → AttendanceRecord | One-to-many | A student has an attendance record per session. |
-| StudentProfile → HifzRecord | One-to-many | A student has one record per surah/juz. |
-| StudentProfile → QuranSession → QuranAnnotation | One-to-many chain | Sessions contain annotations. |
-| Class → Worksheet → WorksheetSubmission | One-to-many chain | Worksheets are per-class; submissions are per-student. |
-| Class → Exam → ExamResult | One-to-many chain | Exams are per-class; results are per-student. |
-| FeeItem → Payment | One-to-many | A fee can have multiple payment attempts. |
-| User → Notification | One-to-many | A user receives many notifications. |
-| User → Message (sender/recipient) | One-to-many | Messages link a sender and recipient. |
-| User → AuditLog | One-to-many | Every audited action records the acting user. |
-
-The full ERD diagram image will be added to `docs/erd.png` and linked here once generated from the specification above.
-
-### Tenant model
-
-- `School` is the tenant root.
-- Tenant isolation rules will be documented and tested (query scoping, permissions, and admin boundaries).
-
-### Core entities (planned)
-
-- User (custom, with role: Super Admin, School Admin, Teacher, Student, Parent)
-- School (tenant root)
-- Teacher, Student, Parent (profiles linked to `User` and `School`)
-- Subject (custom per school: Hifz / Alimiyah / General)
-- Class / YearGroup
-- Timetable, Attendance
-- BehaviourLog
-- Worksheet, **WorksheetSubmission** (pending / approved / rejected; `signed_off_by`, `signed_off_at`)
-- Exam, **ExamResult** (draft vs **finalised**; teacher sign-off fields)
-- **HifzRecord** (status; `signed_off`, `signed_off_by`, `signed_off_at`, notes)
-- QuranAnnotation (per student / session; Tajweed / Memorisation / Fluency tags, audio)
-- PendingPayment / CompletedPayment (Stripe Connect; `reference_id` on completed)
-- **AuditLog** (including `SIGN_OFF` actions)
+---
 
 ## Development
 
@@ -971,25 +731,123 @@ python manage.py runserver
 ```
 
 - Admin: http://127.0.0.1:8000/admin/
-- JWT obtain pair: `POST /api/auth/token/` with `username` and `password` (JSON defaults depend on client; browsable API uses session for other routes).
+- JWT obtain pair: `POST /api/auth/token/` with `username` and `password`.
+- JWT refresh: `POST /api/auth/token/refresh/` with `refresh` token.
 
-## API overview
+---
 
-- **JWT**: Simple JWT — obtain at `/api/auth/token/`, refresh at `/api/auth/token/refresh/`.
-- **Default DRF permission**: authenticated (tighten per-view as apps land).
-- Domain APIs (schools, students, payments, etc.) will be added app-by-app with tenant-scoped querysets.
+## Deployment
 
-## Payments (Stripe Connect)
+Deployment will use Heroku (or Render) with a managed PostgreSQL database.
 
-To be added (onboarding schools, payout flow, platform commission, webhooks).
+### Deployment steps (planned)
+
+1. Install Heroku CLI and login:
+
+   ```bash
+   brew tap heroku/brew && brew install heroku
+   heroku login
+   ```
+
+2. Create the app and add PostgreSQL:
+
+   ```bash
+   heroku create esa-app
+   heroku addons:create heroku-postgresql:essential-0 -a esa-app
+   ```
+
+3. Set config vars:
+
+   ```bash
+   heroku config:set SECRET_KEY="a-long-random-string" -a esa-app
+   heroku config:set DEBUG=False -a esa-app
+   heroku config:set ALLOWED_HOSTS="esa-app.herokuapp.com" -a esa-app
+   ```
+
+4. Deploy and initialise:
+
+   ```bash
+   git push heroku main
+   heroku run python manage.py migrate -a esa-app
+   heroku run python manage.py createsuperuser -a esa-app
+   heroku open -a esa-app
+   ```
+
+**Production notes:**
+- `Procfile` runs the app with **Gunicorn**.
+- Heroku provides `DATABASE_URL` automatically.
+- WhiteNoise serves static files in production.
+- Use `heroku logs --tail` to diagnose startup issues.
+
+**Live site URL:** (to be added after deployment)
+
+---
 
 ## Testing and Bugs
 
+### Assessment test matrix
+
+| Area | What will be assessed | Procedures | Evidence location |
+|------|----------------------|------------|-------------------|
+| **Functionality** | End-to-end: auth, RBAC, CRUD, sign-offs, payments | Automated (Django test suite) + manual checklist | [Manual testing](#manual-testing); [Automated testing](#automated-testing) |
+| **Usability** | Navigation, forms, validation, error states, flash messages | Manual walkthroughs + Lighthouse | [Manual testing](#manual-testing); [Lighthouse testing](#lighthouse-testing) |
+| **Responsiveness** | Layout from phone → tablet → laptop → desktop | Manual pass with Chrome DevTools | [Responsive behaviour](#responsive-behaviour); `docs/images/validation/` |
+| **Data management** | Tenant isolation, FK integrity, sign-off audit trail, payment persistence | Automated tests + manual verification | [Data model and ERD](#data-model-and-erd-entity-relationships); [Automated testing](#automated-testing) |
+
 ### Manual testing
 
-To be added as features ship (screens, flows, and evidence).
+To be filled as features ship. Each row records what was tested, expected vs actual behaviour, and links to screenshot evidence.
 
-### Bugs
+| # | Test | Steps | Expected | Actual | Pass/Fail | Screenshot |
+|---|------|-------|----------|--------|-----------|------------|
+| 1 | | | | | | |
+| 2 | | | | | | |
+| 3 | | | | | | |
+| 4 | | | | | | |
+| 5 | | | | | | |
+| 6 | | | | | | |
+| 7 | | | | | | |
+| 8 | | | | | | |
+| 9 | | | | | | |
+| 10 | | | | | | |
+| 11 | | | | | | |
+| 12 | | | | | | |
+| 13 | | | | | | |
+| 14 | | | | | | |
+| 15 | | | | | | |
+| 16 | | | | | | |
+| 17 | | | | | | |
+| 18 | | | | | | |
+| 19 | | | | | | |
+| 20 | | | | | | |
+
+### Automated testing
+
+Run the Django test suite:
+
+```bash
+python manage.py test
+```
+
+Tests are added incrementally alongside features.
+
+### Testing summary table
+
+| Category | Automated | Manual | Status |
+|----------|-----------|--------|--------|
+| Authentication (register, login, logout) | | | |
+| RBAC (role-based page access) | | | |
+| Tenant isolation (cross-school blocked) | | | |
+| Attendance CRUD | | | |
+| Homework assign / submit / review | | | |
+| Hifz sign-off flow | | | |
+| Exam create / finalise | | | |
+| Payments (Stripe Checkout) | | | |
+| Notifications delivery | | | |
+| Messaging (send / receive) | | | |
+| Analytics dashboard metrics | | | |
+
+### Bugs encountered during development
 
 | # | Bug description | Page / feature | Steps to reproduce | Expected behaviour | Actual behaviour | Severity | Status | Fix |
 |---|----------------|----------------|--------------------|--------------------|------------------|----------|--------|-----|
@@ -1014,32 +872,83 @@ To be added as features ship (screens, flows, and evidence).
 | 19 | | | | | | | | |
 | 20 | | | | | | | | |
 
-### Automated testing
+### Use of AI (assistance log)
 
-Run the Django test suite:
+| # | Feature / task | AI tool used | What it helped with | What I changed manually |
+|---|---------------|--------------|--------------------|-----------------------|
+| 1 | | | | |
+| 2 | | | | |
+| 3 | | | | |
+| 4 | | | | |
+| 5 | | | | |
+| 6 | | | | |
+| 7 | | | | |
+| 8 | | | | |
+| 9 | | | | |
+| 10 | | | | |
 
-```bash
-python manage.py test
-```
+### Lighthouse testing
 
-Tests are added incrementally alongside features (see `accounts` tests for the custom user model).
+Lighthouse reports will be generated for key pages and screenshots stored in `docs/images/validation/`.
 
-## Deployment
+| Page | Performance | Accessibility | Best Practices | SEO | Screenshot |
+|------|------------|---------------|----------------|-----|------------|
+| Landing page | | | | | |
+| Login | | | | | |
+| Super Admin dashboard | | | | | |
+| Teacher dashboard | | | | | |
+| Student dashboard | | | | | |
+| Parent dashboard | | | | | |
 
-To be added (platform choice, environment variables, Postgres provisioning, Stripe webhook configuration).
+### HTML, CSS and JS validation
+
+| Validator | File / URL | Result | Screenshot |
+|-----------|-----------|--------|------------|
+| W3C HTML | | | |
+| W3C CSS | | | |
+| JSHint | | | |
+
+---
 
 ## Security
 
 To be expanded as implementation progresses:
 
-- Environment variables for secrets
-- Tenant data isolation tests
+- Environment variables for secrets (`.env` excluded from Git)
+- Hashed passwords (Django's built-in PBKDF2)
+- Tenant data isolation tests (query scoping, permissions, admin boundaries)
 - Permission checks for sensitive actions (especially teacher sign-offs and payments)
-- Audit logs for critical actions
+- CSRF protection on all forms
+- JWT token expiry and rotation
+- Audit logs for critical actions (sign-offs, payments, role changes)
+
+---
 
 ## Sources and references
 
 To be added as implementation progresses (docs, tutorials, UI references).
+
+### ERD and schema design references
+
+(to be added)
+
+### Feature resources
+
+(to be added)
+
+### Django and DRF
+
+(to be added)
+
+### PostgreSQL
+
+(to be added)
+
+### Images used in this project
+
+(to be added)
+
+---
 
 ## Author
 
