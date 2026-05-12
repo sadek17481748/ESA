@@ -526,6 +526,7 @@ Then open http://127.0.0.1:8080/ in a browser.
 | Page | File | Description |
 |------|------|-------------|
 | Landing / module index | `index.html` | Public-facing landing page with a module overview table listing all platform features. |
+| Subscription plans | `subscription.html` | Pricing page with Free, Standard, and Premium tiers. Schools must subscribe before setup. Includes feature comparison table and how-it-works steps. |
 | Login | `login.html` | Login form with email and password fields and role-aware redirect logic. |
 | Registration | `register.html` | Registration form with name, email, password, and role selection. |
 | Super Admin dashboard | `dashboard-super-admin.html` | Platform-level overview with school count, user count, revenue metrics. |

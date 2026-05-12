@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<!--
+  ESA wireframe — Subscription plans
+  Purpose: Schools select a plan before they can set up their institution on the platform.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESA — Subscription Plans (structure)</title>
+  <link rel="stylesheet" href="css/base.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-geometry" aria-hidden="true"></div>
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-mark">ESA</span>
+        <span class="brand-tag">Education &amp; Schooling Applications</span>
+      </div>
+      <nav class="top-nav" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="login.html">Log in</a>
+        <a class="btn-outline" href="register.html">Register</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-wrap">
+    <main id="main" class="main-wide">
+      <section class="panel">
+        <h1>Choose Your Plan</h1>
+        <div class="accent-bar"></div>
+        <p class="lead">Schools must subscribe to a plan before setting up their institution. Select the tier that fits your school's needs — you can upgrade or downgrade at any time.</p>
+
+        <div class="pricing-grid">
+          <!-- Free tier -->
+          <div class="pricing-card">
+            <div class="pricing-header">
+              <h2>Free</h2>
+              <div class="pricing-amount">&pound;0<span class="pricing-period">/month</span></div>
+            </div>
+            <ul class="pricing-features">
+              <li>Up to 30 students</li>
+              <li>Up to 5 staff accounts</li>
+              <li>Attendance tracking</li>
+              <li>Basic timetable</li>
+              <li>Community support</li>
+              <li class="disabled">Hifz tracking</li>
+              <li class="disabled">Stripe payments</li>
+              <li class="disabled">Analytics dashboard</li>
+              <li class="disabled">Messaging</li>
+            </ul>
+            <button class="btn-primary btn-full" type="button">Get Started</button>
+          </div>
+
+          <!-- Standard tier -->
+          <div class="pricing-card pricing-featured">
+            <div class="pricing-badge">Most Popular</div>
+            <div class="pricing-header">
+              <h2>Standard</h2>
+              <div class="pricing-amount">&pound;49<span class="pricing-period">/month</span></div>
+            </div>
+            <ul class="pricing-features">
+              <li>Up to 200 students</li>
+              <li>Up to 25 staff accounts</li>
+              <li>Attendance tracking</li>
+              <li>Full timetable with conflicts</li>
+              <li>Hifz tracking &amp; sign-off</li>
+              <li>Homework &amp; worksheets</li>
+              <li>Exams &amp; results</li>
+              <li>Parent portal</li>
+              <li>Email support</li>
+              <li class="disabled">Stripe payments</li>
+              <li class="disabled">Analytics dashboard</li>
+            </ul>
+            <button class="btn-primary btn-full" type="button">Subscribe</button>
+          </div>
+
+          <!-- Premium tier -->
+          <div class="pricing-card">
+            <div class="pricing-header">
+              <h2>Premium</h2>
+              <div class="pricing-amount">&pound;99<span class="pricing-period">/month</span></div>
+            </div>
+            <ul class="pricing-features">
+              <li>Unlimited students</li>
+              <li>Unlimited staff accounts</li>
+              <li>All Standard features</li>
+              <li>Stripe Connect payments</li>
+              <li>Analytics dashboard</li>
+              <li>Qur'an annotation &amp; audio</li>
+              <li>Behaviour logging</li>
+              <li>Staff messaging</li>
+              <li>Priority support</li>
+            </ul>
+            <button class="btn-primary btn-full" type="button">Subscribe</button>
+          </div>
+        </div>
+
+        <div class="subscription-info">
+          <h2>How it works</h2>
+          <div class="accent-bar"></div>
+          <div class="grid-cards">
+            <article class="card">
+              <h2>1. Choose a plan</h2>
+              <p>Select the tier that fits your school's size and feature needs.</p>
+            </article>
+            <article class="card">
+              <h2>2. Register your school</h2>
+              <p>Create a School Admin account and provide your institution's details.</p>
+            </article>
+            <article class="card">
+              <h2>3. Set up &amp; go</h2>
+              <p>Add teachers, enrol students, invite parents, and start managing your school.</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="comparison-section">
+          <h2 style="margin-top:2rem;font-size:1.1rem;">Feature comparison</h2>
+          <div class="table-wrap" style="margin-top:0.5rem;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th>Free</th>
+                  <th>Standard</th>
+                  <th>Premium</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Students</td><td>Up to 30</td><td>Up to 200</td><td>Unlimited</td></tr>
+                <tr><td>Staff accounts</td><td>Up to 5</td><td>Up to 25</td><td>Unlimited</td></tr>
+                <tr><td>Attendance tracking</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+                <tr><td>Timetable</td><td>Basic</td><td>Full (conflicts)</td><td>Full (conflicts)</td></tr>
+                <tr><td>Hifz tracking &amp; sign-off</td><td>&#10007;</td><td>&#10003;</td><td>&#10003;</td></tr>
+                <tr><td>Homework &amp; worksheets</td><td>&#10007;</td><td>&#10003;</td><td>&#10003;</td></tr>
+                <tr><td>Exams &amp; results</td><td>&#10007;</td><td>&#10003;</td><td>&#10003;</td></tr>
+                <tr><td>Parent portal</td><td>&#10007;</td><td>&#10003;</td><td>&#10003;</td></tr>
+                <tr><td>Qur'an annotation &amp; audio</td><td>&#10007;</td><td>&#10007;</td><td>&#10003;</td></tr>
+                <tr><td>Stripe Connect payments</td><td>&#10007;</td><td>&#10007;</td><td>&#10003;</td></tr>
+                <tr><td>Analytics dashboard</td><td>&#10007;</td><td>&#10007;</td><td>&#10003;</td></tr>
+                <tr><td>Staff messaging</td><td>&#10007;</td><td>&#10007;</td><td>&#10003;</td></tr>
+                <tr><td>Behaviour logging</td><td>&#10007;</td><td>&#10007;</td><td>&#10003;</td></tr>
+                <tr><td>Support</td><td>Community</td><td>Email</td><td>Priority</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">ESA — static HTML/CSS structure prototype</footer>
+  </div>
+</body>
+</html>
