@@ -27,6 +27,28 @@ class IsSchoolAdmin(RoleRequired):
         return super().has_permission(request, view) and request.user.role == 'school_admin'
 
 
+class IsSchoolAdminOnly(BasePermission):
+    """Write operations reserved for school admin."""
+
+    def has_permission(self, request, view):
+        return (
+            request.user
+            and request.user.is_authenticated
+            and request.user.role == 'school_admin'
+        )
+
+
+class IsSchoolAdminOrReadOnlyStaff(BasePermission):
+    """Teachers can read; school admin can write."""
+
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if request.method in SAFE_METHODS:
+            return request.user.role in ('school_admin', 'teacher', 'super_admin')
+        return request.user.role == 'school_admin'
+
+
 class IsTeacher(RoleRequired):
     def has_permission(self, request, view):
         return super().has_permission(request, view) and request.user.role == 'teacher'
