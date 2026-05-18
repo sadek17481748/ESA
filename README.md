@@ -825,7 +825,7 @@ To be filled as features ship. Each row records what was tested, expected vs act
 | 3 | Parent saw other families fees | Payments fee list | Log in as parent_demo, open /payments/ | Only own fees listed | All FeeItem rows visible | Critical | Fixed | Filter FeeItem by parent=request.user in fee_list view |
 | 4 | Refreshing success page duplicated payments | Payment success | Complete checkout, refresh /payments/success/ | One Payment row | Multiple Payment rows | Medium | Fixed | Check Payment.objects.filter(stripe_session_id=).exists() before create |
 | 5 | Unpaid session created Payment record | Payment success | Return from Stripe before card completes | No Payment until paid | Payment saved with unpaid session | High | Fixed | Check session.payment_status == paid before saving |
-| 6 | | | | | | |
+| 6 | Cancel from Stripe showed 404 | Payment cancel | Cancel on Stripe hosted page | ESA cancel page | 404 on /payments/cancelled/ | Medium | Fixed | Use reverse(payments:cancel) for cancel_url |
 | 7 | | | | | | |
 | 8 | | | | | | |
 | 9 | | | | | | |
