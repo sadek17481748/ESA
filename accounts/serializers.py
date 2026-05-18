@@ -1,3 +1,7 @@
+"""
+accounts/serializers.py
+Serializes User for API responses and handles registration validation.
+"""
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -5,6 +9,8 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Safe user fields for /me and list endpoints — no password hash."""
+
     school_name = serializers.CharField(source='school.name', read_only=True)
 
     class Meta:
@@ -17,6 +23,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    """Creates a user; enforces school FK except for super_admin."""
+
     password = serializers.CharField(write_only=True, min_length=8)
 
     class Meta:
@@ -43,5 +51,25 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-# bug: UserSerializer exposed password field in Meta.fields — never return hash in API
-# fields = (..., 'password',)
+# ---------------------------------------------------------------------------
+# BUGGY CODE (commented out) — leaked password hash on /api/accounts/me/
+# ---------------------------------------------------------------------------
+# class UserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = (
+#             'id', 'username', 'email', 'password', 'first_name', 'last_name',
+#             'role', 'school', 'school_name',
+#         )
+
+# bug: register allowed student with no school — no validate() check
+# class RegisterSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ('username', 'email', 'password', 'role', 'school')
+#     def create(self, validated_data):
+#         password = validated_data.pop('password')
+#         user = User(**validated_data)
+#         user.set_password(password)
+#         user.save()
+#         return user

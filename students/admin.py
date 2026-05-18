@@ -1,3 +1,4 @@
+"""students/admin.py — browse and edit student records in Django admin."""
 from django.contrib import admin
 
 from .models import StudentProfile

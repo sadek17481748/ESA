@@ -1,3 +1,7 @@
+"""
+core_app/tests.py
+TenantMiddleware sets request.tenant_school from the logged-in user.
+"""
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory, TestCase
 

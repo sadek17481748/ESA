@@ -1,3 +1,4 @@
+"""payments/admin.py — fees and payment records in admin."""
 from django.contrib import admin
 
 from .models import FeeItem, Payment

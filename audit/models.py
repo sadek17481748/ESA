@@ -1,3 +1,7 @@
+"""
+audit/models.py
+Append-only log of sensitive actions (login, CRUD, sign-off later).
+"""
 from django.conf import settings
 from django.db import models
 

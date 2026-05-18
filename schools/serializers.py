@@ -1,3 +1,7 @@
+"""
+schools/serializers.py
+JSON shape for School in the REST API.
+"""
 from rest_framework import serializers
 
 from .models import School

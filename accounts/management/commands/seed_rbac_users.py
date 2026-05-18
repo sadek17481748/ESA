@@ -1,3 +1,8 @@
+"""
+Management command: seed_rbac_users
+Creates one demo user per ESA role plus sample teacher/student profiles.
+Run: python manage.py seed_rbac_users
+"""
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
@@ -17,6 +22,7 @@ class Command(BaseCommand):
             defaults={'contact_email': 'admin@alnoor.example'},
         )
 
+        # role, username, school (None for super), password
         users_spec = [
             ('super_admin', 'super', None, 'super1234'),
             ('school_admin', 'schooladmin', school, 'admin1234'),

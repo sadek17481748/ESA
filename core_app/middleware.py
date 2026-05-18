@@ -1,4 +1,7 @@
-"""Attach tenant school to the request for template views and logging."""
+"""
+core_app/middleware.py
+Sets request.tenant_school after auth so views and audit can read it.
+"""
 
 
 class TenantMiddleware:

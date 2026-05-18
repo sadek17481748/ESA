@@ -1,3 +1,7 @@
+"""
+teachers/models.py
+Links a User (teacher role) to a school with subject and employee code.
+"""
 from django.conf import settings
 from django.db import models
 

@@ -1,3 +1,7 @@
+"""
+payments/urls.py
+Parent payment pages and Stripe webhook.
+"""
 from django.urls import path
 
 from . import views

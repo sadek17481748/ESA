@@ -1,3 +1,7 @@
+"""
+students/tests.py
+Checks tenant scoping on GET /api/students/ — teacher only sees own school.
+"""
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.test import APIClient

@@ -1,3 +1,7 @@
+"""
+students/serializers.py
+API representation of StudentProfile.
+"""
 from rest_framework import serializers
 
 from .models import StudentProfile

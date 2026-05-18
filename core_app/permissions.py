@@ -1,10 +1,12 @@
-"""DRF permission classes mapped to ESA roles."""
-
+"""
+core_app/permissions.py
+DRF permission classes — one per ESA role or staff group.
+"""
 from rest_framework.permissions import BasePermission
 
 
 class RoleRequired(BasePermission):
-    """Base — set allowed_roles on the view."""
+    """Subclass sets allowed_roles on the view, or override has_permission."""
 
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
@@ -24,9 +26,6 @@ class IsSchoolAdmin(RoleRequired):
     def has_permission(self, request, view):
         return super().has_permission(request, view) and request.user.role == 'school_admin'
 
-# bug: IsSchoolAdmin used is_staff instead of role — any staff user passed
-# return request.user.is_staff
-
 
 class IsTeacher(RoleRequired):
     def has_permission(self, request, view):
@@ -39,9 +38,17 @@ class IsParent(RoleRequired):
 
 
 class IsSchoolStaff(RoleRequired):
-    """School admin or teacher — both work inside one tenant."""
+    """School admin, teacher, or super admin — anyone who works inside a tenant."""
 
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
         return request.user.role in ('school_admin', 'teacher', 'super_admin')
+
+
+# ---------------------------------------------------------------------------
+# BUGGY CODE (commented out) — checked Django is_staff, not ESA school_admin role
+# ---------------------------------------------------------------------------
+# class IsSchoolAdmin(RoleRequired):
+#     def has_permission(self, request, view):
+#         return super().has_permission(request, view) and request.user.is_staff

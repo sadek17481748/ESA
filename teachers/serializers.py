@@ -1,3 +1,4 @@
+"""teachers/serializers.py — JSON for TeacherProfile."""
 from rest_framework import serializers
 
 from .models import TeacherProfile

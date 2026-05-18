@@ -1,9 +1,14 @@
-"""Write audit rows for sensitive actions."""
-
+"""
+audit/services.py
+Single entry point for writing audit rows from views and signals.
+"""
 from .models import AuditLog
 
 
 def log_action(*, user, action, resource='', resource_id='', detail='', request=None):
+    """
+    Create an AuditLog row. Pass request when you have it so we capture IP + tenant.
+    """
     school = None
     if user and user.is_authenticated:
         school = user.school
@@ -25,5 +30,15 @@ def log_action(*, user, action, resource='', resource_id='', detail='', request=
     )
 
 
-# bug: school was always None because we read user.school before checking tenant_school on request
-# AuditLog.objects.create(school=None, user=user, action=action, ...)
+# ---------------------------------------------------------------------------
+# BUGGY CODE (commented out) — audit rows saved with school=None on login
+# ---------------------------------------------------------------------------
+# def log_action(*, user, action, resource='', resource_id='', detail='', request=None):
+#     return AuditLog.objects.create(
+#         school=None,
+#         user=user,
+#         action=action,
+#         resource=resource,
+#         resource_id=str(resource_id) if resource_id else '',
+#         detail=detail,
+#     )

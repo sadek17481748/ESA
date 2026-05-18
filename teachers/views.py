@@ -1,8 +1,12 @@
+"""
+teachers/views.py
+Read-only list of teachers in the current user's school.
+"""
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from core_app.mixins import TenantScopedQuerySetMixin
-from core_app.permissions import IsSchoolAdmin, IsSchoolStaff
+from core_app.permissions import IsSchoolStaff
 from .models import TeacherProfile
 from .serializers import TeacherProfileSerializer
 

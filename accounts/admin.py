@@ -1,3 +1,7 @@
+"""
+accounts/admin.py
+Django admin config for User — shows role and school on the list screen.
+"""
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 

@@ -1,3 +1,7 @@
+"""
+payments/views.py
+Parent-facing fee list, Stripe Checkout redirect, success/cancel, webhook.
+"""
 import uuid
 from django.utils import timezone
 
@@ -8,7 +12,7 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST, require_http_methods
+from django.views.decorators.http import require_POST
 
 import stripe
 
@@ -18,6 +22,7 @@ from .services import create_fee_checkout_session, retrieve_checkout_session
 
 @login_required
 def fee_list(request):
+    """GET /payments/ — outstanding and paid fees for this parent only."""
     if request.user.role != 'parent':
         return HttpResponseForbidden('Parents only.')
 
@@ -35,6 +40,7 @@ def fee_list(request):
 @login_required
 @require_POST
 def create_checkout(request, fee_id):
+    """POST /payments/checkout/<id>/ — redirect to Stripe hosted checkout."""
     if request.user.role != 'parent':
         return HttpResponseForbidden('Parents only.')
 
@@ -64,6 +70,7 @@ def create_checkout(request, fee_id):
 
 @login_required
 def payment_success(request):
+    """GET /payments/success/?session_id=... — verify with Stripe, save Payment once."""
     session_id = request.GET.get('session_id')
     payment = None
 
@@ -103,6 +110,7 @@ def payment_success(request):
 
 @login_required
 def payment_cancel(request):
+    """GET /payments/cancel/ — user cancelled on Stripe page."""
     messages.info(request, 'Payment cancelled — no charge was made.')
     return render(request, 'payments/cancel.html')
 
@@ -110,7 +118,10 @@ def payment_cancel(request):
 @csrf_exempt
 @require_POST
 def stripe_webhook(request):
-    """Stripe sends payment events here — verify signature in production."""
+    """
+    POST /payments/webhook/ — Stripe server-to-server events.
+    Verifies signature when STRIPE_WEBHOOK_SECRET is set.
+    """
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE', '')
 
@@ -135,6 +146,7 @@ def stripe_webhook(request):
 
 
 def _mark_fee_paid_from_session(session):
+    """Shared logic for webhook and success page — idempotent by session id."""
     session_id = session.get('id')
     if not session_id or Payment.objects.filter(stripe_session_id=session_id).exists():
         return
@@ -164,10 +176,37 @@ def _mark_fee_paid_from_session(session):
 
 
 # ---------------------------------------------------------------------------
-# earlier attempts (kept for my own notes during debugging)
+# BUGGY CODE (commented out) — kept at bottom for reference; working code is above
 # ---------------------------------------------------------------------------
-# BUG: fee_list used FeeItem.objects.all() so every parent saw every school's fees.
-# BUG: checkout used unit_amount=fee.amount_pence // 100 — stripe charged pennies not pounds.
-# BUG: forgot configure_stripe() before Session.create — got "No API key provided".
-# BUG: success view saved Payment even when session.payment_status was 'unpaid' on refresh.
-# BUG: cancel_url was '/payments/cancelled/' but url name is payments:cancel.
+
+# bug: fee list showed every parent's fees, not just the logged-in parent
+# def fee_list(request):
+#     fees = FeeItem.objects.all()
+#     outstanding = fees.exclude(status=FeeItem.STATUS_PAID)
+#     paid = fees.filter(status=FeeItem.STATUS_PAID)
+#     return render(request, 'payments/fees.html', {
+#         'outstanding': outstanding,
+#         'paid': paid,
+#         'publishable_key': request.settings.STRIPE_PUBLISHABLE_KEY,
+#     })
+
+# bug: success page used request.settings — AttributeError on load
+# 'publishable_key': request.settings.STRIPE_PUBLISHABLE_KEY,
+
+# bug: created Payment before Stripe said paid — duplicate/wrong rows on refresh
+# def payment_success(request):
+#     session_id = request.GET.get('session_id')
+#     session = retrieve_checkout_session(session_id)
+#     fee_id = session.metadata.get('fee_item_id')
+#     fee = get_object_or_404(FeeItem, pk=fee_id, parent=request.user)
+#     payment = Payment.objects.create(
+#         fee_item=fee,
+#         parent=request.user,
+#         stripe_session_id=session_id,
+#         amount_pence=session.amount_total,
+#         status=Payment.STATUS_COMPLETE,
+#     )
+#     return render(request, 'payments/success.html', {'payment': payment})
+
+# bug: cancel_url pointed to wrong path — Stripe returned users to 404
+# cancel_url = request.build_absolute_uri('/payments/cancelled/')

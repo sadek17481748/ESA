@@ -1,3 +1,7 @@
+"""
+core/settings.py
+Django settings for ESA — env vars from .env, SQLite/Postgres, DRF/JWT, Stripe, static/media.
+"""
 import os
 from pathlib import Path
 from datetime import timedelta
@@ -5,6 +9,7 @@ from datetime import timedelta
 import environ
 import dj_database_url
 
+# project root (parent of core/)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
@@ -183,3 +188,8 @@ SUBSCRIPTION_PRICES = {
     'standard': 4900,
     'premium': 9900,
 }
+
+# ---------------------------------------------------------------------------
+# BUGGY CODE (commented out) — /payments/ sent users to Django admin login
+# ---------------------------------------------------------------------------
+# LOGIN_URL = '/admin/login/'

@@ -1,3 +1,7 @@
+"""
+academics/models.py
+Class groups (e.g. Year 5A) within a school, optional homeroom teacher.
+"""
 from django.db import models
 
 from schools.models import School

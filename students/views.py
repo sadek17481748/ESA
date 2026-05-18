@@ -1,3 +1,7 @@
+"""
+students/views.py
+CRUD API for students — queryset filtered to request.user.school via mixin.
+"""
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
@@ -9,6 +13,8 @@ from .serializers import StudentProfileSerializer
 
 
 class StudentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
+    """GET/POST/PATCH /api/students/ — school staff only."""
+
     queryset = StudentProfile.objects.all()
     serializer_class = StudentProfileSerializer
     permission_classes = [IsAuthenticated, IsSchoolStaff]
@@ -41,5 +47,9 @@ class StudentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
         )
 
 
-# bug: get_queryset returned StudentProfile.objects.all() with no school filter
-# return StudentProfile.objects.all()
+# ---------------------------------------------------------------------------
+# BUGGY CODE (commented out) — teacher saw students from every school
+# ---------------------------------------------------------------------------
+# class StudentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
+#     def get_queryset(self):
+#         return StudentProfile.objects.all()

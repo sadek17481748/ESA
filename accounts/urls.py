@@ -1,3 +1,7 @@
+"""
+accounts/urls.py
+Maps /api/accounts/... to profile and registration views.
+"""
 from django.urls import path
 
 from .views import MeView, RegisterView, UserListView

@@ -1,3 +1,7 @@
+"""
+audit/apps.py
+Loads signal handlers on startup so login/logout get logged.
+"""
 from django.apps import AppConfig
 
 

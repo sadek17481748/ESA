@@ -1,8 +1,14 @@
+"""
+accounts/models.py
+Custom user model for ESA — every login has a role and (usually) a school tenant.
+"""
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
 class User(AbstractUser):
+    """Extends Django user with ESA role and optional school FK."""
+
     ROLE_CHOICES = [
         ('super_admin', 'Super Admin'),
         ('school_admin', 'School Admin'),
@@ -11,6 +17,7 @@ class User(AbstractUser):
         ('parent', 'Parent'),
     ]
 
+    # drives RBAC checks in core_app.permissions and API view permissions
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
     school = models.ForeignKey(
         'schools.School',
@@ -22,6 +29,7 @@ class User(AbstractUser):
     )
 
     def clean(self):
+        """Admin/forms validation — super admin must not have a school."""
         from django.core.exceptions import ValidationError
         if self.role == 'super_admin' and self.school_id:
             raise ValidationError({'school': 'Super admin cannot belong to a school.'})
@@ -29,6 +37,7 @@ class User(AbstractUser):
             raise ValidationError({'school': 'This role must be linked to a school.'})
 
     def save(self, *args, **kwargs):
+        # strip school on save so super_admin row stays clean
         if self.role == 'super_admin':
             self.school = None
         super().save(*args, **kwargs)
@@ -36,4 +45,8 @@ class User(AbstractUser):
     def __str__(self):
         return f'{self.username} ({self.get_role_display()})'
 
-# bug: super_admin with a school set caused 500 on save — school FK was required for all roles
+# ---------------------------------------------------------------------------
+# BUGGY CODE (commented out) — super_admin could not save if school FK was still set
+# ---------------------------------------------------------------------------
+# def save(self, *args, **kwargs):
+#     super().save(*args, **kwargs)

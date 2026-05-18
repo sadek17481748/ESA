@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""
+manage.py — entry point for runserver, migrate, test, and custom commands.
+"""
 import os
 import sys
 

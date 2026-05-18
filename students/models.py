@@ -1,3 +1,7 @@
+"""
+students/models.py
+Student profile per school — may link to a User account for portal login.
+"""
 from django.conf import settings
 from django.db import models
 

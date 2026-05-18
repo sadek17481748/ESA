@@ -1,3 +1,7 @@
+"""
+schools/urls.py
+DRF router for /api/schools/ list and detail.
+"""
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 

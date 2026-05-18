@@ -1,3 +1,4 @@
+"""audit/admin.py — read-only style list of audit events."""
 from django.contrib import admin
 
 from .models import AuditLog

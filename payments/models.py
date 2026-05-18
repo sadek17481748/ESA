@@ -1,3 +1,7 @@
+"""
+payments/models.py
+School fees (FeeItem) and Stripe payment records (Payment).
+"""
 from django.conf import settings
 from django.db import models
 
@@ -5,7 +9,7 @@ from schools.models import School
 
 
 class FeeItem(models.Model):
-    """A fee charged to a parent (tuition, trip, etc.)."""
+    """A fee charged to a parent — tuition, trip, etc."""
 
     STATUS_OUTSTANDING = 'outstanding'
     STATUS_PAID = 'paid'
@@ -40,11 +44,12 @@ class FeeItem(models.Model):
 
     @property
     def amount_display(self):
+        """Human-readable GBP for templates."""
         return f'£{self.amount_pence / 100:.2f}'
 
 
 class Payment(models.Model):
-    """Record of a Stripe Checkout payment for a fee."""
+    """One completed (or failed) Stripe Checkout session."""
 
     STATUS_PENDING = 'pending'
     STATUS_COMPLETE = 'complete'

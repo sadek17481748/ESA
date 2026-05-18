@@ -1,8 +1,12 @@
+"""
+schools/models.py
+School is the tenant root — all other data hangs off a school row.
+"""
 from django.db import models
 
 
 class School(models.Model):
-    """Tenant root — each Islamic school on the platform."""
+    """One Islamic school on the platform (tenant)."""
 
     STATUS_ACTIVE = 'active'
     STATUS_SUSPENDED = 'suspended'

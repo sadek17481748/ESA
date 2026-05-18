@@ -1,3 +1,7 @@
+"""
+payments/tests.py
+Model-level tests for fee display formatting.
+"""
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 

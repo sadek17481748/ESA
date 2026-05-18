@@ -1,10 +1,13 @@
-"""Tenant scoping helpers — every school-bound queryset should use these."""
+"""
+core_app/mixins.py
+Reusable tenant filtering for DRF viewsets.
+"""
 
 
 class TenantScopedQuerySetMixin:
     """
-    Filter queryset to the current user's school.
-    Super admins see everything; everyone else is scoped to request.user.school.
+    Mixin for ModelViewSet — limits queryset to request.user.school.
+    Super admins see everything; users without a school get nothing.
     """
 
     school_field = 'school'
@@ -22,9 +25,17 @@ class TenantScopedQuerySetMixin:
 
 
 class TenantScopedModelMixin:
-    """Model mixin — optional school FK enforcement on save for non-super users."""
+    """Placeholder for future model-level tenant helpers."""
 
     pass
 
-# bug: filtered with school_id= instead of school= — returned empty queryset for valid users
-# return qs.filter(school_id=user.school)
+
+# ---------------------------------------------------------------------------
+# BUGGY CODE (commented out) — wrong lookup, queryset always empty for teachers
+# ---------------------------------------------------------------------------
+# def get_queryset(self):
+#     qs = super().get_queryset()
+#     user = self.request.user
+#     if user.role == 'super_admin':
+#         return qs
+#     return qs.filter(school_id=user.school)

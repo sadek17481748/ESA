@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+<!--
+  ESA — Parent fees (Django template)
+  Lists outstanding and paid FeeItems; Pay now POSTs to Stripe Checkout.
+-->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -63,3 +67,11 @@
   </div>
 </body>
 </html>
+
+<!--
+  BUGGY CODE (commented out) — Pay now returned 403 CSRF verification failed
+
+  <form method="post" action="{% url 'payments:create_checkout' fee.pk %}">
+    <button type="submit" class="btn-primary">Pay now</button>
+  </form>
+-->

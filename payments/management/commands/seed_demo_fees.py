@@ -1,3 +1,8 @@
+"""
+Management command: seed_demo_fees
+Demo school, parent_demo user, and two sample fees for Stripe checkout testing.
+Run: python manage.py seed_demo_fees
+"""
 from datetime import date, timedelta
 
 from django.contrib.auth import get_user_model

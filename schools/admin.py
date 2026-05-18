@@ -1,3 +1,7 @@
+"""
+schools/admin.py
+Admin screens for managing tenant schools.
+"""
 from django.contrib import admin
 
 from .models import School
