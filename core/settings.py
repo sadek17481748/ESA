@@ -37,9 +37,14 @@ INSTALLED_APPS = [
     'corsheaders',
 
     # Local
+    'core_app',
     'accounts',
     'schools',
+    'students',
+    'teachers',
+    'academics',
     'payments',
+    'audit',
 ]
 
 # ---------------------------------------------------------------------------
@@ -54,7 +59,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    'core_app.middleware.TenantMiddleware',    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
