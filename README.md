@@ -919,7 +919,7 @@ Tests are added incrementally alongside features.
 | 14 | Register created student with no school | POST /api/accounts/register/ | Omit school field | Validation error | User saved without tenant | High | Fixed | RegisterSerializer.validate requires school except super_admin |
 | 15 | Wrong users passed school admin checks | Protected view | Log in as staff user without school_admin role | 403 | 200 OK | Medium | Fixed | Check request.user.role == school_admin in IsSchoolAdmin |
 | 16 | request.tenant_school always None | Any view | Log in and inspect request | tenant_school set | Always None | Medium | Fixed | Add core_app.middleware.TenantMiddleware to MIDDLEWARE |
-| 17 | | | | | | | | |
+| 17 | Audit rows missing school_id | Login | Log in as teacher_demo | AuditLog.school populated | school null | Medium | Fixed | log_action uses user.school and request.tenant_school |
 | 18 | | | | | | | | |
 | 19 | | | | | | | | |
 | 20 | | | | | | | | |
