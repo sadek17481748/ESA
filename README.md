@@ -920,7 +920,7 @@ Tests are added incrementally alongside features.
 | 15 | Wrong users passed school admin checks | Protected view | Log in as staff user without school_admin role | 403 | 200 OK | Medium | Fixed | Check request.user.role == school_admin in IsSchoolAdmin |
 | 16 | request.tenant_school always None | Any view | Log in and inspect request | tenant_school set | Always None | Medium | Fixed | Add core_app.middleware.TenantMiddleware to MIDDLEWARE |
 | 17 | Audit rows missing school_id | Login | Log in as teacher_demo | AuditLog.school populated | school null | Medium | Fixed | log_action uses user.school and request.tenant_school |
-| 18 | | | | | | | | |
+| 18 | Uploaded files not served locally | Media URL | Upload file, open /media/... | File loads | 404 | Low | Fixed | Add static(MEDIA_URL) to urlpatterns when DEBUG |
 | 19 | | | | | | | | |
 | 20 | | | | | | | | |
 
