@@ -848,30 +848,30 @@ Deployment will use Heroku (or Render) with a managed PostgreSQL database.
 
 ### Manual testing
 
-To be filled as features ship. Each row records what was tested, expected vs actual behaviour, and links to screenshot evidence.
+Planned and executed checks for foundation, RBAC, and Stripe work. Fill **Actual**, **Pass/Fail**, and **Screenshot** as evidence is captured (`docs/images/manual-testing/`).
 
 | # | Test | Steps | Expected | Actual | Pass/Fail | Screenshot |
 |---|------|-------|----------|--------|-----------|------------|
-| 1 | Stripe checkout charged pennies instead of pounds | Payments checkout | Pay Term 3 tuition (£250) | Stripe shows £250.00 | Stripe showed £2.50 | High | Fixed | Use amount_pence directly in unit_amount (see payments/services.py comment) |
-| 2 | Checkout failed with no API key | Payments checkout | Click Pay now on a fee | Redirect to Stripe Checkout | Stripe error: No API key provided | High | Fixed | Call configure_stripe() before Session.create in services.py |
-| 3 | Parent saw other families fees | Payments fee list | Log in as parent_demo, open /payments/ | Only own fees listed | All FeeItem rows visible | Critical | Fixed | Filter FeeItem by parent=request.user in fee_list view |
-| 4 | Refreshing success page duplicated payments | Payment success | Complete checkout, refresh /payments/success/ | One Payment row | Multiple Payment rows | Medium | Fixed | Check Payment.objects.filter(stripe_session_id=).exists() before create |
-| 5 | Unpaid session created Payment record | Payment success | Return from Stripe before card completes | No Payment until paid | Payment saved with unpaid session | High | Fixed | Check session.payment_status == paid before saving |
-| 6 | Cancel from Stripe showed 404 | Payment cancel | Cancel on Stripe hosted page | ESA cancel page | 404 on /payments/cancelled/ | Medium | Fixed | Use reverse(payments:cancel) for cancel_url |
-| 7 | Fee page crashed on load | Payments fee list | Open /payments/ while logged in | Fees table renders | AttributeError request.settings | High | Fixed | Import django.conf.settings for STRIPE_PUBLISHABLE_KEY |
-| 8 | Webhook returned 403 on test events | Stripe webhook | stripe listen --forward-to localhost | 200 OK | 403 Invalid payload | Medium | Fixed | configure_stripe() before Webhook.construct_event |
-| 9 | Unauthenticated user sent to /admin/login/ | Payments | Open /payments/ logged out | Custom login page | Django admin login | Low | Fixed | Set LOGIN_URL to /accounts/login/ in settings |
-| 10 | Pay now returned 403 forbidden | Payments checkout | Submit pay form without csrf token | Redirect to Stripe | 403 CSRF verification failed | Medium | Fixed | Add {% csrf_token %} to checkout form in fees.html |
-| 11 | | | | | | |
-| 12 | | | | | | |
-| 13 | | | | | | |
-| 14 | | | | | | |
-| 15 | | | | | | |
-| 16 | | | | | | |
-| 17 | | | | | | |
-| 18 | | | | | | |
-| 19 | | | | | | |
-| 20 | | | | | | |
+| 1 | JWT login with valid credentials | `POST /api/auth/token/` with `teacher_demo` / `teacher1234` | `200` and access + refresh tokens returned | | | |
+| 2 | JWT login with invalid password | `POST /api/auth/token/` with wrong password | `401` Unauthorized | | | |
+| 3 | Current user profile (`/api/accounts/me/`) | Obtain JWT, `GET /api/accounts/me/` with Bearer token | JSON shows correct `role`, `school`, `school_name` | | | |
+| 4 | School admin tenant scope (schools API) | Log in as `schooladmin`, `GET /api/schools/` | Exactly one school (own tenant) | | | |
+| 5 | Super admin sees all schools | Log in as `super`, `GET /api/schools/` | All schools in database listed | | | |
+| 6 | Teacher student list tenant scope | Log in as `teacher_demo`, `GET /api/students/` | Only students from Al-Noor Academy | | | |
+| 7 | Parent blocked from staff student API | Log in as `parent_demo`, `GET /api/students/` | `403 Forbidden` | | | |
+| 8 | Register without school rejected | `POST /api/accounts/register/` as student with no `school` | `400` with school validation error | | | |
+| 9 | RBAC seed command | Run `python manage.py seed_rbac_users` | Five demo users exist with correct roles | | | |
+| 10 | Tenant middleware on request | Log in via session; check `request.tenant_school` | Matches user's school | | | |
+| 11 | Audit log on login | Log in as `teacher_demo` via `/accounts/login/` | New `AuditLog` row with action login and school set | | | |
+| 12 | Parent fee list (own fees only) | Log in as `parent_demo`, open `/payments/` | Only this parent's outstanding and paid fees | | | |
+| 13 | Unauthenticated payments redirect | Open `/payments/` logged out | Redirect to `/accounts/login/` | | | |
+| 14 | Stripe Checkout redirect | On `/payments/`, click **Pay now** on a fee | Redirect to Stripe hosted checkout | | | |
+| 15 | Stripe test card payment | Complete checkout with `4242 4242 4242 4242` | Success page with receipt; fee marked paid | | | |
+| 16 | Stripe cancel flow | Start checkout, cancel on Stripe page | `/payments/cancel/` with no charge | | | |
+| 17 | No duplicate payment on refresh | Refresh `/payments/success/?session_id=…` after pay | Single `Payment` row in admin | | | |
+| 18 | Checkout amount displays correctly | Pay Term 3 tuition (£250.00) | Stripe shows £250.00 not £2.50 | | | |
+| 19 | Teacher list tenant scope | Log in as `teacher_demo`, `GET /api/teachers/` | Only teachers from same school | | | |
+| 20 | Class groups API tenant scope | Log in as `schooladmin`, `GET /api/classes/` | Only classes for own school | | | |
 
 ### Automated testing
 
@@ -887,14 +887,16 @@ Tests are added incrementally alongside features.
 
 | Category | Automated | Manual | Status |
 |----------|-----------|--------|--------|
-| Authentication (register, login, logout) | | | |
-| RBAC (role-based page access) | | | |
-| Tenant isolation (cross-school blocked) | | | |
-| Attendance CRUD | | | |
-| Homework assign / submit / review | | | |
-| Hifz sign-off flow | | | |
-| Exam create / finalise | | | |
-| Payments (Stripe Checkout) | | | |
+| Authentication (JWT, register, session login) | `accounts` tests (partial) | Rows 1–3, 8–9, 11, 13 | In progress |
+| RBAC (role-based API access) | — | Rows 6–7, 19 | In progress |
+| Tenant isolation (cross-school blocked) | `accounts`, `students`, `core_app` tests | Rows 4–6, 10, 19–20 | In progress |
+| Student / teacher / class APIs | `students` tests | Rows 6, 19–20 | In progress |
+| Audit logging (login/logout) | — | Row 11 | In progress |
+| Payments (Stripe Checkout) | `payments` tests (model) | Rows 12, 14–18 | In progress |
+| Attendance CRUD | — | — | Not started |
+| Homework assign / submit / review | — | — | Not started |
+| Hifz sign-off flow | — | — | Not started |
+| Exam create / finalise | — | — | Not started |
 | Notifications delivery | | | |
 | Messaging (send / receive) | | | |
 | Analytics dashboard metrics | | | |
