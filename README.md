@@ -921,7 +921,7 @@ Tests are added incrementally alongside features.
 | 16 | request.tenant_school always None | Any view | Log in and inspect request | tenant_school set | Always None | Medium | Fixed | Add core_app.middleware.TenantMiddleware to MIDDLEWARE |
 | 17 | Audit rows missing school_id | Login | Log in as teacher_demo | AuditLog.school populated | school null | Medium | Fixed | log_action uses user.school and request.tenant_school |
 | 18 | Uploaded files not served locally | Media URL | Upload file, open /media/... | File loads | 404 | Low | Fixed | Add static(MEDIA_URL) to urlpatterns when DEBUG |
-| 19 | | | | | | | | |
+| 19 | Super admin save failed with school set | Admin / shell | Set role super_admin with school FK | Saves cleanly | ValidationError | Medium | Fixed | User.save clears school when role is super_admin |
 | 20 | | | | | | | | |
 
 ### Use of AI (assistance log)
