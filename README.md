@@ -737,6 +737,38 @@ python manage.py runserver
 
 ---
 
+## Foundation and RBAC (local test)
+
+Django project uses env-based settings, SQLite/Postgres via `DATABASE_URL`, and `/static/` + `/media/` folders.
+
+**API base:** `http://127.0.0.1:8000/api/`
+
+| Endpoint | Auth | Roles |
+|----------|------|-------|
+| `POST /api/auth/token/` | — | JWT login |
+| `GET /api/accounts/me/` | JWT | Any |
+| `POST /api/accounts/register/` | — | Register (school required except super admin) |
+| `GET /api/schools/` | JWT | Super admin (all), school admin (own school) |
+| `GET /api/students/` | JWT | School staff (tenant scoped) |
+| `GET /api/teachers/` | JWT | School staff (tenant scoped) |
+| `GET /api/classes/` | JWT | School staff (tenant scoped) |
+
+Seed demo users:
+
+```bash
+python manage.py seed_rbac_users
+```
+
+| Username | Password | Role |
+|----------|----------|------|
+| `super` | `super1234` | Super Admin |
+| `schooladmin` | `admin1234` | School Admin |
+| `teacher_demo` | `teacher1234` | Teacher |
+| `student_demo` | `student1234` | Student |
+| `parent_demo` | `demo1234` | Parent |
+
+---
+
 ## Stripe payments (local test)
 
 Parent school fees use Stripe Checkout in test mode (same API keys as my `stripe_demo` project).
