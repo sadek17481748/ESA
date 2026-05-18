@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESA — School fees</title>
+  <link rel="stylesheet" href="/css/base.css">
+  <style>
+    .flash-list { list-style: none; padding: 0; margin: 0 0 1rem; }
+    .flash-list li { padding: 0.5rem; background: var(--gold-soft); border-radius: 6px; margin-bottom: 0.35rem; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-geometry" aria-hidden="true"></div>
+    <div class="header-inner">
+      <div class="brand"><span class="brand-mark">ESA</span><span class="brand-tag">Fees</span></div>
+      <nav class="top-nav"><a href="{% url 'payments:fee_list' %}">Fees</a><a href="/accounts/logout/">Log out</a></nav>
+    </div>
+  </header>
+  <div class="page-wrap">
+    <main id="main" class="main-wide">
+      <section class="panel">
+        <h1>School fees</h1>
+        <div class="accent-bar"></div>
+        <p class="lead">Pay outstanding fees with Stripe Checkout (test mode).</p>
+        {% if messages %}
+        <ul class="flash-list">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+        {% endif %}
+        <h2>Outstanding</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Fee</th><th>Child</th><th>School</th><th>Amount</th><th>Due</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {% for fee in outstanding %}
+              <tr>
+                <td>{{ fee.title }}</td><td>{{ fee.child_name }}</td><td>{{ fee.school.name }}</td>
+                <td>{{ fee.amount_display }}</td><td>{{ fee.due_date }}</td><td>{{ fee.get_status_display }}</td>
+                <td>
+                  <form method="post" action="{% url 'payments:create_checkout' fee.pk %}">{% csrf_token %}
+                    <button type="submit" class="btn-primary">Pay now</button>
+                  </form>
+                </td>
+              </tr>
+              {% empty %}<tr class="placeholder-row"><td colspan="7">No outstanding fees.</td></tr>{% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <h2 style="margin-top:2rem;">Payment history</h2>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Fee</th><th>Child</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              {% for fee in paid %}
+              <tr><td>{{ fee.title }}</td><td>{{ fee.child_name }}</td><td>{{ fee.amount_display }}</td><td>Paid</td></tr>
+              {% empty %}<tr class="placeholder-row"><td colspan="4">No paid fees yet.</td></tr>{% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
