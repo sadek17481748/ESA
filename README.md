@@ -824,7 +824,7 @@ To be filled as features ship. Each row records what was tested, expected vs act
 | 2 | Checkout failed with no API key | Payments checkout | Click Pay now on a fee | Redirect to Stripe Checkout | Stripe error: No API key provided | High | Fixed | Call configure_stripe() before Session.create in services.py |
 | 3 | Parent saw other families fees | Payments fee list | Log in as parent_demo, open /payments/ | Only own fees listed | All FeeItem rows visible | Critical | Fixed | Filter FeeItem by parent=request.user in fee_list view |
 | 4 | Refreshing success page duplicated payments | Payment success | Complete checkout, refresh /payments/success/ | One Payment row | Multiple Payment rows | Medium | Fixed | Check Payment.objects.filter(stripe_session_id=).exists() before create |
-| 5 | | | | | | |
+| 5 | Unpaid session created Payment record | Payment success | Return from Stripe before card completes | No Payment until paid | Payment saved with unpaid session | High | Fixed | Check session.payment_status == paid before saving |
 | 6 | | | | | | |
 | 7 | | | | | | |
 | 8 | | | | | | |
