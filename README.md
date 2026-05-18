@@ -917,7 +917,7 @@ Tests are added incrementally alongside features.
 | 12 | Student list crashed with AssertionError | GET /api/students/ | Authenticate as teacher, GET list | JSON list | AssertionError on queryset | High | Fixed | Set queryset on StudentViewSet |
 | 13 | School admin got empty schools list | GET /api/schools/ | Log in as schooladmin | One school | Empty list | High | Fixed | Filter School queryset by pk=user.school_id for school_admin |
 | 14 | Register created student with no school | POST /api/accounts/register/ | Omit school field | Validation error | User saved without tenant | High | Fixed | RegisterSerializer.validate requires school except super_admin |
-| 15 | | | | | | | | |
+| 15 | Wrong users passed school admin checks | Protected view | Log in as staff user without school_admin role | 403 | 200 OK | Medium | Fixed | Check request.user.role == school_admin in IsSchoolAdmin |
 | 16 | | | | | | | | |
 | 17 | | | | | | | | |
 | 18 | | | | | | | | |
