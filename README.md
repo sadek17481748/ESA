@@ -915,7 +915,7 @@ Tests are added incrementally alongside features.
 | 10 | Pay now returned 403 forbidden | Payments checkout | POST without CSRF token | Redirect to Stripe | 403 CSRF verification failed | Medium | Fixed | Add `{% csrf_token %}` on the pay form |
 | 11 | Student API returned every school students | GET /api/students/ | Log in as teacher_demo | Only own school students | All students from all schools | Critical | Fixed | TenantScopedQuerySetMixin filters by request.user.school |
 | 12 | Student list crashed with AssertionError | GET /api/students/ | Authenticate as teacher, GET list | JSON list | AssertionError on queryset | High | Fixed | Set queryset on StudentViewSet |
-| 13 | | | | | | | | |
+| 13 | School admin got empty schools list | GET /api/schools/ | Log in as schooladmin | One school | Empty list | High | Fixed | Filter School queryset by pk=user.school_id for school_admin |
 | 14 | | | | | | | | |
 | 15 | | | | | | | | |
 | 16 | | | | | | | | |
