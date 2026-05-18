@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Log in — ESA</title>
+  <link rel="stylesheet" href="/css/base.css">
+</head>
+<body>
+  <div class="page-wrap">
+    <main class="main-single">
+      <section class="panel">
+        <h1>Log in</h1>
+        <div class="accent-bar"></div>
+        <form method="post" class="form-stack">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="btn-primary">Sign in</button>
+        </form>
+        <p style="margin-top:1rem;color:var(--muted);">Parent test user: run <code>python manage.py seed_demo_fees</code></p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
