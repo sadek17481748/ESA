@@ -826,7 +826,7 @@ To be filled as features ship. Each row records what was tested, expected vs act
 | 4 | Refreshing success page duplicated payments | Payment success | Complete checkout, refresh /payments/success/ | One Payment row | Multiple Payment rows | Medium | Fixed | Check Payment.objects.filter(stripe_session_id=).exists() before create |
 | 5 | Unpaid session created Payment record | Payment success | Return from Stripe before card completes | No Payment until paid | Payment saved with unpaid session | High | Fixed | Check session.payment_status == paid before saving |
 | 6 | Cancel from Stripe showed 404 | Payment cancel | Cancel on Stripe hosted page | ESA cancel page | 404 on /payments/cancelled/ | Medium | Fixed | Use reverse(payments:cancel) for cancel_url |
-| 7 | | | | | | |
+| 7 | Fee page crashed on load | Payments fee list | Open /payments/ while logged in | Fees table renders | AttributeError request.settings | High | Fixed | Import django.conf.settings for STRIPE_PUBLISHABLE_KEY |
 | 8 | | | | | | |
 | 9 | | | | | | |
 | 10 | | | | | | |
