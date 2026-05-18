@@ -827,7 +827,7 @@ To be filled as features ship. Each row records what was tested, expected vs act
 | 5 | Unpaid session created Payment record | Payment success | Return from Stripe before card completes | No Payment until paid | Payment saved with unpaid session | High | Fixed | Check session.payment_status == paid before saving |
 | 6 | Cancel from Stripe showed 404 | Payment cancel | Cancel on Stripe hosted page | ESA cancel page | 404 on /payments/cancelled/ | Medium | Fixed | Use reverse(payments:cancel) for cancel_url |
 | 7 | Fee page crashed on load | Payments fee list | Open /payments/ while logged in | Fees table renders | AttributeError request.settings | High | Fixed | Import django.conf.settings for STRIPE_PUBLISHABLE_KEY |
-| 8 | | | | | | |
+| 8 | Webhook returned 403 on test events | Stripe webhook | stripe listen --forward-to localhost | 200 OK | 403 Invalid payload | Medium | Fixed | configure_stripe() before Webhook.construct_event |
 | 9 | | | | | | |
 | 10 | | | | | | |
 | 11 | | | | | | |
