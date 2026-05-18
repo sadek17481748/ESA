@@ -38,6 +38,8 @@ INSTALLED_APPS = [
 
     # Local
     'accounts',
+    'schools',
+    'payments',
 ]
 
 # ---------------------------------------------------------------------------
@@ -161,3 +163,18 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # ---------------------------------------------------------------------------
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Stripe — keys loaded from .env (test mode, same project as stripe_demo)
+STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY', default='')
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY', default='')
+STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='')
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/payments/'
+
+# subscription prices in pence (matches subscription.html wireframe)
+SUBSCRIPTION_PRICES = {
+    'standard': 4900,
+    'premium': 9900,
+}
