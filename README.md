@@ -821,7 +821,7 @@ To be filled as features ship. Each row records what was tested, expected vs act
 | # | Test | Steps | Expected | Actual | Pass/Fail | Screenshot |
 |---|------|-------|----------|--------|-----------|------------|
 | 1 | Stripe checkout charged pennies instead of pounds | Payments checkout | Pay Term 3 tuition (£250) | Stripe shows £250.00 | Stripe showed £2.50 | High | Fixed | Use amount_pence directly in unit_amount (see payments/services.py comment) |
-| 2 | | | | | | |
+| 2 | Checkout failed with no API key | Payments checkout | Click Pay now on a fee | Redirect to Stripe Checkout | Stripe error: No API key provided | High | Fixed | Call configure_stripe() before Session.create in services.py |
 | 3 | | | | | | |
 | 4 | | | | | | |
 | 5 | | | | | | |
