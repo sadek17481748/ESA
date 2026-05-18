@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
+from django.views.static import serve
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
@@ -9,3 +11,9 @@ urlpatterns = [
     path('payments/', include('payments.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
 ]
+
+# wireframe css lives at repo root /css — serve in dev only
+if settings.DEBUG:
+    urlpatterns += [
+        path('css/<path:path>', serve, {'document_root': settings.BASE_DIR / 'css'}),
+    ]
