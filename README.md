@@ -913,16 +913,21 @@ Tests are added incrementally alongside features.
 | 8 | Webhook returned 403 on test events | Stripe webhook | `stripe listen --forward-to localhost:8000/payments/webhook/` | HTTP 200 | 403 Invalid payload | Medium | Fixed | Call `configure_stripe()` before `construct_event` |
 | 9 | Logged-out user sent to admin login | Payments | Open `/payments/` without session | Custom login page | Django admin login URL | Low | Fixed | Set `LOGIN_URL = '/accounts/login/'` |
 | 10 | Pay now returned 403 forbidden | Payments checkout | POST without CSRF token | Redirect to Stripe | 403 CSRF verification failed | Medium | Fixed | Add `{% csrf_token %}` on the pay form |
-| 11 | Student API returned every school students | GET /api/students/ | Log in as teacher_demo | Only own school students | All students from all schools | Critical | Fixed | TenantScopedQuerySetMixin filters by request.user.school |
-| 12 | Student list crashed with AssertionError | GET /api/students/ | Authenticate as teacher, GET list | JSON list | AssertionError on queryset | High | Fixed | Set queryset on StudentViewSet |
-| 13 | School admin got empty schools list | GET /api/schools/ | Log in as schooladmin | One school | Empty list | High | Fixed | Filter School queryset by pk=user.school_id for school_admin |
-| 14 | Register created student with no school | POST /api/accounts/register/ | Omit school field | Validation error | User saved without tenant | High | Fixed | RegisterSerializer.validate requires school except super_admin |
-| 15 | Wrong users passed school admin checks | Protected view | Log in as staff user without school_admin role | 403 | 200 OK | Medium | Fixed | Check request.user.role == school_admin in IsSchoolAdmin |
-| 16 | request.tenant_school always None | Any view | Log in and inspect request | tenant_school set | Always None | Medium | Fixed | Add core_app.middleware.TenantMiddleware to MIDDLEWARE |
-| 17 | Audit rows missing school_id | Login | Log in as teacher_demo | AuditLog.school populated | school null | Medium | Fixed | log_action uses user.school and request.tenant_school |
-| 18 | Uploaded files not served locally | Media URL | Upload file, open /media/... | File loads | 404 | Low | Fixed | Add static(MEDIA_URL) to urlpatterns when DEBUG |
-| 19 | Super admin save failed with school set | Admin / shell | Set role super_admin with school FK | Saves cleanly | ValidationError | Medium | Fixed | User.save clears school when role is super_admin |
-| 20 | POST /api/classes/ failed for super user | Class API | POST without school on user | Uses payload school | 500 / null school | Medium | Fixed | perform_create reads school from validated_data for super_admin |
+| 11 | Student API returned every school's students | GET /api/students/ | Log in as `teacher_demo`, list students | Only own school | All schools visible | Critical | Fixed | `TenantScopedQuerySetMixin` on `StudentViewSet` |
+| 12 | Student list crashed with AssertionError | GET /api/students/ | Authenticate as teacher, GET list | JSON list | AssertionError on queryset | High | Fixed | Set `queryset` on `StudentViewSet` |
+| 13 | School admin got empty schools list | GET /api/schools/ | Log in as `schooladmin` | One school | Empty list | High | Fixed | Filter by `pk=user.school_id` for school_admin |
+| 14 | Register created user with no school | POST /api/accounts/register/ | Omit `school` field | Validation error | User saved without tenant | High | Fixed | `RegisterSerializer.validate` requires school except super_admin |
+| 15 | Wrong users passed school admin checks | Protected API | Log in as staff without school_admin role | 403 | 200 OK | Medium | Fixed | `IsSchoolAdmin` checks `role`, not `is_staff` |
+| 16 | `request.tenant_school` always None | Any authenticated view | Log in, inspect request | Tenant set | Always None | Medium | Fixed | Added `TenantMiddleware` to `MIDDLEWARE` |
+| 17 | Audit rows missing `school_id` | Login | Log in as `teacher_demo` | AuditLog.school set | school null | Medium | Fixed | `log_action` uses `user.school` and `request.tenant_school` |
+| 18 | Uploaded files not served locally | Media URL | Open `/media/...` in DEBUG | File loads | 404 | Low | Fixed | `static(MEDIA_URL, ...)` in `core/urls.py` when DEBUG |
+| 19 | Super admin save failed with school set | Admin / shell | role=super_admin with school FK | Saves cleanly | ValidationError | Medium | Fixed | `User.save` clears school for super_admin |
+| 20 | POST /api/classes/ failed for super user | POST /api/classes/ | Super admin without school on user | Uses payload school | 500 / null school | Medium | Fixed | `perform_create` reads school from validated_data |
+| 21 | `/api/schools/` returned 404 | Schools API | GET `/api/schools/` | JSON list | 404 | High | Fixed | Registered `schools.urls` under `api/schools/` |
+| 22 | `/api/accounts/me/` returned 404 | Accounts API | JWT GET me | User JSON | 404 | High | Fixed | Registered `accounts.urls` under `api/accounts/` |
+| 23 | Tenant filter returned no rows | GET /api/students/ | Teacher with valid school | Students listed | Empty list | High | Fixed | Filter `school=user.school` in mixin |
+| 24 | Parent accessed staff-only student API | GET /api/students/ | Log in as `parent_demo` | 403 Forbidden | 200 with data | Medium | Fixed | `IsSchoolStaff` on student/teacher/class APIs |
+| 25 | Audit register used invalid action string | POST register | Register new user | Valid AuditLog row | Invalid choice | Low | Fixed | Use `AuditLog.ACTION_CREATE` in `log_action` |
 
 ### Use of AI (assistance log)
 
