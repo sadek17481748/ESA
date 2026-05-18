@@ -913,7 +913,7 @@ Tests are added incrementally alongside features.
 | 8 | Webhook returned 403 on test events | Stripe webhook | `stripe listen --forward-to localhost:8000/payments/webhook/` | HTTP 200 | 403 Invalid payload | Medium | Fixed | Call `configure_stripe()` before `construct_event` |
 | 9 | Logged-out user sent to admin login | Payments | Open `/payments/` without session | Custom login page | Django admin login URL | Low | Fixed | Set `LOGIN_URL = '/accounts/login/'` |
 | 10 | Pay now returned 403 forbidden | Payments checkout | POST without CSRF token | Redirect to Stripe | 403 CSRF verification failed | Medium | Fixed | Add `{% csrf_token %}` on the pay form |
-| 11 | | | | | | | | |
+| 11 | Student API returned every school students | GET /api/students/ | Log in as teacher_demo | Only own school students | All students from all schools | Critical | Fixed | TenantScopedQuerySetMixin filters by request.user.school |
 | 12 | | | | | | | | |
 | 13 | | | | | | | | |
 | 14 | | | | | | | | |
