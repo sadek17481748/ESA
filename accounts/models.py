@@ -21,5 +21,19 @@ class User(AbstractUser):
         help_text='Tenant school — blank for super admin only',
     )
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.role == 'super_admin' and self.school_id:
+            raise ValidationError({'school': 'Super admin cannot belong to a school.'})
+        if self.role != 'super_admin' and not self.school_id:
+            raise ValidationError({'school': 'This role must be linked to a school.'})
+
+    def save(self, *args, **kwargs):
+        if self.role == 'super_admin':
+            self.school = None
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f'{self.username} ({self.get_role_display()})'
+
+# bug: super_admin with a school set caused 500 on save — school FK was required for all roles
