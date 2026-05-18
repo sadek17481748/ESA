@@ -829,7 +829,7 @@ To be filled as features ship. Each row records what was tested, expected vs act
 | 7 | Fee page crashed on load | Payments fee list | Open /payments/ while logged in | Fees table renders | AttributeError request.settings | High | Fixed | Import django.conf.settings for STRIPE_PUBLISHABLE_KEY |
 | 8 | Webhook returned 403 on test events | Stripe webhook | stripe listen --forward-to localhost | 200 OK | 403 Invalid payload | Medium | Fixed | configure_stripe() before Webhook.construct_event |
 | 9 | Unauthenticated user sent to /admin/login/ | Payments | Open /payments/ logged out | Custom login page | Django admin login | Low | Fixed | Set LOGIN_URL to /accounts/login/ in settings |
-| 10 | | | | | | |
+| 10 | Pay now returned 403 forbidden | Payments checkout | Submit pay form without csrf token | Redirect to Stripe | 403 CSRF verification failed | Medium | Fixed | Add {% csrf_token %} to checkout form in fees.html |
 | 11 | | | | | | |
 | 12 | | | | | | |
 | 13 | | | | | | |
