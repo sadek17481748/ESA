@@ -44,6 +44,7 @@ class ParentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
             email=data['email'],
             password=data['password'],
             role='parent',
+            school=request.user.school,
         )
         profile = ParentProfile.objects.create(
             school=request.user.school,
