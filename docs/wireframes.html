@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESA — Wireframes</title>
+  <style>
+    :root {
+      --bg: #f4f4f4;
+      --wire-bg: #ffffff;
+      --wire-border: #b0b0b0;
+      --wire-header: #2a2a2a;
+      --wire-sidebar: #e0e0e0;
+      --wire-accent: #c9a227;
+      --wire-text: #333333;
+      --wire-muted: #888888;
+      --wire-placeholder: #d5d5d5;
+      --wire-blue: #4a90d9;
+      --wire-green: #5cb85c;
+      --wire-red: #d9534f;
+      --wire-amber: #f0ad4e;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; }
+    body { font-family: var(--font); background: var(--bg); color: var(--wire-text); padding: 2rem; }
+
+    .page-title {
+      text-align: center;
+      margin-bottom: 0.5rem;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .page-subtitle {
+      text-align: center;
+      color: var(--wire-muted);
+      margin-bottom: 3rem;
+      font-size: 1rem;
+    }
+
+    .wireframe-section {
+      margin-bottom: 3rem;
+      page-break-inside: avoid;
+    }
+    .wireframe-label {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--wire-header);
+      border-left: 4px solid var(--wire-accent);
+      padding-left: 0.75rem;
+    }
+    .wireframe-desc {
+      color: var(--wire-muted);
+      font-size: 0.85rem;
+      margin-bottom: 0.75rem;
+      padding-left: 1.25rem;
+    }
+
+    /* Wireframe frame */
+    .wire {
+      background: var(--wire-bg);
+      border: 2px solid var(--wire-border);
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* Shared header bar */
+    .wire-header {
+      background: var(--wire-header);
+      color: #fff;
+      padding: 0.6rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    .wire-header .logo { font-weight: 700; letter-spacing: 0.15em; }
+    .wire-header .nav-links { display: flex; gap: 1rem; }
+    .wire-header .nav-links span {
+      background: rgba(255,255,255,0.15);
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    /* Dashboard layout */
+    .wire-dash { display: flex; min-height: 400px; }
+    .wire-sidebar {
+      width: 180px;
+      background: var(--wire-sidebar);
+      border-right: 1px solid var(--wire-border);
+      padding: 1rem 0;
+      flex-shrink: 0;
+    }
+    .wire-sidebar .sb-title {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--wire-muted);
+      padding: 0 0.75rem 0.5rem;
+    }
+    .wire-sidebar .sb-link {
+      display: block;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--wire-text);
+      border-left: 3px solid transparent;
+    }
+    .wire-sidebar .sb-link.active {
+      border-left-color: var(--wire-accent);
+      background: rgba(201,162,39,0.1);
+      font-weight: 600;
+    }
+    .wire-main {
+      flex: 1;
+      padding: 1.25rem;
+    }
+    .wire-main h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    /* Metric cards */
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .metric-row.three { grid-template-columns: repeat(3, 1fr); }
+    .metric {
+      background: var(--wire-sidebar);
+      border: 1px solid var(--wire-border);
+      border-radius: 6px;
+      padding: 0.75rem;
+      text-align: center;
+    }
+    .metric .val { font-size: 1.5rem; font-weight: 700; color: var(--wire-accent); }
+    .metric .lbl { font-size: 0.7rem; color: var(--wire-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+    /* Placeholder boxes */
+    .placeholder-box {
+      background: var(--wire-placeholder);
+      border: 1px dashed var(--wire-border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--wire-muted);
+      font-size: 0.8rem;
+      font-style: italic;
+    }
+
+    /* Mini table */
+    .wire-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .wire-table th, .wire-table td {
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid var(--wire-border);
+      text-align: left;
+    }
+    .wire-table th {
+      background: var(--wire-sidebar);
+      font-weight: 600;
+      color: var(--wire-muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+    }
+
+    /* Status pills */
+    .pill-g { background: #d4edda; color: #155724; padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.7rem; }
+    .pill-a { background: #fff3cd; color: #856404; padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.7rem; }
+    .pill-r { background: #f8d7da; color: #721c24; padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.7rem; }
+    .pill-b { background: #cce5ff; color: #004085; padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.7rem; }
+
+    /* Form elements */
+    .wire-input {
+      display: block;
+      width: 100%;
+      padding: 0.5rem 0.65rem;
+      border: 1px solid var(--wire-border);
+      border-radius: 5px;
+      background: #fafafa;
+      font-size: 0.82rem;
+      color: var(--wire-muted);
+      margin-bottom: 0.75rem;
+    }
+    .wire-btn {
+      display: inline-block;
+      padding: 0.45rem 1rem;
+      background: var(--wire-accent);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .wire-btn-outline {
+      display: inline-block;
+      padding: 0.45rem 1rem;
+      background: transparent;
+      color: var(--wire-accent);
+      border: 1px solid var(--wire-accent);
+      border-radius: 5px;
+      font-size: 0.82rem;
+    }
+
+    /* Page content wrapper */
+    .page-content { padding: 1.5rem; }
+
+    /* Timetable grid */
+    .tt-grid {
+      display: grid;
+      grid-template-columns: 80px repeat(5, 1fr);
+      gap: 1px;
+      background: var(--wire-border);
+      border: 1px solid var(--wire-border);
+      border-radius: 6px;
+      overflow: hidden;
+      font-size: 0.72rem;
+    }
+    .tt-grid > div {
+      background: var(--wire-bg);
+      padding: 0.4rem;
+      min-height: 45px;
+    }
+    .tt-grid .tt-head {
+      background: var(--wire-sidebar);
+      font-weight: 600;
+      text-align: center;
+      color: var(--wire-muted);
+      text-transform: uppercase;
+      font-size: 0.68rem;
+    }
+    .tt-grid .tt-time {
+      background: var(--wire-sidebar);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--wire-muted);
+    }
+    .tt-grid .tt-slot {
+      background: rgba(201,162,39,0.08);
+      border-left: 2px solid var(--wire-accent);
+      font-size: 0.7rem;
+      line-height: 1.3;
+    }
+    .tt-grid .tt-slot strong { display: block; color: var(--wire-text); }
+    .tt-grid .tt-slot em { font-style: normal; color: var(--wire-muted); }
+
+    /* Pricing cards */
+    .pricing-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+    .price-card {
+      border: 1px solid var(--wire-border);
+      border-radius: 6px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .price-card.featured { border-color: var(--wire-accent); border-width: 2px; }
+    .price-card h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+    .price-card .price { font-size: 1.5rem; font-weight: 700; color: var(--wire-accent); }
+    .price-card .per { font-size: 0.75rem; color: var(--wire-muted); }
+    .price-card ul { list-style: none; text-align: left; margin: 0.75rem 0; font-size: 0.78rem; }
+    .price-card ul li { padding: 0.25rem 0; border-bottom: 1px solid #eee; }
+    .price-card ul li.off { color: #ccc; text-decoration: line-through; }
+
+    /* Attendance toggles */
+    .att-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid #eee; font-size: 0.82rem; }
+    .att-row .name { width: 140px; }
+    .att-btn { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; border: 1px solid var(--wire-border); background: #fafafa; }
+    .att-btn.p { background: #d4edda; border-color: #b1dfbb; color: #155724; }
+    .att-btn.l { background: #fff3cd; border-color: #ffeeba; color: #856404; }
+    .att-btn.a { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+
+    /* Hifz progress bars */
+    .hifz-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px solid #eee; font-size: 0.82rem; }
+    .hifz-row .surah { width: 120px; font-weight: 600; }
+    .hifz-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .hifz-dot.ns { background: #ccc; }
+    .hifz-dot.ip { background: var(--wire-amber); }
+    .hifz-dot.c { background: var(--wire-green); }
+
+    /* Chat/messaging */
+    .msg-layout { display: flex; min-height: 280px; }
+    .msg-list {
+      width: 200px;
+      border-right: 1px solid var(--wire-border);
+      background: #fafafa;
+    }
+    .msg-item { padding: 0.5rem 0.65rem; border-bottom: 1px solid #eee; font-size: 0.78rem; }
+    .msg-item strong { display: block; font-size: 0.8rem; }
+    .msg-item span { color: var(--wire-muted); font-size: 0.7rem; }
+    .msg-thread { flex: 1; padding: 0.75rem; display: flex; flex-direction: column; }
+    .msg-bubble {
+      max-width: 70%;
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+    .msg-bubble.sent { background: rgba(201,162,39,0.15); align-self: flex-end; }
+    .msg-bubble.recv { background: var(--wire-sidebar); align-self: flex-start; }
+    .msg-compose {
+      margin-top: auto;
+      display: flex;
+      gap: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--wire-border);
+    }
+    .msg-compose input { flex: 1; }
+
+    @media print {
+      body { padding: 0.5rem; }
+      .wireframe-section { page-break-inside: avoid; margin-bottom: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<h1 class="page-title">ESA — Wireframes</h1>
+<p class="page-subtitle">Low-fidelity wireframes for ESA — layout, navigation, and key actions per screen before full UI styling. Screenshot each numbered section for README evidence.</p>
+
+<!-- 1. Landing Page -->
+<div class="wireframe-section">
+  <div class="wireframe-label">1. Landing Page</div>
+  <div class="wireframe-desc">Public marketing page for visitors and new schools. Hero explains the platform; three feature cards highlight multi-tenant isolation, teacher sign-off, and Stripe Connect fees. Top nav: Home, Subscribe, Log in, Register. Primary CTAs: Get Started and Learn More.</div>
+  <div class="wire">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Home</span><span>Subscribe</span><span>Log in</span><span>Register</span></div>
+    </div>
+    <div class="page-content">
+      <div style="text-align:center;padding:1.5rem 0 1rem;">
+        <div style="font-size:1.4rem;font-weight:700;">Education &amp; Schooling Applications</div>
+        <div style="color:var(--wire-muted);margin-top:0.35rem;">One platform for Islamic schools — attendance, Hifz, exams, payments.</div>
+        <div style="margin-top:1rem;display:flex;gap:0.75rem;justify-content:center;">
+          <span class="wire-btn">Get Started</span>
+          <span class="wire-btn-outline">Learn More</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-top:1rem;">
+        <div class="metric"><div style="font-size:0.85rem;font-weight:600;color:var(--wire-accent);">Multi-tenant</div><div class="lbl" style="margin-top:0.2rem;">Each school isolated</div></div>
+        <div class="metric"><div style="font-size:0.85rem;font-weight:600;color:var(--wire-accent);">Teacher Sign-off</div><div class="lbl" style="margin-top:0.2rem;">Verified progress only</div></div>
+        <div class="metric"><div style="font-size:0.85rem;font-weight:600;color:var(--wire-accent);">Stripe Connect</div><div class="lbl" style="margin-top:0.2rem;">Fees to school accounts</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Subscription Plans -->
+<div class="wireframe-section">
+  <div class="wireframe-label">2. Subscription Plans</div>
+  <div class="wireframe-desc">Onboarding step for school admins before tenant setup. Three pricing cards (Free £0, Standard £49, Premium £99) list student limits and feature flags (Hifz, payments, analytics). Standard tier marked Most Popular. Each card has a subscribe CTA leading to checkout.</div>
+  <div class="wire">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Home</span><span>Subscribe</span><span>Log in</span></div>
+    </div>
+    <div class="page-content">
+      <h2>Choose Your Plan</h2>
+      <div class="pricing-row">
+        <div class="price-card">
+          <h3>Free</h3>
+          <div class="price">£0</div><div class="per">/month</div>
+          <ul><li>Up to 30 students</li><li>Attendance</li><li>Basic timetable</li><li class="off">Hifz tracking</li><li class="off">Payments</li></ul>
+          <span class="wire-btn-outline" style="width:100%;display:block;text-align:center;">Get Started</span>
+        </div>
+        <div class="price-card featured">
+          <div style="font-size:0.65rem;text-transform:uppercase;background:var(--wire-accent);color:#fff;display:inline-block;padding:0.1rem 0.5rem;border-radius:99px;margin-bottom:0.35rem;">Most Popular</div>
+          <h3>Standard</h3>
+          <div class="price">£49</div><div class="per">/month</div>
+          <ul><li>Up to 200 students</li><li>Hifz &amp; sign-off</li><li>Homework &amp; exams</li><li>Parent portal</li><li class="off">Payments</li></ul>
+          <span class="wire-btn" style="width:100%;display:block;text-align:center;">Subscribe</span>
+        </div>
+        <div class="price-card">
+          <h3>Premium</h3>
+          <div class="price">£99</div><div class="per">/month</div>
+          <ul><li>Unlimited students</li><li>All Standard features</li><li>Stripe payments</li><li>Analytics</li><li>Messaging</li></ul>
+          <span class="wire-btn" style="width:100%;display:block;text-align:center;">Subscribe</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Login -->
+<div class="wireframe-section">
+  <div class="wireframe-label">3. Login</div>
+  <div class="wireframe-desc">Shared login for Super Admin, School Admin, Teacher, Student, and Parent. Email and password fields, forgot-password link, Sign In button, and link to registration. After login, user is routed to the dashboard matching their role.</div>
+  <div class="wire" style="max-width:480px;">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Home</span><span>Register</span></div>
+    </div>
+    <div class="page-content" style="padding:2rem;">
+      <h2 style="text-align:center;margin-bottom:1.25rem;">Log in</h2>
+      <input class="wire-input" placeholder="Email address">
+      <input class="wire-input" placeholder="Password">
+      <div style="text-align:right;margin-bottom:1rem;"><span style="font-size:0.78rem;color:var(--wire-blue);">Forgot password?</span></div>
+      <span class="wire-btn" style="width:100%;display:block;text-align:center;">Sign In</span>
+      <div style="text-align:center;margin-top:1rem;font-size:0.82rem;color:var(--wire-muted);">Don't have an account? <span style="color:var(--wire-blue);">Register</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Registration -->
+<div class="wireframe-section">
+  <div class="wireframe-label">4. Registration</div>
+  <div class="wireframe-desc">Account creation with first/last name, email, password, confirm password, and role dropdown (Student, Parent, Teacher, etc.). School linkage will be required for non–super-admin roles at the API layer. Links back to login for existing users.</div>
+  <div class="wire" style="max-width:480px;">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Home</span><span>Log in</span></div>
+    </div>
+    <div class="page-content" style="padding:2rem;">
+      <h2 style="text-align:center;margin-bottom:1.25rem;">Create Account</h2>
+      <input class="wire-input" placeholder="First name">
+      <input class="wire-input" placeholder="Last name">
+      <input class="wire-input" placeholder="Email address">
+      <input class="wire-input" placeholder="Password">
+      <input class="wire-input" placeholder="Confirm password">
+      <div style="margin-bottom:0.75rem;font-size:0.82rem;color:var(--wire-muted);">Role: <span style="border:1px solid var(--wire-border);padding:0.25rem 0.5rem;border-radius:4px;">Student ▾</span></div>
+      <span class="wire-btn" style="width:100%;display:block;text-align:center;">Register</span>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Super Admin Dashboard -->
+<div class="wireframe-section">
+  <div class="wireframe-label">5. Super Admin Dashboard</div>
+  <div class="wireframe-desc">Super Admin only. Sidebar: Dashboard, Schools, Users, Subscriptions, Settings. Main area shows platform KPIs (school count, users, revenue, new sign-ups) and a schools table with status, user count, and subscription tier per tenant.</div>
+  <div class="wire">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Dashboard</span><span>Schools</span><span>Users</span><span>Logout</span></div>
+    </div>
+    <div class="wire-dash">
+      <div class="wire-sidebar">
+        <div class="sb-title">Super Admin</div>
+        <div class="sb-link active">Dashboard</div>
+        <div class="sb-link">Schools</div>
+        <div class="sb-link">Users</div>
+        <div class="sb-link">Subscriptions</div>
+        <div class="sb-link">Settings</div>
+      </div>
+      <div class="wire-main">
+        <h2>Platform Overview</h2>
+        <div class="metric-row">
+          <div class="metric"><div class="val">12</div><div class="lbl">Schools</div></div>
+          <div class="metric"><div class="val">847</div><div class="lbl">Users</div></div>
+          <div class="metric"><div class="val">£4,200</div><div class="lbl">Revenue</div></div>
+          <div class="metric"><div class="val">3</div><div class="lbl">New this month</div></div>
+        </div>
+        <table class="wire-table">
+          <thead><tr><th>School</th><th>Status</th><th>Users</th><th>Tier</th></tr></thead>
+          <tbody>
+            <tr><td>Al-Noor Academy</td><td><span class="pill-g">Active</span></td><td>124</td><td>Premium</td></tr>
+            <tr><td>Iqra School</td><td><span class="pill-g">Active</span></td><td>89</td><td>Standard</td></tr>
+            <tr><td>Greenfield Islamic</td><td><span class="pill-a">Suspended</span></td><td>45</td><td>Free</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. School Admin Dashboard -->
+<div class="wireframe-section">
+  <div class="wireframe-label">6. School Admin Dashboard</div>
+  <div class="wireframe-desc">School Admin home for one tenant. Sidebar covers Students, Teachers, Classes, Timetable, Attendance, Fees, Analytics, Announcements. KPI row: student/teacher counts, attendance %, outstanding fees. Quick actions: add student/teacher, send announcement. Recent activity feed below.</div>
+  <div class="wire">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Al-Noor Academy</span><span>Logout</span></div>
+    </div>
+    <div class="wire-dash">
+      <div class="wire-sidebar">
+        <div class="sb-title">School Admin</div>
+        <div class="sb-link active">Dashboard</div>
+        <div class="sb-link">Students</div>
+        <div class="sb-link">Teachers</div>
+        <div class="sb-link">Classes</div>
+        <div class="sb-link">Timetable</div>
+        <div class="sb-link">Attendance</div>
+        <div class="sb-link">Fees</div>
+        <div class="sb-link">Analytics</div>
+        <div class="sb-link">Announcements</div>
+      </div>
+      <div class="wire-main">
+        <h2>School Dashboard</h2>
+        <div class="metric-row">
+          <div class="metric"><div class="val">124</div><div class="lbl">Students</div></div>
+          <div class="metric"><div class="val">18</div><div class="lbl">Teachers</div></div>
+          <div class="metric"><div class="val">94%</div><div class="lbl">Attendance</div></div>
+          <div class="metric"><div class="val">£1,240</div><div class="lbl">Fees outstanding</div></div>
+        </div>
+        <div style="display:flex;gap:0.75rem;margin-bottom:1rem;">
+          <span class="wire-btn">+ Add Student</span>
+          <span class="wire-btn-outline">+ Add Teacher</span>
+          <span class="wire-btn-outline">Send Announcement</span>
+        </div>
+        <table class="wire-table">
+          <thead><tr><th>Recent activity</th><th>Date</th><th>Type</th></tr></thead>
+          <tbody>
+            <tr><td>Ahmed enrolled in Year 3</td><td>12 May</td><td><span class="pill-b">Enrolment</span></td></tr>
+            <tr><td>Mrs Khan marked 8A register</td><td>12 May</td><td><span class="pill-g">Attendance</span></td></tr>
+            <tr><td>Fee overdue — Yusuf (Year 5)</td><td>11 May</td><td><span class="pill-r">Payment</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7. Teacher Dashboard -->
+<div class="wireframe-section">
+  <div class="wireframe-label">7. Teacher Dashboard</div>
+  <div class="wireframe-desc">Teacher home screen. Sidebar: timetable, attendance, homework, Hifz, exams, messages, behaviour. Today’s lesson cards show time, subject, and class. Class metrics: attendance %, homework on-time %, Hifz completion. Actions: Take Register, Assign Homework, Sign Off Progress.</div>
+  <div class="wire">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Mrs Khan</span><span>Logout</span></div>
+    </div>
+    <div class="wire-dash">
+      <div class="wire-sidebar">
+        <div class="sb-title">Teacher</div>
+        <div class="sb-link active">Dashboard</div>
+        <div class="sb-link">My Timetable</div>
+        <div class="sb-link">Attendance</div>
+        <div class="sb-link">Homework</div>
+        <div class="sb-link">Hifz Progress</div>
+        <div class="sb-link">Exams</div>
+        <div class="sb-link">Messages</div>
+        <div class="sb-link">Behaviour</div>
+      </div>
+      <div class="wire-main">
+        <h2>Today's Schedule</h2>
+        <div style="display:flex;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+          <div class="metric" style="flex:1;min-width:140px;"><div style="font-size:0.75rem;font-weight:600;color:var(--wire-accent);">09:00 – 09:45</div><div class="lbl">Hifz — Year 3A</div></div>
+          <div class="metric" style="flex:1;min-width:140px;"><div style="font-size:0.75rem;font-weight:600;color:var(--wire-accent);">10:00 – 10:45</div><div class="lbl">Arabic — Year 4B</div></div>
+          <div class="metric" style="flex:1;min-width:140px;"><div style="font-size:0.75rem;font-weight:600;color:var(--wire-accent);">11:15 – 12:00</div><div class="lbl">Qur'an — Year 5A</div></div>
+          <div class="metric" style="flex:1;min-width:140px;"><div style="font-size:0.75rem;font-weight:600;color:var(--wire-accent);">13:30 – 14:15</div><div class="lbl">Hifz — Year 6A</div></div>
+        </div>
+        <h2>My Classes</h2>
+        <div class="metric-row three">
+          <div class="metric"><div class="val">96%</div><div class="lbl">Year 3A Attendance</div></div>
+          <div class="metric"><div class="val">78%</div><div class="lbl">Homework on time</div></div>
+          <div class="metric"><div class="val">42%</div><div class="lbl">Hifz completed</div></div>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+          <span class="wire-btn">Take Register</span>
+          <span class="wire-btn-outline">Assign Homework</span>
+          <span class="wire-btn-outline">Sign Off Progress</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. Student Dashboard -->
+<div class="wireframe-section">
+  <div class="wireframe-label">8. Student Dashboard</div>
+  <div class="wireframe-desc">Student portal. Notification bell in header. Sidebar: timetable, homework, Hifz, exams, recitations. Main panel splits homework table (title, due date, status pills) and Hifz surah list with colour-coded progress (completed, in progress, not started).</div>
+  <div class="wire">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Ahmed</span><span>🔔 3</span><span>Logout</span></div>
+    </div>
+    <div class="wire-dash">
+      <div class="wire-sidebar">
+        <div class="sb-title">Student</div>
+        <div class="sb-link active">Dashboard</div>
+        <div class="sb-link">Timetable</div>
+        <div class="sb-link">Homework</div>
+        <div class="sb-link">Hifz Progress</div>
+        <div class="sb-link">Exams</div>
+        <div class="sb-link">Recitations</div>
+      </div>
+      <div class="wire-main">
+        <h2>Welcome, Ahmed</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <div style="font-weight:600;margin-bottom:0.5rem;font-size:0.88rem;">Upcoming Homework</div>
+            <table class="wire-table">
+              <thead><tr><th>Title</th><th>Due</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Surah Revision</td><td>14 May</td><td><span class="pill-a">Pending</span></td></tr>
+                <tr><td>Maths worksheet</td><td>15 May</td><td><span class="pill-r">Not submitted</span></td></tr>
+                <tr><td>Arabic vocab</td><td>16 May</td><td><span class="pill-g">Submitted</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <div style="font-weight:600;margin-bottom:0.5rem;font-size:0.88rem;">Hifz Progress</div>
+            <div class="hifz-row"><span class="hifz-dot c"></span><span class="surah">Al-Fatiha</span><span style="font-size:0.75rem;color:var(--wire-green);">Completed</span></div>
+            <div class="hifz-row"><span class="hifz-dot c"></span><span class="surah">Al-Baqarah</span><span style="font-size:0.75rem;color:var(--wire-green);">Completed</span></div>
+            <div class="hifz-row"><span class="hifz-dot ip"></span><span class="surah">Al-Imran</span><span style="font-size:0.75rem;color:var(--wire-amber);">In Progress</span></div>
+            <div class="hifz-row"><span class="hifz-dot ns"></span><span class="surah">An-Nisa</span><span style="font-size:0.75rem;color:var(--wire-muted);">Not Started</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 9. Parent Dashboard -->
+<div class="wireframe-section">
+  <div class="wireframe-label">9. Parent Dashboard</div>
+  <div class="wireframe-desc">Parent view with tabs/buttons to switch between children (e.g. Ahmed Year 5, Fatima Year 3). Per-child KPIs: attendance, Hifz %, homework completion, fees due. Primary actions: Pay Fees (links to Stripe checkout wireframe) and Message Teacher.</div>
+  <div class="wire">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Mr Hussain</span><span>Logout</span></div>
+    </div>
+    <div class="wire-dash">
+      <div class="wire-sidebar">
+        <div class="sb-title">Parent</div>
+        <div class="sb-link active">Dashboard</div>
+        <div class="sb-link">Homework</div>
+        <div class="sb-link">Hifz Progress</div>
+        <div class="sb-link">Exams</div>
+        <div class="sb-link">Fees &amp; Payments</div>
+        <div class="sb-link">Messages</div>
+        <div class="sb-link">Behaviour</div>
+      </div>
+      <div class="wire-main">
+        <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+          <span class="wire-btn" style="font-size:0.78rem;">Ahmed (Year 5)</span>
+          <span class="wire-btn-outline" style="font-size:0.78rem;">Fatima (Year 3)</span>
+        </div>
+        <h2>Ahmed — Overview</h2>
+        <div class="metric-row">
+          <div class="metric"><div class="val">92%</div><div class="lbl">Attendance</div></div>
+          <div class="metric"><div class="val">65%</div><div class="lbl">Hifz Complete</div></div>
+          <div class="metric"><div class="val">4/5</div><div class="lbl">Homework done</div></div>
+          <div class="metric"><div class="val">£85</div><div class="lbl">Fees due</div></div>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+          <span class="wire-btn">Pay Fees</span>
+          <span class="wire-btn-outline">Message Teacher</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 10. Timetable -->
+<div class="wireframe-section">
+  <div class="wireframe-label">10. Weekly Timetable</div>
+  <div class="wireframe-desc">Weekly timetable for a class (e.g. Year 5A). Grid columns Mon–Fri; rows by period (09:00, 10:00, etc.). Each cell shows subject name and assigned teacher. Used by teachers, students, and admins; read-only for students/parents.</div>
+  <div class="wire">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Year 5A — Timetable</span></div>
+    </div>
+    <div class="page-content">
+      <h2>Weekly Timetable — Year 5A</h2>
+      <div class="tt-grid" style="margin-top:0.75rem;">
+        <div class="tt-head"></div><div class="tt-head">Mon</div><div class="tt-head">Tue</div><div class="tt-head">Wed</div><div class="tt-head">Thu</div><div class="tt-head">Fri</div>
+        <div class="tt-time">09:00</div><div class="tt-slot"><strong>Hifz</strong><em>Mrs Khan</em></div><div class="tt-slot"><strong>Arabic</strong><em>Mr Ali</em></div><div class="tt-slot"><strong>Hifz</strong><em>Mrs Khan</em></div><div class="tt-slot"><strong>Maths</strong><em>Mr Patel</em></div><div class="tt-slot"><strong>Qur'an</strong><em>Mrs Khan</em></div>
+        <div class="tt-time">10:00</div><div class="tt-slot"><strong>English</strong><em>Ms Brown</em></div><div class="tt-slot"><strong>Hifz</strong><em>Mrs Khan</em></div><div class="tt-slot"><strong>Science</strong><em>Mr Patel</em></div><div class="tt-slot"><strong>Arabic</strong><em>Mr Ali</em></div><div class="tt-slot"><strong>Hifz</strong><em>Mrs Khan</em></div>
+        <div class="tt-time">11:15</div><div class="tt-slot"><strong>Maths</strong><em>Mr Patel</em></div><div class="tt-slot"><strong>English</strong><em>Ms Brown</em></div><div class="tt-slot"><strong>Arabic</strong><em>Mr Ali</em></div><div class="tt-slot"><strong>Hifz</strong><em>Mrs Khan</em></div><div class="tt-slot"><strong>Science</strong><em>Mr Patel</em></div>
+        <div class="tt-time">13:30</div><div class="tt-slot"><strong>Science</strong><em>Mr Patel</em></div><div class="tt-slot"><strong>Maths</strong><em>Mr Patel</em></div><div class="tt-slot"><strong>English</strong><em>Ms Brown</em></div><div class="tt-slot"><strong>Science</strong><em>Mr Patel</em></div><div class="tt-slot"><strong>Assembly</strong><em>—</em></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 11. Attendance Register -->
+<div class="wireframe-section">
+  <div class="wireframe-label">11. Attendance Register</div>
+  <div class="wireframe-desc">Teacher marks daily attendance for one class. Header shows class name and date. Each student row has Present / Late / Absent toggle buttons (one active per row). Save Register commits marks and feeds attendance analytics.</div>
+  <div class="wire">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Attendance — Year 5A</span></div>
+    </div>
+    <div class="page-content">
+      <h2>Register — Year 5A <span style="font-weight:400;color:var(--wire-muted);font-size:0.85rem;">Monday 12 May 2026</span></h2>
+      <div style="margin-top:0.75rem;">
+        <div class="att-row"><span class="name">Ahmed Hussain</span><span class="att-btn p">Present</span><span class="att-btn">Late</span><span class="att-btn">Absent</span></div>
+        <div class="att-row"><span class="name">Fatima Khan</span><span class="att-btn p">Present</span><span class="att-btn">Late</span><span class="att-btn">Absent</span></div>
+        <div class="att-row"><span class="name">Yusuf Ali</span><span class="att-btn">Present</span><span class="att-btn l">Late</span><span class="att-btn">Absent</span></div>
+        <div class="att-row"><span class="name">Maryam Begum</span><span class="att-btn">Present</span><span class="att-btn">Late</span><span class="att-btn a">Absent</span></div>
+        <div class="att-row"><span class="name">Ibrahim Patel</span><span class="att-btn p">Present</span><span class="att-btn">Late</span><span class="att-btn">Absent</span></div>
+      </div>
+      <div style="margin-top:1rem;"><span class="wire-btn">Save Register</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 12. Payments / Fees -->
+<div class="wireframe-section">
+  <div class="wireframe-label">12. Payments / Fees</div>
+  <div class="wireframe-desc">Parent payments page (implemented at `/payments/`). Table columns: fee name, child, amount, due date, status (Overdue, Outstanding, Paid), and Pay Now or Receipt link. Matches Stripe Checkout flow for outstanding items; paid rows move to history.</div>
+  <div class="wire">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Parent — Fees</span></div>
+    </div>
+    <div class="page-content">
+      <h2>Outstanding Fees</h2>
+      <table class="wire-table">
+        <thead><tr><th>Fee</th><th>Child</th><th>Amount</th><th>Due date</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>Term 3 tuition</td><td>Ahmed</td><td>£250</td><td>01 Jun</td><td><span class="pill-r">Overdue</span></td><td><span class="wire-btn" style="padding:0.2rem 0.5rem;font-size:0.72rem;">Pay Now</span></td></tr>
+          <tr><td>School trip</td><td>Ahmed</td><td>£35</td><td>20 May</td><td><span class="pill-a">Outstanding</span></td><td><span class="wire-btn" style="padding:0.2rem 0.5rem;font-size:0.72rem;">Pay Now</span></td></tr>
+          <tr><td>Term 2 tuition</td><td>Ahmed</td><td>£250</td><td>01 Mar</td><td><span class="pill-g">Paid</span></td><td><span style="font-size:0.75rem;color:var(--wire-blue);">Receipt</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 13. Messaging -->
+<div class="wireframe-section">
+  <div class="wireframe-label">13. Staff Messaging</div>
+  <div class="wireframe-desc">Secure messaging between staff and parents. Left panel: conversation list with preview text. Right: thread with received/sent bubbles, compose input, and Send. Tenant-scoped so parents only message staff at their child’s school.</div>
+  <div class="wire">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>Messages</span></div>
+    </div>
+    <div class="msg-layout">
+      <div class="msg-list">
+        <div class="msg-item" style="background:#eee;"><strong>Mr Hussain</strong><span>Thank you for the update...</span></div>
+        <div class="msg-item"><strong>Mrs Begum</strong><span>Is Maryam's report ready?</span></div>
+        <div class="msg-item"><strong>Mr Ali</strong><span>Homework deadline query</span></div>
+      </div>
+      <div class="msg-thread">
+        <div class="msg-bubble recv"><strong style="font-size:0.72rem;">Mr Hussain</strong><br>How is Ahmed doing in Hifz this term?</div>
+        <div class="msg-bubble sent">He's making good progress. He completed Al-Imran last week and is starting An-Nisa.</div>
+        <div class="msg-bubble recv">Thank you for the update. We'll keep practising at home.</div>
+        <div class="msg-compose">
+          <input class="wire-input" style="margin:0;" placeholder="Type a message...">
+          <span class="wire-btn">Send</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 14. Analytics -->
+<div class="wireframe-section">
+  <div class="wireframe-label">14. Analytics Dashboard</div>
+  <div class="wireframe-desc">School Admin analytics. KPI tiles for attendance trend, Hifz completion, fee collection, and behaviour incidents. Chart placeholders for term-over-term comparison. Data pulled from attendance, Hifz sign-offs, and payment modules when built.</div>
+  <div class="wire">
+    <div class="wire-header">
+      <span class="logo">ESA</span>
+      <div class="nav-links"><span>School Admin — Analytics</span></div>
+    </div>
+    <div class="page-content">
+      <h2>School Analytics</h2>
+      <div class="metric-row">
+        <div class="metric"><div class="val">94%</div><div class="lbl">Attendance rate</div></div>
+        <div class="metric"><div class="val">58%</div><div class="lbl">Hifz completed</div></div>
+        <div class="metric"><div class="val">82%</div><div class="lbl">Homework on time</div></div>
+        <div class="metric"><div class="val">£3,800</div><div class="lbl">Fees collected</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.5rem;">
+        <div class="placeholder-box" style="height:160px;">[ Attendance trend chart ]</div>
+        <div class="placeholder-box" style="height:160px;">[ Hifz completion chart ]</div>
+        <div class="placeholder-box" style="height:160px;">[ Homework submission chart ]</div>
+        <div class="placeholder-box" style="height:160px;">[ Fee collection chart ]</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
