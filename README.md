@@ -737,6 +737,25 @@ python manage.py runserver
 
 ---
 
+## Stripe payments (local test)
+
+Parent school fees use Stripe Checkout in test mode (same API keys as my `stripe_demo` project).
+
+1. Copy Stripe keys into `.env` (`STRIPE_PUBLISHABLE_KEY`, `STRIPE_SECRET_KEY`).
+2. Run migrations and seed demo data:
+
+   ```bash
+   source .venv/bin/activate
+   python manage.py migrate
+   python manage.py seed_demo_fees
+   ```
+
+3. Start the server and log in as `parent_demo` / `demo1234`, then open `/payments/`.
+4. Click **Pay now** on a fee — use Stripe test card `4242 4242 4242 4242`, any future expiry, any CVC.
+5. Optional webhook forwarding: `stripe listen --forward-to localhost:8000/payments/webhook/`
+
+---
+
 ## Deployment
 
 Deployment will use Heroku (or Render) with a managed PostgreSQL database.
@@ -801,7 +820,7 @@ To be filled as features ship. Each row records what was tested, expected vs act
 
 | # | Test | Steps | Expected | Actual | Pass/Fail | Screenshot |
 |---|------|-------|----------|--------|-----------|------------|
-| 1 | | | | | | |
+| 1 | Stripe checkout charged pennies instead of pounds | Payments checkout | Pay Term 3 tuition (£250) | Stripe shows £250.00 | Stripe showed £2.50 | High | Fixed | Use amount_pence directly in unit_amount (see payments/services.py comment) |
 | 2 | | | | | | |
 | 3 | | | | | | |
 | 4 | | | | | | |
