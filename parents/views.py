@@ -54,3 +54,16 @@ class ParentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
         log_action(user=request.user, action='create', resource='ParentProfile',
                    resource_id=profile.pk, request=request)
         return Response(ParentProfileSerializer(profile).data, status=status.HTTP_201_CREATED)
+
+
+class StudentParentLinkViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
+    queryset = StudentParentLink.objects.all()
+    serializer_class = StudentParentLinkSerializer
+    permission_classes = [IsAuthenticated, IsSchoolAdminOnly]
+    school_field = 'parent__school'
+
+    def get_queryset(self):
+        return super().get_queryset().select_related('parent', 'student', 'parent__user')
+
+    def perform_create(self, serializer):
+        serializer.save()
