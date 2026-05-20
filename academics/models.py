@@ -26,14 +26,16 @@ class YearGroup(models.Model):
 
 class ClassGroup(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='classes')
+    year_group = models.ForeignKey(
+        YearGroup, on_delete=models.SET_NULL, null=True, blank=True, related_name='classes',
+    )
     name = models.CharField(max_length=120)
-    year_group = models.CharField(max_length=40, blank=True)
     teacher = models.ForeignKey(
         TeacherProfile,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='classes',
+        related_name='homeroom_classes',
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
