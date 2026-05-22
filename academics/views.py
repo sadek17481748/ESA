@@ -42,3 +42,15 @@ class ClassGroupViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
         if user.role == 'super_admin':
             school = serializer.validated_data.get('school') or school
         serializer.save(school=school)
+
+class ClassEnrollmentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
+    queryset = ClassEnrollment.objects.all()
+    serializer_class = ClassEnrollmentSerializer
+    permission_classes = [IsAuthenticated, IsSchoolAdminOnly]
+    school_field = 'class_group__school'
+
+    def get_queryset(self):
+        return super().get_queryset().select_related('class_group', 'student')
+
+    def perform_create(self, serializer):
+        serializer.save()
