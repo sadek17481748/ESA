@@ -22,3 +22,23 @@ class YearGroupViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(school=self.request.user.school)
+
+
+class ClassGroupViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
+    queryset = ClassGroup.objects.all()
+    serializer_class = ClassGroupSerializer
+
+    def get_permissions(self):
+        if self.action in ('create', 'update', 'partial_update', 'destroy'):
+            return [IsAuthenticated(), IsSchoolAdminOnly()]
+        return [IsAuthenticated(), IsSchoolAdminOrReadOnlyStaff()]
+
+    def get_queryset(self):
+        return super().get_queryset().select_related('school', 'teacher', 'teacher__user', 'year_group')
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        school = user.school
+        if user.role == 'super_admin':
+            school = serializer.validated_data.get('school') or school
+        serializer.save(school=school)
