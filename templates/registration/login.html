@@ -1,25 +1,28 @@
-<!DOCTYPE html>
-<!-- ESA — Session login for parents (payments flow uses this). -->
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Log in — ESA</title>
-  <link rel="stylesheet" href="/css/base.css">
-</head>
-<body>
-  <div class="page-wrap">
-    <main class="main-single">
-      <section class="panel">
-        <h1>Log in</h1>
-        <div class="accent-bar"></div>
-        <form method="post" class="form-stack">
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="btn-primary">Sign in</button>
-        </form>
-        <p style="margin-top:1rem;color:var(--muted);">Parent test user: run <code>python manage.py seed_demo_fees</code></p>
-      </section>
-    </main>
-  </div>
-</body>
-</html>
+{% extends "base/marketing.html" %}
+
+{% block title %}Log in — ESA{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <h1>Log in</h1>
+  <div class="accent-bar"></div>
+  {% if form.errors %}
+    <p class="lead" style="color:#e57373;">Invalid username or password. Try again.</p>
+  {% endif %}
+  <form method="post" class="form-stack" action="{% url 'login' %}">
+    {% csrf_token %}
+    <div class="field">
+      <label for="id_username">Username</label>
+      {{ form.username }}
+    </div>
+    <div class="field">
+      <label for="id_password">Password</label>
+      {{ form.password }}
+    </div>
+    <button type="submit" class="btn-primary">Sign in</button>
+  </form>
+  <p class="lead" style="margin-top:1.25rem;margin-bottom:0;">
+    <a href="{% url 'pages:register' %}">Create an account</a>
+  </p>
+</section>
+{% endblock %}
