@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ESA{% endblock %}</title>
+  <link rel="stylesheet" href="/css/base.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="header-geometry" aria-hidden="true"></div>
+    <div class="header-inner">
+      <div class="brand">
+        <a href="{% url 'pages:dashboard' %}" style="color:inherit;text-decoration:none;">
+          <span class="brand-mark">ESA</span>
+          <span class="brand-tag">{% block brand_tag %}Portal{% endblock %}</span>
+        </a>
+      </div>
+      <nav class="top-nav" aria-label="Account">
+        {% block top_nav_extra %}{% endblock %}
+        <a href="{% url 'pages:messages' %}">Messages</a>
+        <a href="{% url 'logout' %}">Log out</a>
+      </nav>
+    </div>
+  </header>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Section navigation">
+      {% block sidebar %}{% endblock %}
+    </aside>
+    <main id="main" class="app-main">
+      <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+      {% if page_meta %}<p class="page-meta">{{ page_meta }}</p>{% endif %}
+      {% block dashboard_content %}{% endblock %}
+    </main>
+  </div>
+  <footer class="site-footer">ESA — Education &amp; Schooling Applications</footer>
+</body>
+</html>
