@@ -1,0 +1,30 @@
+{% extends "base/marketing.html" %}
+
+{% block title %}Register — ESA{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <h1>Register</h1>
+  <div class="accent-bar"></div>
+  <p class="lead">Create a parent or student account linked to your school.</p>
+  <form method="post" class="form-stack" action="">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <span style="color:#e57373;font-size:0.9rem;">{{ field.errors.0 }}</span>
+        {% endif %}
+      </div>
+    {% endfor %}
+    {% if form.non_field_errors %}
+      <p style="color:#e57373;">{{ form.non_field_errors.0 }}</p>
+    {% endif %}
+    <button type="submit" class="btn-primary">Create account</button>
+  </form>
+  <p class="lead" style="margin-top:1.25rem;margin-bottom:0;">
+    <a href="{% url 'login' %}">Already have an account?</a>
+  </p>
+</section>
+{% endblock %}
