@@ -43,6 +43,7 @@ class ClassGroupViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
             school = serializer.validated_data.get('school') or school
         serializer.save(school=school)
 
+
 class ClassEnrollmentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
     queryset = ClassEnrollment.objects.all()
     serializer_class = ClassEnrollmentSerializer
@@ -53,4 +54,15 @@ class ClassEnrollmentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
         return super().get_queryset().select_related('class_group', 'student')
 
     def perform_create(self, serializer):
+        student = serializer.validated_data['student']
+        class_group = serializer.validated_data['class_group']
+        if student.school_id != class_group.school_id:
+            raise PermissionError('Student and class must be in the same school.')
         serializer.save()
+
+
+# ---------------------------------------------------------------------------
+# BUGGY CODE (commented out) — enrolled student from another school
+# ---------------------------------------------------------------------------
+# def perform_create(self, serializer):
+#     serializer.save()
