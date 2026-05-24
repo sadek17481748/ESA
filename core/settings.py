@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'attendance',
     'homework',
     'notifications',
+    'pages',
 ]
 
 # ---------------------------------------------------------------------------
