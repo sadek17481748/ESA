@@ -206,7 +206,7 @@ STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY', default='')
 STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='')
 
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/payments/'
+LOGIN_REDIRECT_URL = '/dashboard/'
 
 # subscription prices in pence (matches subscription.html wireframe)
 SUBSCRIPTION_PRICES = {
