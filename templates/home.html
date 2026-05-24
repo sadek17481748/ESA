@@ -14,6 +14,10 @@
         <span class="brand-mark">ESA</span>
         <span class="brand-tag">Education &amp; Schooling Applications</span>
       </div>
+      <nav class="top-nav" aria-label="Primary">
+        <a href="{% url 'login' %}">Log in</a>
+        <a class="btn-outline" href="{% url 'pages:register' %}">Register</a>
+      </nav>
     </div>
   </header>
 
@@ -24,15 +28,12 @@
         <div class="accent-bar"></div>
         <p class="lead">Multi-tenant school management for Islamic schools — Hifz, Alimiyah, attendance, homework, and parent payments.</p>
         <ul class="link-list" style="margin-top:1.5rem;line-height:2;">
-          <li><a href="/accounts/login/">Log in</a> — parents and staff (session auth)</li>
-          <li><a href="/payments/">Parent payments</a> — fees and Stripe checkout</li>
+          <li><a href="{% url 'pages:register' %}">Create an account</a> — parents and students</li>
+          <li><a href="{% url 'login' %}">Log in</a> — staff, parents, and students</li>
+          <li><a href="{% url 'payments:fee_list' %}">Parent payments</a> — fees and Stripe checkout</li>
+          <li><a href="{% url 'pages:dashboard' %}">Dashboard</a> — role-based portal</li>
           <li><a href="/admin/">Admin</a> — Django admin</li>
-          <li><a href="/api/auth/token/">API token</a> — JWT for REST clients</li>
         </ul>
-        <p style="margin-top:1.5rem;color:var(--muted);font-size:0.9rem;">
-          Demo users: run <code>python manage.py seed_rbac_users</code> on the server, then log in as
-          <code>schooladmin</code>, <code>teacher_demo</code>, <code>parent_demo</code>, or <code>student_demo</code>.
-        </p>
       </section>
     </main>
   </div>
