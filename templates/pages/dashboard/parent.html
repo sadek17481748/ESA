@@ -1,0 +1,28 @@
+{% extends "base/dashboard.html" %}
+{% block title %}Parent — ESA{% endblock %}
+{% block brand_tag %}Parent{% endblock %}
+{% block top_nav_extra %}<a href="{% url 'payments:fee_list' %}">Payments</a>{% endblock %}
+{% block sidebar %}{% include "pages/includes/sidebar_parent.html" %}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block dashboard_content %}
+<section class="panel" style="margin-bottom:1.25rem;">
+  <h2 style="margin-top:0;font-size:1.1rem;">Linked students</h2>
+  <div class="accent-bar"></div>
+  <div class="grid-cards" style="margin-top:0;">
+    <article class="card"><h2>Student A</h2><p>Year / class summary — placeholder</p></article>
+    <article class="card"><h2>Student B</h2><p>Year / class summary — placeholder</p></article>
+  </div>
+</section>
+<div class="split">
+  <section class="panel">
+    <h2 style="margin-top:0;font-size:1.1rem;">Attendance snapshot</h2>
+    <div class="accent-bar"></div>
+    <p class="lead" style="margin:0;">Chart or table placeholder</p>
+  </section>
+  <section class="panel">
+    <h2 style="margin-top:0;font-size:1.1rem;">Payments</h2>
+    <div class="accent-bar"></div>
+    <p class="lead" style="margin:0;"><a href="{% url 'payments:fee_list' %}">Pending &amp; history</a></p>
+  </section>
+</div>
+{% endblock %}
