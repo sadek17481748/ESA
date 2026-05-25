@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from audit.services import log_action
 from core_app.mixins import TenantScopedQuerySetMixin
-from core_app.permissions import IsSchoolStaff
+from core_app.permissions import IsSchoolAdminOnly, IsSchoolAdminOrReadOnlyStaff
 from .models import StudentProfile
 from .serializers import StudentProfileSerializer
 
@@ -17,7 +17,10 @@ class StudentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
 
     queryset = StudentProfile.objects.all()
     serializer_class = StudentProfileSerializer
-    permission_classes = [IsAuthenticated, IsSchoolStaff]
+    def get_permissions(self):
+        if self.action in ('create', 'update', 'partial_update', 'destroy', 'import_csv'):
+            return [IsAuthenticated(), IsSchoolAdminOnly()]
+        return [IsAuthenticated(), IsSchoolAdminOrReadOnlyStaff()]
 
     def get_queryset(self):
         return super().get_queryset().select_related('school', 'user')
