@@ -80,6 +80,7 @@ class StudentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
                 errors.append(f'Row {i}: duplicate admission_number {adm}')
                 continue
             StudentProfile.objects.create(
+                school=school,
                 first_name=fn,
                 last_name=ln,
                 year_group=yg,
@@ -88,6 +89,13 @@ class StudentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
             created += 1
         return Response({'created': created, 'errors': errors}, status=status.HTTP_201_CREATED)
 
+
+# ---------------------------------------------------------------------------
+# BUGGY CODE (commented out) — CSV import ignored school and wrote to wrong tenant
+# ---------------------------------------------------------------------------
+# StudentProfile.objects.create(
+#     first_name=fn, last_name=ln, year_group=yg, admission_number=adm,
+# )
 
 # ---------------------------------------------------------------------------
 # BUGGY CODE (commented out) — teacher saw students from every school
