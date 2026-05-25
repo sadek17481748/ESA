@@ -1,0 +1,16 @@
+<p class="sidebar-title">Teaching</p>
+<nav class="sidebar-nav">
+  <a href="{% url 'pages:dashboard_teacher' %}">Overview</a>
+  <a href="{% url 'pages:attendance' %}">Attendance</a>
+  <a href="{% url 'pages:worksheets' %}">Worksheets</a>
+  <a href="{% url 'pages:exams' %}">Exams</a>
+  <a href="{% url 'pages:hifz' %}">Hifz</a>
+  <a href="{% url 'pages:quran' %}">Qur’an</a>
+  <a href="{% url 'pages:behaviour' %}">Behaviour</a>
+</nav>
+<p class="sidebar-title">Sign-off</p>
+<nav class="sidebar-nav">
+  <a href="{% url 'pages:worksheets' %}#pending">Pending submissions</a>
+  <a href="{% url 'pages:exams' %}#finalise">Finalise results</a>
+  <a href="{% url 'pages:hifz' %}#signoff">Hifz sign-off</a>
+</nav>
