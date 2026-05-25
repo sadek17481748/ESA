@@ -1,0 +1,13 @@
+<p class="sidebar-title">School</p>
+<nav class="sidebar-nav">
+  <a href="{% url 'pages:dashboard_school_admin' %}">Overview</a>
+  <a href="{% url 'pages:analytics' %}">Analytics</a>
+  <a href="{% url 'pages:subscription' %}">Subscription</a>
+  <a href="{% url 'payments:fee_list' %}">Fees</a>
+</nav>
+<p class="sidebar-title">Setup</p>
+<nav class="sidebar-nav">
+  <a href="{% url 'pages:timetable' %}">Timetable</a>
+  <a href="{% url 'pages:attendance' %}">Attendance</a>
+  <a href="{% url 'admin:index' %}">Admin panel</a>
+</nav>
