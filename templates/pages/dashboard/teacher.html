@@ -1,0 +1,18 @@
+{% extends "base/dashboard.html" %}
+{% block title %}Teacher — ESA{% endblock %}
+{% block brand_tag %}Teacher{% endblock %}
+{% block top_nav_extra %}<a href="{% url 'pages:timetable' %}">Timetable</a>{% endblock %}
+{% block sidebar %}{% include "pages/includes/sidebar_teacher.html" %}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block dashboard_content %}
+<div class="grid-cards">
+  <article class="card"><h2>Today’s sessions</h2><p>Timetable slots placeholder</p></article>
+  <article class="card"><h2>Sign-off queue</h2><p>Pending homework / Hifz items</p></article>
+  <article class="card"><h2>Class overview</h2><p>Homeroom summary placeholder</p></article>
+</div>
+<section class="panel" style="margin-top:1.25rem;">
+  <h2 style="margin-top:0;font-size:1.1rem;">Recent activity</h2>
+  <div class="accent-bar"></div>
+  <p class="lead" style="margin:0;">Activity feed placeholder</p>
+</section>
+{% endblock %}
