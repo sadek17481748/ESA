@@ -1,0 +1,12 @@
+{% extends "base/dashboard.html" %}
+{% block title %}Super admin — ESA{% endblock %}
+{% block brand_tag %}Super admin{% endblock %}
+{% block sidebar %}{% include "pages/includes/sidebar_super_admin.html" %}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block dashboard_content %}
+<div class="grid-cards">
+  <article class="card"><h2>Schools on platform</h2><p>Tenant list placeholder</p></article>
+  <article class="card"><h2>Subscriptions</h2><p>Stripe billing overview</p></article>
+  <article class="card"><h2>Platform health</h2><p>Usage metrics placeholder</p></article>
+</div>
+{% endblock %}
