@@ -1,0 +1,12 @@
+{% extends "base/dashboard.html" %}
+{% block title %}School admin — ESA{% endblock %}
+{% block brand_tag %}School admin{% endblock %}
+{% block sidebar %}{% include "pages/includes/sidebar_school_admin.html" %}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block dashboard_content %}
+<div class="grid-cards">
+  <article class="card"><h2>Staff &amp; students</h2><p>CRUD shortcuts placeholder</p></article>
+  <article class="card"><h2>Classes</h2><p>Year groups and enrolment</p></article>
+  <article class="card"><h2>Outstanding fees</h2><p>Payment summary placeholder</p></article>
+</div>
+{% endblock %}
