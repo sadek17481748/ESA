@@ -1,0 +1,26 @@
+{% extends "base/dashboard.html" %}
+{% block title %}{{ page_title }} — ESA{% endblock %}
+{% block brand_tag %}Portal{% endblock %}
+{% block sidebar %}
+<p class="sidebar-title">Sections</p>
+<nav class="sidebar-nav">
+  <a href="{% url 'pages:dashboard' %}">Dashboard</a>
+  <a href="{% url 'pages:attendance' %}" aria-current="page">Attendance</a>
+  <a href="{% url 'pages:timetable' %}">Timetable</a>
+</nav>
+{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block dashboard_content %}
+<section class="panel">
+  <div class="accent-bar"></div>
+  <p class="lead">Register and marks table placeholder — API is wired; UI data loading comes next.</p>
+  <table class="data-table" style="width:100%;margin-top:1rem;">
+    <thead><tr><th>Student</th><th>Status</th><th>Date</th></tr></thead>
+    <tbody>
+      <tr><td>—</td><td>Present</td><td>—</td></tr>
+      <tr><td>—</td><td>Late</td><td>—</td></tr>
+      <tr><td>—</td><td>Absent</td><td>—</td></tr>
+    </tbody>
+  </table>
+</section>
+{% endblock %}
