@@ -1,0 +1,10 @@
+{% extends "base/dashboard.html" %}
+{% block title %}{{ page_title }} — ESA{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block dashboard_content %}
+<section class="panel">
+  <div class="accent-bar"></div>
+  <p class="lead">How school fees and Stripe checkout work on ESA.</p>
+  <p><a href="{% url 'payments:fee_list' %}">Go to live fee payments →</a></p>
+</section>
+{% endblock %}
