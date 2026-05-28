@@ -113,3 +113,55 @@ def dashboard_super_admin(request):
 
 
 @login_required
+def page_attendance(request):
+    return _placeholder(request, 'pages/features/attendance.html', 'Attendance')
+
+
+@login_required
+def page_behaviour(request):
+    return _placeholder(request, 'pages/features/behaviour.html', 'Behaviour')
+
+
+@login_required
+def page_exams(request):
+    return _placeholder(request, 'pages/features/exams.html', 'Exams')
+
+
+@login_required
+def page_hifz(request):
+    return _placeholder(request, 'pages/features/hifz_progress.html', 'Hifz progress')
+
+
+@login_required
+def page_messages(request):
+    return _placeholder(request, 'pages/features/messages.html', 'Messages')
+
+
+@login_required
+def page_payments_info(request):
+    return _placeholder(request, 'pages/features/payments_info.html', 'Payments overview')
+
+
+@login_required
+def page_quran(request):
+    return _placeholder(request, 'pages/features/quran_annotation.html', 'Qur’an annotation')
+
+
+@login_required
+def page_subscription(request):
+    return _placeholder(request, 'pages/features/subscription.html', 'Subscription plans')
+
+
+@login_required
+def page_timetable(request):
+    return _placeholder(request, 'pages/features/timetable.html', 'Timetable')
+
+
+@login_required
+def page_worksheets(request):
+    return _placeholder(request, 'pages/features/worksheets.html', 'Worksheets & homework')
+
+
+@login_required
+def page_analytics(request):
+    return _placeholder(request, 'pages/features/analytics.html', 'Analytics')

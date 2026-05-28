@@ -1,8 +1,10 @@
-"""pages/urls.py"""
+"""pages/urls.py — portal routes for dashboards and feature placeholders."""
 from django.urls import path
+
 from . import views
 
 app_name = 'pages'
+
 urlpatterns = [
     path('register/', views.register, name='register'),
     path('dashboard/', views.dashboard_router, name='dashboard'),
@@ -11,4 +13,15 @@ urlpatterns = [
     path('dashboard/student/', views.dashboard_student, name='dashboard_student'),
     path('dashboard/school-admin/', views.dashboard_school_admin, name='dashboard_school_admin'),
     path('dashboard/super-admin/', views.dashboard_super_admin, name='dashboard_super_admin'),
+    path('attendance/', views.page_attendance, name='attendance'),
+    path('behaviour/', views.page_behaviour, name='behaviour'),
+    path('exams/', views.page_exams, name='exams'),
+    path('hifz/', views.page_hifz, name='hifz'),
+    path('messages/', views.page_messages, name='messages'),
+    path('payments-info/', views.page_payments_info, name='payments_info'),
+    path('quran/', views.page_quran, name='quran'),
+    path('subscription/', views.page_subscription, name='subscription'),
+    path('timetable/', views.page_timetable, name='timetable'),
+    path('worksheets/', views.page_worksheets, name='worksheets'),
+    path('analytics/', views.page_analytics, name='analytics'),
 ]
