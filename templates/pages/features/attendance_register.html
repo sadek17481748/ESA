@@ -1,0 +1,66 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+{% if messages %}
+<ul class="flash-list" style="list-style:none;padding:0;margin:0 0 1rem;">
+  {% for message in messages %}<li style="padding:0.5rem;background:var(--gold-soft);border-radius:6px;">{{ message }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+<section class="panel">
+  <div class="attendance-head">
+    <div>
+      <h2 style="margin:0;font-size:1.1rem;">Class register</h2>
+      <p class="lead" style="margin:0.35rem 0 0;">Mark each student present, late, or absent.</p>
+    </div>
+  </div>
+  <div class="accent-bar"></div>
+
+  {% if not classes %}
+  <p class="lead">You are not assigned to a class yet. Ask your school admin to link you as the class teacher.</p>
+  {% else %}
+  <form method="get" class="attendance-toolbar">
+    <div class="field" style="margin:0;">
+      <label for="class-select">Class</label>
+      <select id="class-select" name="class" class="form-input" onchange="this.form.submit()">
+        {% for c in classes %}
+        <option value="{{ c.pk }}"{% if class_group and c.pk == class_group.pk %} selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field" style="margin:0;">
+      <label for="date">Date</label>
+      <input type="date" id="date" name="date" class="form-input" value="{{ session_date|date:'Y-m-d' }}" onchange="this.form.submit()">
+    </div>
+  </form>
+
+  {% if class_group and register %}
+  <form method="post" class="attendance-register-form">
+    {% csrf_token %}
+    <input type="hidden" name="class" value="{{ class_group.pk }}">
+    <input type="hidden" name="date" value="{{ session_date|date:'Y-m-d' }}">
+    <p class="lead" style="margin:1rem 0 0.75rem;"><strong>{{ class_group.name }}</strong> — {{ register.student_count }} students</p>
+    <div class="table-wrap">
+      <table class="data-table attendance-register-table">
+        <thead><tr><th>Student</th><th>Present</th><th>Late</th><th>Absent</th></tr></thead>
+        <tbody>
+          {% for row in register.rows %}
+          <tr>
+            <td><strong>{{ row.student.full_name }}</strong></td>
+            <td><label class="attendance-radio"><input type="radio" name="status_{{ row.student.pk }}" value="present"{% if row.status == 'present' %} checked{% endif %}></label></td>
+            <td><label class="attendance-radio"><input type="radio" name="status_{{ row.student.pk }}" value="late"{% if row.status == 'late' %} checked{% endif %}></label></td>
+            <td><label class="attendance-radio"><input type="radio" name="status_{{ row.student.pk }}" value="absent"{% if row.status == 'absent' %} checked{% endif %}></label></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="placeholder-row">No students enrolled in this class.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if register.rows %}
+    <button type="submit" class="btn-primary" style="margin-top:1rem;">Save register</button>
+    {% endif %}
+  </form>
+  {% endif %}
+  {% endif %}
+</section>
+{% endblock %}

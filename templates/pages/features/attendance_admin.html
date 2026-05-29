@@ -1,0 +1,79 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <div class="attendance-head">
+    <div>
+      <h2 style="margin:0;font-size:1.1rem;">School attendance</h2>
+      <p class="lead" style="margin:0.35rem 0 0;">All registered students by class for {{ session_date|date:"l, j F Y" }}.</p>
+    </div>
+    <form method="get" class="attendance-date-picker">
+      <label for="date">Date</label>
+      <input type="date" id="date" name="date" class="form-input" value="{{ session_date|date:'Y-m-d' }}" onchange="this.form.submit()">
+    </form>
+  </div>
+  <div class="accent-bar"></div>
+
+  <div class="kpi-grid" style="margin-bottom:1.25rem;">
+    <article class="kpi-card"><span class="kpi-label">Students</span><span class="kpi-value">{{ totals.students }}</span></article>
+    <article class="kpi-card"><span class="kpi-label">Present</span><span class="kpi-value kpi-live">{{ totals.present }}</span></article>
+    <article class="kpi-card"><span class="kpi-label">Late</span><span class="kpi-value">{{ totals.late }}</span></article>
+    <article class="kpi-card"><span class="kpi-label">Absent</span><span class="kpi-value">{{ totals.absent }}</span></article>
+    <article class="kpi-card"><span class="kpi-label">Not marked</span><span class="kpi-value">{{ totals.unmarked }}</span></article>
+  </div>
+
+  {% for block in overview %}
+  <section class="attendance-class-block">
+    <header class="attendance-class-header">
+      <div>
+        <h3 style="margin:0;">{{ block.class_group.name }}</h3>
+        <p class="lead" style="margin:0.25rem 0 0;font-size:0.85rem;">
+          {{ block.enrolled_count }} student{{ block.enrolled_count|pluralize }}
+          {% if block.class_group.teacher %}
+            · Teacher: {{ block.class_group.teacher.user.get_full_name|default:block.class_group.teacher.user.username }}
+          {% endif %}
+        </p>
+      </div>
+      <div class="attendance-class-stats">
+        {% if block.has_session %}
+        <span class="pill pill-ok">{{ block.present }} present</span>
+        <span class="pill">{{ block.late }} late</span>
+        <span class="pill pill-warn">{{ block.absent }} absent</span>
+        {% else %}
+        <span style="color:var(--muted);font-size:0.85rem;">No register taken yet</span>
+        {% endif %}
+      </div>
+    </header>
+    {% if block.rows %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Student</th><th>Year</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for row in block.rows %}
+          <tr>
+            <td><strong>{{ row.student.full_name }}</strong></td>
+            <td>{{ row.student.year_group|default:"—" }}</td>
+            <td>
+              {% if not block.has_session %}
+                <span style="color:var(--muted);">—</span>
+              {% elif row.status == 'present' %}
+                <span class="pill pill-ok">Present</span>
+              {% elif row.status == 'late' %}
+                <span class="pill">Late</span>
+              {% else %}
+                <span class="pill pill-warn">Absent</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="lead" style="margin:0.75rem 0 0;">No students enrolled in this class yet.</p>
+    {% endif %}
+  </section>
+  {% empty %}
+  <p class="lead">No classes set up yet. Add classes from the Timetable page.</p>
+  {% endfor %}
+</section>
+{% endblock %}
