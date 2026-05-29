@@ -904,6 +904,9 @@ Planned and executed checks for foundation, RBAC, and Stripe work. Fill **Actual
 | 34 | In-app notifications list | `GET /api/notifications/` as `student_demo` | User's own notifications, newest first | | | |
 | 36 | Web registration | Open `/register/`, submit as parent with school | Account created and logged in | | | |
 | 37 | Login redirect by role | Log in as `teacher_demo` | Lands on teacher dashboard | | | |
+| 38 | Portal attendance page | Log in, open `/attendance/` | Placeholder page loads | | | |
+| 39 | Portal timetable page | Log in, open `/timetable/` | Placeholder page loads | | | |
+| 40 | Portal worksheets page | Log in, open `/worksheets/` | Placeholder page loads | | | |
 | 35 | Mark notification read | `POST /api/notifications/{id}/mark_read/` | `is_read` true on that row | | | |
 
 ### Automated testing
