@@ -1,7 +1,7 @@
 """payments/admin.py — fees and payment records in admin."""
 from django.contrib import admin
 
-from .models import FeeItem, Payment
+from .models import FeeItem, Payment, SubscriptionPayment
 
 
 @admin.register(FeeItem)
@@ -18,3 +18,10 @@ class PaymentAdmin(admin.ModelAdmin):
     list_filter = ('status',)
     search_fields = ('stripe_session_id', 'receipt_reference')
     readonly_fields = ('stripe_session_id', 'stripe_payment_intent', 'created_at')
+
+
+@admin.register(SubscriptionPayment)
+class SubscriptionPaymentAdmin(admin.ModelAdmin):
+    list_display = ('school', 'tier', 'admin', 'amount_display', 'status', 'paid_at')
+    list_filter = ('status', 'tier', 'school')
+    search_fields = ('receipt_reference', 'stripe_session_id')

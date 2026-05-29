@@ -84,3 +84,41 @@ class Payment(models.Model):
     @property
     def amount_display(self):
         return f'£{self.amount_pence / 100:.2f}'
+
+
+class SubscriptionPayment(models.Model):
+    """School admin subscription upgrade via Stripe Checkout."""
+
+    STATUS_PENDING = 'pending'
+    STATUS_COMPLETE = 'complete'
+    STATUS_FAILED = 'failed'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_COMPLETE, 'Complete'),
+        (STATUS_FAILED, 'Failed'),
+    ]
+
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='subscription_payments')
+    admin = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='subscription_payments',
+    )
+    tier = models.CharField(max_length=20)
+    amount_pence = models.PositiveIntegerField()
+    stripe_session_id = models.CharField(max_length=255, unique=True)
+    stripe_payment_intent = models.CharField(max_length=255, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    receipt_reference = models.CharField(max_length=32, blank=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.school.name} — {self.tier} ({self.status})'
+
+    @property
+    def amount_display(self):
+        return f'£{self.amount_pence / 100:.2f}'
