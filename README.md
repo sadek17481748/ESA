@@ -848,6 +848,22 @@ Deployment will use Heroku (or Render) with a managed PostgreSQL database.
 
 ### Manual testing
 
+### Web portal (Heroku)
+
+Session login at `/accounts/login/`. Parent and student registration at `/register/`.
+After login, users go to `/dashboard/` by role. Feature pages are UI placeholders while
+API endpoints are wired separately.
+
+| Route | Purpose |
+|-------|---------|
+| `/register/` | Parent or student sign-up |
+| `/dashboard/parent/` | Parent portal |
+| `/dashboard/teacher/` | Teacher workspace |
+| `/dashboard/student/` | Student portal |
+| `/attendance/` | Attendance screen (placeholder) |
+| `/timetable/` | Timetable screen (placeholder) |
+| `/worksheets/` | Homework screen (placeholder) |
+
 Planned and executed checks for foundation, RBAC, and Stripe work. Fill **Actual**, **Pass/Fail**, and **Screenshot** as evidence is captured (`docs/images/manual-testing/`).
 
 | # | Test | Steps | Expected | Actual | Pass/Fail | Screenshot |
