@@ -4,9 +4,59 @@
   <article class="card">
     <h2>Welcome, {{ user_display }}</h2>
     <p>Student portal for <strong>{{ school_name }}</strong>.</p>
+    {% if class_group %}
+    <p style="margin:0.5rem 0 0;"><strong>{{ class_group.name }}</strong>{% if class_group.teacher %} — {{ class_group.teacher.user.get_full_name|default:class_group.teacher.user.username }}{% endif %}</p>
+    {% endif %}
   </article>
-  <article class="card"><h2>Today’s timetable</h2><p>Next lesson placeholder</p></article>
-  <article class="card"><h2>Homework due</h2><p>Assignments placeholder</p></article>
-  <article class="card"><h2>Hifz progress</h2><p>Signed-off surahs placeholder</p></article>
+  <article class="card">
+    <h2>Your subjects</h2>
+    {% if subjects %}
+    <p>{% for s in subjects %}{{ s }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    {% else %}
+    <p>Subjects appear once your class timetable is built.</p>
+    {% endif %}
+  </article>
+  <article class="card">
+    <h2>Homework</h2>
+    <p><a href="{% url 'pages:worksheets' %}">View assignments</a></p>
+  </article>
+  <article class="card">
+    <h2>Attendance</h2>
+    <p><a href="{% url 'pages:attendance' %}">View your record</a></p>
+  </article>
 </div>
+
+{% if timetable and timetable_rows %}
+<section class="panel" style="margin-top:1.25rem;">
+  <h2 style="margin-top:0;font-size:1.05rem;">Weekly timetable — {{ class_group.name }}</h2>
+  <p class="lead" style="margin:0 0 0.75rem;font-size:0.88rem;">{{ timetable.name }}</p>
+  <div class="accent-bar"></div>
+  <div class="timetable-grid-wrap">
+    <table class="timetable-grid student-timetable-readonly">
+      <thead>
+        <tr><th>Time</th>{% for label in weekday_labels %}<th>{{ label }}</th>{% endfor %}</tr>
+      </thead>
+      <tbody>
+        {% for row in timetable_rows %}
+        <tr>
+          <td class="period-label">{{ row.label }}</td>
+          {% for slot in row.cells %}
+          <td class="timetable-cell-readonly">
+            {% if slot %}
+              <strong>{{ slot.subject_name }}</strong>
+              {% if slot.teacher_name %}<br><span style="font-size:0.78rem;color:var(--muted);">{{ slot.teacher_name }}</span>{% endif %}
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% elif class_group %}
+<section class="panel" style="margin-top:1.25rem;">
+  <p class="lead">Your class timetable will appear here once your teacher or school admin builds it.</p>
+</section>
+{% endif %}
 {% endblock %}

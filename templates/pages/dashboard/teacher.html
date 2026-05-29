@@ -1,13 +1,33 @@
 {% extends "base/portal.html" %}
 {% block portal_content %}
 <div class="grid-cards">
+  <article class="card card-featured">
+    <h2>Today's register</h2>
+    {% if primary_class %}
+    <p>Take attendance for <strong>{{ primary_class.name }}</strong>.</p>
+    <p style="margin-top:0.75rem;"><a class="btn-primary" href="{% url 'pages:attendance' %}?class={{ primary_class.pk }}">Open register</a></p>
+    {% else %}
+    <p>No class assigned yet. Ask your school admin to link you as class teacher.</p>
+    {% endif %}
+  </article>
   <article class="card">
     <h2>Welcome, {{ user_display }}</h2>
     <p>Teacher workspace at <strong>{{ school_name }}</strong>.</p>
+    {% if teacher_classes %}
+    <p style="margin-top:0.5rem;font-size:0.88rem;color:var(--muted);">Classes: {% for c in teacher_classes %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    {% endif %}
   </article>
-  <article class="card"><h2>Timetable</h2><p><a href="{% url 'pages:timetable' %}">Build or edit your class timetable</a></p></article>
-  <article class="card"><h2>Homework</h2><p><a href="{% url 'pages:worksheets' %}">Set worksheets and homework</a></p></article>
-  <article class="card"><h2>Register</h2><p><a href="{% url 'pages:attendance' %}">Take attendance</a></p></article>
-  <article class="card"><h2>Hifz &amp; Alimiyah</h2><p><a href="{% url 'pages:hifz' %}">Track progress</a> · <a href="{% url 'pages:quran' %}">Qur’an sessions</a></p></article>
+  <article class="card">
+    <h2>Timetable</h2>
+    <p><a href="{% url 'pages:timetable' %}">View or edit class timetables</a></p>
+  </article>
+  <article class="card">
+    <h2>Homework</h2>
+    <p><a href="{% url 'pages:worksheets' %}">Set worksheets and homework</a></p>
+  </article>
+  <article class="card">
+    <h2>Hifz &amp; Alimiyah</h2>
+    <p><a href="{% url 'pages:hifz' %}">Track progress</a> · <a href="{% url 'pages:quran' %}">Qur’an sessions</a></p>
+  </article>
 </div>
 {% endblock %}
