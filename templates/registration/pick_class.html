@@ -1,0 +1,20 @@
+{% extends "base/marketing.html" %}
+{% block title %}Choose your class — ESA{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>Choose your class</h1>
+  <div class="accent-bar"></div>
+  <p class="lead">Select your class at <strong>{{ school_name }}</strong> to get your timetable and class content.</p>
+  <form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="field">
+      <label for="id_class_group">{{ form.class_group.label }}</label>
+      {{ form.class_group }}
+      {% if form.class_group.errors %}
+      <span style="color:#e57373;font-size:0.9rem;">{{ form.class_group.errors.0 }}</span>
+      {% endif %}
+    </div>
+    <button type="submit" class="btn-primary">Join class</button>
+  </form>
+</section>
+{% endblock %}
