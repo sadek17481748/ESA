@@ -86,6 +86,17 @@ def create_subject(school, *, name, track=Subject.TRACK_GENERAL, code=''):
     return subject
 
 
+def list_live_timetables(school):
+    """All active timetables for the school hub — with lesson counts."""
+    from django.db.models import Count
+
+    return Timetable.objects.filter(school=school, is_active=True).annotate(
+        slot_count=Count('slots'),
+    ).select_related(
+        'class_group', 'class_group__teacher', 'class_group__teacher__user',
+    ).order_by('-updated_at', 'name')
+
+
 def list_timetables(school, class_group=None):
     qs = Timetable.objects.filter(school=school, is_active=True).select_related(
         'class_group', 'class_group__teacher', 'class_group__teacher__user',

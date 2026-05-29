@@ -1,80 +1,105 @@
 {% extends "base/portal.html" %}
 {% block portal_content %}
 <section class="panel timetable-builder">
-  <div class="toolbar timetable-toolbar">
+  <div class="timetable-page-head">
     <div>
-      <h2 style="margin:0;font-size:1.1rem;">Timetable builder</h2>
-      <p class="lead" style="margin:0.35rem 0 0;">
-        Create multiple timetables, assign subjects, and pick a teacher for each lesson.
-      </p>
+      <h2 style="margin:0;font-size:1.15rem;">Timetables</h2>
+      <p class="lead" style="margin:0.35rem 0 0;">Manage live timetables for every class — open one to edit the weekly grid.</p>
     </div>
-    <div class="timetable-pickers">
-      {% if classes %}
-      <form method="get" class="timetable-class-picker">
+    {% if can_manage_timetables %}
+    <button type="button" id="show-new-timetable" class="btn-primary">+ New timetable</button>
+    {% endif %}
+  </div>
+  <div class="accent-bar"></div>
+
+  <section class="live-timetables-section">
+    <h3 class="live-timetables-title">Live timetables</h3>
+    {% if live_timetables %}
+    <div class="live-timetables-grid">
+      {% for tt in live_timetables %}
+      <a href="{% url 'pages:timetable' %}?timetable={{ tt.pk }}{% if tt.class_group_id %}&amp;class={{ tt.class_group_id }}{% endif %}"
+         class="live-timetable-card{% if timetable and tt.pk == timetable.pk %} is-active{% endif %}">
+        <strong>{{ tt.name }}</strong>
+        <span class="live-timetable-meta">
+          {% if tt.class_group %}{{ tt.class_group.name }}{% else %}Whole school{% endif %}
+          · {{ tt.slot_count }} lesson{{ tt.slot_count|pluralize }}
+        </span>
+        <span class="live-timetable-updated">Updated {{ tt.updated_at|date:"d M Y" }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="lead">No timetables yet — create one below or add a class to get started.</p>
+    {% endif %}
+  </section>
+
+  <form id="new-timetable-form" class="timetable-inline-form panel-inset" hidden>
+    <h3 style="margin:0 0 0.75rem;font-size:1rem;">Create a new timetable</h3>
+    <div class="field">
+      <label for="new-timetable-name">Name</label>
+      <input id="new-timetable-name" class="form-input" type="text" placeholder="e.g. Year 7 — Exam week" required>
+    </div>
+    <div class="field">
+      <label for="new-timetable-notes">Notes (optional)</label>
+      <input id="new-timetable-notes" class="form-input" type="text" placeholder="Optional description">
+    </div>
+    <div class="timetable-manage-actions">
+      <button type="submit" class="btn-primary">Create timetable</button>
+      <button type="button" id="cancel-new-timetable" class="btn-outline">Cancel</button>
+    </div>
+    <p id="new-timetable-status" class="lead" style="font-size:0.85rem;margin:0.5rem 0 0;"></p>
+  </form>
+
+  <div class="timetable-workspace">
+    <div class="timetable-workspace-bar">
+      <form method="get" class="timetable-class-picker" id="class-picker-form">
         <label for="class-select">Class</label>
-        <select id="class-select" name="class" class="form-input" onchange="this.form.submit()">
+        <select id="class-select" name="class" class="form-input">
           {% for c in classes %}
           <option value="{{ c.pk }}"{% if class_group and c.pk == class_group.pk %} selected{% endif %}>
             {{ c.name }}{% if c.teacher %} — {{ c.teacher.user.get_full_name|default:c.teacher.user.username }}{% endif %}
           </option>
+          {% empty %}
+          <option value="">No classes yet</option>
           {% endfor %}
         </select>
         {% if timetable %}<input type="hidden" name="timetable" value="{{ timetable.pk }}">{% endif %}
       </form>
+      {% if can_add_class %}
+      <button type="button" id="show-add-class" class="btn-outline">+ Add class</button>
       {% endif %}
-      {% if timetables %}
-      <form method="get" class="timetable-class-picker">
-        <label for="timetable-select">Timetable</label>
-        <select id="timetable-select" name="timetable" class="form-input" onchange="this.form.submit()">
-          {% for tt in timetables %}
-          <option value="{{ tt.pk }}"{% if timetable and tt.pk == timetable.pk %} selected{% endif %}>
-            {{ tt.name }}{% if tt.class_group %} ({{ tt.class_group.name }}){% endif %}
-          </option>
-          {% endfor %}
-        </select>
-        {% if class_group %}<input type="hidden" name="class" value="{{ class_group.pk }}">{% endif %}
-      </form>
+      {% if timetable %}
+      <span class="timetable-editing-label">Editing: <strong id="current-timetable-name">{{ timetable.name }}</strong></span>
+      {% endif %}
+      {% if can_edit and timetable %}
+      <button type="button" id="rename-timetable" class="btn-outline">Rename</button>
+      {% endif %}
+      {% if can_manage_timetables and timetable %}
+      <button type="button" id="archive-timetable" class="btn-outline">Archive</button>
       {% endif %}
     </div>
-  </div>
-  <div class="accent-bar"></div>
 
-  {% if not class_group and not timetable %}
-  <p class="lead">No classes set up yet. Run the Al-Noor demo seed or add a class via admin.</p>
-  {% else %}
-
-  <div class="timetable-manage panel-inset">
-    <div class="timetable-manage-row">
-      <div>
-        <strong id="current-timetable-name">{% if timetable %}{{ timetable.name }}{% else %}No timetable selected{% endif %}</strong>
-        {% if timetable and timetable.notes %}
-        <p class="lead" style="margin:0.25rem 0 0;font-size:0.85rem;">{{ timetable.notes }}</p>
-        {% endif %}
+    <form id="add-class-form" class="timetable-inline-form panel-inset" hidden>
+      <h3 style="margin:0 0 0.75rem;font-size:1rem;">Add a class</h3>
+      <div class="field">
+        <label for="class-name">Class name</label>
+        <input id="class-name" class="form-input" type="text" placeholder="e.g. Year 8" required>
+      </div>
+      <div class="field">
+        <label for="class-year">Year group (optional)</label>
+        <input id="class-year" class="form-input" type="text" placeholder="Defaults to class name">
       </div>
       <div class="timetable-manage-actions">
-        {% if can_edit and timetable %}
-        <button type="button" id="rename-timetable" class="btn-outline">Rename</button>
-        {% endif %}
-        {% if can_manage_timetables and timetable %}
-        <button type="button" id="archive-timetable" class="btn-outline">Archive</button>
-        {% endif %}
-        <button type="button" id="show-new-timetable" class="btn-primary">New timetable</button>
+        <button type="submit" class="btn-primary">Add class</button>
+        <button type="button" id="cancel-add-class" class="btn-outline">Cancel</button>
       </div>
-    </div>
-    <form id="new-timetable-form" class="timetable-inline-form" hidden>
-      <div class="field">
-        <label for="new-timetable-name">Name</label>
-        <input id="new-timetable-name" class="form-input" type="text" placeholder="e.g. Year 7 — Exam week" required>
-      </div>
-      <div class="field">
-        <label for="new-timetable-notes">Notes (optional)</label>
-        <input id="new-timetable-notes" class="form-input" type="text" placeholder="Optional description">
-      </div>
-      <button type="submit" class="btn-primary">Create timetable</button>
-      <button type="button" id="cancel-new-timetable" class="btn-outline">Cancel</button>
-      <p id="new-timetable-status" class="lead" style="font-size:0.85rem;margin:0.5rem 0 0;"></p>
+      <p id="add-class-status" class="lead" style="font-size:0.85rem;margin:0.5rem 0 0;"></p>
     </form>
   </div>
+
+  {% if not class_group and not timetable %}
+  <p class="lead" style="margin-top:1rem;">Add a class above, then create or open a live timetable to build the weekly grid.</p>
+  {% else %}
 
   <div class="timetable-layout">
     <aside class="timetable-palette">
@@ -154,6 +179,71 @@
 
   {% endif %}
 </section>
+
+<script>
+(function() {
+  const csrfToken = '{{ csrf_token }}';
+  const classGroupId = {{ class_group.pk|default:'null' }};
+
+  async function postJson(url, body) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, data };
+  }
+
+  const classSelect = document.getElementById('class-select');
+  if (classSelect) {
+    classSelect.addEventListener('change', () => classSelect.form.submit());
+  }
+
+  const showNewBtn = document.getElementById('show-new-timetable');
+  const newForm = document.getElementById('new-timetable-form');
+  if (showNewBtn && newForm) {
+    showNewBtn.addEventListener('click', () => { newForm.hidden = false; });
+    document.getElementById('cancel-new-timetable').addEventListener('click', () => { newForm.hidden = true; });
+    newForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const status = document.getElementById('new-timetable-status');
+      status.textContent = 'Creating…';
+      const { ok, data } = await postJson('{% url "pages:timetable_create" %}', {
+        name: document.getElementById('new-timetable-name').value,
+        notes: document.getElementById('new-timetable-notes').value,
+        class_group_id: classGroupId,
+      });
+      if (ok) {
+        window.location.href = '{% url "pages:timetable" %}?timetable=' + data.timetable.id + (classGroupId ? '&class=' + classGroupId : '');
+      } else {
+        status.textContent = data.error || 'Could not create timetable.';
+      }
+    });
+  }
+
+  const showAddClass = document.getElementById('show-add-class');
+  const addClassForm = document.getElementById('add-class-form');
+  if (showAddClass && addClassForm) {
+    showAddClass.addEventListener('click', () => { addClassForm.hidden = false; });
+    document.getElementById('cancel-add-class').addEventListener('click', () => { addClassForm.hidden = true; });
+    addClassForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const status = document.getElementById('add-class-status');
+      status.textContent = 'Adding…';
+      const { ok, data } = await postJson('{% url "pages:class_create" %}', {
+        name: document.getElementById('class-name').value,
+        year_group_name: document.getElementById('class-year').value,
+      });
+      if (ok) {
+        window.location.href = '{% url "pages:timetable" %}?class=' + data.class.id;
+      } else {
+        status.textContent = data.error || 'Could not add class.';
+      }
+    });
+  }
+})();
+</script>
 
 {% if timetable and can_edit %}
 <script>
@@ -303,31 +393,6 @@
     status.textContent = ok ? 'Timetable saved.' : 'Could not save — try again.';
   });
 
-  const newForm = document.getElementById('new-timetable-form');
-  document.getElementById('show-new-timetable').addEventListener('click', () => {
-    newForm.hidden = false;
-  });
-  document.getElementById('cancel-new-timetable').addEventListener('click', () => {
-    newForm.hidden = true;
-  });
-  newForm.addEventListener('submit', async e => {
-    e.preventDefault();
-    const status = document.getElementById('new-timetable-status');
-    status.textContent = 'Creating…';
-    const { ok, data } = await postJson('{% url "pages:timetable_create" %}', {
-      name: document.getElementById('new-timetable-name').value,
-      notes: document.getElementById('new-timetable-notes').value,
-      class_group_id: classGroupId,
-    });
-    if (ok) {
-      const params = new URLSearchParams(window.location.search);
-      params.set('timetable', data.timetable.id);
-      window.location.search = params.toString();
-    } else {
-      status.textContent = data.error || 'Could not create timetable.';
-    }
-  });
-
   const renameBtn = document.getElementById('rename-timetable');
   if (renameBtn) {
     renameBtn.addEventListener('click', async () => {
@@ -340,8 +405,6 @@
       });
       if (ok) {
         document.getElementById('current-timetable-name').textContent = data.name;
-        const opt = document.querySelector(`#timetable-select option[value="${timetableId}"]`);
-        if (opt) opt.textContent = data.name;
       }
     });
   }
