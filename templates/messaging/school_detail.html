@@ -1,0 +1,21 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <p><a href="{% url 'messaging:inbox' %}">← Messages</a></p>
+  <h2 style="margin-top:0.5rem;">{{ conversation.subject }}</h2>
+  <div class="accent-bar"></div>
+  <div class="msg-thread">
+    {% for msg in thread %}
+    <article class="msg-bubble">
+      <header><strong>{{ msg.sender.get_full_name|default:msg.sender.username }}</strong> · {{ msg.created_at|date:"d M Y H:i" }}</header>
+      <p>{{ msg.body|linebreaksbr }}</p>
+    </article>
+    {% endfor %}
+  </div>
+  <form method="post" class="form-stack" style="margin-top:1.25rem;">
+    {% csrf_token %}
+    {{ form.message }}
+    <button type="submit" class="btn-primary">Reply</button>
+  </form>
+</section>
+{% endblock %}

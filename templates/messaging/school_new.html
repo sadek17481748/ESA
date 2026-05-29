@@ -1,0 +1,30 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <h2 style="margin-top:0;">New message</h2>
+  <div class="accent-bar"></div>
+  <form method="post" class="form-stack" style="max-width:560px;" id="school-msg-form">
+    {% csrf_token %}
+    <div class="field"><label>Subject</label>{{ form.subject }}</div>
+    <div class="field"><label>Send to</label>{{ form.recipient_kind }}</div>
+    <div class="field" id="teacher-field"><label>Teacher</label>{{ form.teacher }}</div>
+    <div class="field" id="parent-field" style="display:none;"><label>Parent</label>{{ form.parent }}</div>
+    <div class="field"><label>Message</label>{{ form.message }}</div>
+    <button type="submit" class="btn-primary">Send message</button>
+  </form>
+</section>
+<script>
+(function() {
+  const kind = document.getElementById('id_recipient_kind');
+  const teacherField = document.getElementById('teacher-field');
+  const parentField = document.getElementById('parent-field');
+  function toggle() {
+    const v = kind.value;
+    teacherField.style.display = v === 'teacher' ? 'block' : 'none';
+    parentField.style.display = v === 'parent' ? 'block' : 'none';
+  }
+  kind.addEventListener('change', toggle);
+  toggle();
+})();
+</script>
+{% endblock %}

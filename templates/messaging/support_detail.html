@@ -1,0 +1,29 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <p><a href="{% url 'messaging:inbox' %}">← Messages</a></p>
+  <h2 style="margin-top:0.5rem;">{{ case.case_number }}</h2>
+  <p class="lead">{{ case.subject }} · {{ case.get_status_display }}</p>
+  <div class="accent-bar"></div>
+
+  <div class="msg-thread">
+    {% for msg in thread %}
+    <article class="msg-bubble{% if msg.is_staff_reply %} msg-staff{% endif %}">
+      <header><strong>{{ msg.sender.get_full_name|default:msg.sender.username }}</strong> · {{ msg.created_at|date:"d M Y H:i" }}</header>
+      <p>{{ msg.body|linebreaksbr }}</p>
+    </article>
+    {% endfor %}
+  </div>
+
+  {% if case.status == 'open' or user.role == 'super_admin' %}
+  <form method="post" class="form-stack" style="margin-top:1.25rem;">
+    {% csrf_token %}
+    {{ form.message }}
+    <div class="msg-actions">
+      <button type="submit" class="btn-primary">Send reply</button>
+      {% if user.role == 'super_admin' %}<button type="submit" name="action" value="close" class="btn-outline">Close case</button>{% endif %}
+    </div>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

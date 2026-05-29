@@ -1,0 +1,15 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <h2 style="margin-top:0;">Create student report</h2>
+  <div class="accent-bar"></div>
+  <p class="lead">Template report sent to the student and linked parent.</p>
+  <form method="post" class="form-stack" style="max-width:560px;">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="field"><label>{{ field.label }}</label>{{ field }}{% if field.errors %}<span style="color:#e57373;font-size:0.9rem;">{{ field.errors.0 }}</span>{% endif %}</div>
+    {% endfor %}
+    <button type="submit" class="btn-primary">Send report</button>
+  </form>
+</section>
+{% endblock %}

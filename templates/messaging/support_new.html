@@ -1,0 +1,15 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <h2 style="margin-top:0;">Contact platform support</h2>
+  <div class="accent-bar"></div>
+  <p class="lead">Opens a case with a reference number. Super admin responds here on ESA.</p>
+  <form method="post" class="form-stack" style="max-width:520px;">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="field"><label>{{ field.label }}</label>{{ field }}{% if field.errors %}<span style="color:#e57373;font-size:0.9rem;">{{ field.errors.0 }}</span>{% endif %}</div>
+    {% endfor %}
+    <button type="submit" class="btn-primary">Open support case</button>
+  </form>
+</section>
+{% endblock %}

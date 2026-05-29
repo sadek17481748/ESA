@@ -1,0 +1,16 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <p><a href="{% url 'messaging:reports_list' %}">← Reports</a></p>
+  <h2 style="margin-top:0.5rem;">{{ report.subject_line }}</h2>
+  <p class="lead">{{ report.student.full_name }} · {{ report.period_covered|default:"—" }}</p>
+  <div class="accent-bar"></div>
+  <dl class="report-dl">
+    <dt>Strengths</dt><dd>{{ report.strengths|linebreaksbr|default:"—" }}</dd>
+    <dt>Areas for improvement</dt><dd>{{ report.areas_for_improvement|linebreaksbr|default:"—" }}</dd>
+    <dt>Action required</dt><dd>{{ report.action_required|linebreaksbr|default:"—" }}</dd>
+    <dt>Notes</dt><dd>{{ report.additional_notes|linebreaksbr|default:"—" }}</dd>
+  </dl>
+  <p class="lead" style="font-size:0.85rem;margin-top:1rem;">From {{ report.teacher.get_full_name|default:report.teacher.username }} · {{ report.created_at|date:"d M Y" }}</p>
+</section>
+{% endblock %}
