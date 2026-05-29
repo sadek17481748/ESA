@@ -1,10 +1,99 @@
 {% extends "base/portal.html" %}
 {% block portal_content %}
+{% if messages %}
+<ul class="flash-list" style="list-style:none;padding:0;margin:0 0 1rem;">
+  {% for message in messages %}
+  <li style="padding:0.5rem;background:var(--gold-soft);border-radius:6px;margin-bottom:0.35rem;">{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
 <section class="panel">
+  <h2 style="margin-top:0;font-size:1.1rem;">Your plan</h2>
   <div class="accent-bar"></div>
-  <div class="grid-cards">
-    <article class="card"><h2>Standard</h2><p>£49 / month — upgrade from your current {{ school_tier|default:"Free" }} plan.</p></article>
-    <article class="card"><h2>Premium</h2><p>£99 / month — full payments, analytics, and messaging.</p></article>
+  <p class="lead">
+    <strong>{{ school_name }}</strong> is on the
+    <span class="pill pill-tier-{{ current_tier }}">{{ current_tier|title }}</span> plan.
+    Upgrade below to unlock more features for your school.
+  </p>
+
+  {% if stripe_configured %}
+  <div class="stripe-test-banner">
+    <strong>Stripe test mode</strong> — use card <code>4242 4242 4242 4242</code>, any future expiry, any CVC.
+  </div>
+  {% else %}
+  <div class="stripe-test-banner stripe-test-banner-warn">
+    Stripe keys are not configured on this server. Set <code>STRIPE_PUBLISHABLE_KEY</code> and <code>STRIPE_SECRET_KEY</code> to enable payments.
+  </div>
+  {% endif %}
+</section>
+
+<div class="pricing-grid" style="margin-top:1.25rem;">
+  <article class="pricing-card">
+    <div class="pricing-header">
+      <h2>Free</h2>
+      <p class="pricing-tagline">Current starter tier — up to 30 students.</p>
+      <p class="pricing-amount">£0 <span class="pricing-period">/ month</span></p>
+    </div>
+    <ul class="pricing-features">
+      <li>Up to 30 students</li>
+      <li>Basic attendance &amp; timetable</li>
+      <li>School admin dashboard</li>
+    </ul>
+    {% if current_tier == 'free' %}
+    <span class="pill pill-ok btn-full" style="display:block;text-align:center;padding:0.6rem;">Current plan</span>
+    {% endif %}
+  </article>
+
+  {% for plan in plans %}
+  <article class="pricing-card{% if plan.key == 'standard' %} pricing-featured{% endif %}">
+    {% if plan.key == 'standard' %}<span class="pricing-badge">Most popular</span>{% endif %}
+    <div class="pricing-header">
+      <h2>{{ plan.name }}</h2>
+      <p class="pricing-tagline">{{ plan.tagline }}</p>
+      <p class="pricing-amount">{{ plan.price_display }} <span class="pricing-period">/ month</span></p>
+    </div>
+    <ul class="pricing-features">
+      {% for feature in plan.features %}
+      <li>{{ feature }}</li>
+      {% endfor %}
+    </ul>
+    {% if current_tier == plan.tier %}
+    <span class="pill pill-ok btn-full" style="display:block;text-align:center;padding:0.6rem;">Current plan</span>
+    {% elif stripe_configured %}
+    <form method="post" action="{% url 'payments:subscription_checkout' %}">
+      {% csrf_token %}
+      <input type="hidden" name="tier" value="{{ plan.key }}">
+      <button type="submit" class="btn-primary btn-full">Pay with Stripe — {{ plan.price_display }}/mo</button>
+    </form>
+    {% else %}
+    <button type="button" class="btn-primary btn-full" disabled>Stripe not configured</button>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+
+{% if payment_history %}
+<section class="panel" style="margin-top:1.5rem;">
+  <h2 style="margin-top:0;font-size:1.1rem;">Payment history</h2>
+  <div class="accent-bar"></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Date</th><th>Plan</th><th>Amount</th><th>Reference</th></tr>
+      </thead>
+      <tbody>
+        {% for row in payment_history %}
+        <tr>
+          <td>{{ row.paid_at|date:"d M Y" }}</td>
+          <td>{{ row.tier|title }}</td>
+          <td>{{ row.amount_display }}</td>
+          <td>{{ row.receipt_reference }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </section>
+{% endif %}
 {% endblock %}

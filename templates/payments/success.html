@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- ESA — Shown after Stripe redirects back with a paid session_id. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -12,13 +11,19 @@
       <section class="panel">
         <h1>Payment successful</h1>
         <div class="accent-bar"></div>
-        {% if payment %}
+        {% if subscription_payment %}
+        <p>Thank you. Your school subscription was upgraded to <strong>{{ subscription_payment.tier|title }}</strong>.</p>
+        <p>Amount paid: <strong>{{ subscription_payment.amount_display }}</strong></p>
+        <p>Receipt reference: <strong>{{ subscription_payment.receipt_reference }}</strong></p>
+        <p style="margin-top:1.5rem;"><a class="btn-primary" href="{% url 'payments:subscription' %}">Back to subscription</a></p>
+        {% elif payment %}
         <p>Thank you. Your payment of <strong>{{ payment.amount_display }}</strong> for <strong>{{ payment.fee_item.title }}</strong> was received.</p>
         <p>Receipt reference: <strong>{{ payment.receipt_reference }}</strong></p>
-        {% else %}
-        <p>Payment received. Check your fee list for details.</p>
-        {% endif %}
         <p style="margin-top:1.5rem;"><a class="btn-primary" href="{% url 'payments:fee_list' %}">Back to fees</a></p>
+        {% else %}
+        <p>Payment received.</p>
+        <p style="margin-top:1.5rem;"><a class="btn-primary" href="{% url 'pages:dashboard' %}">Go to dashboard</a></p>
+        {% endif %}
       </section>
     </main>
   </div>
