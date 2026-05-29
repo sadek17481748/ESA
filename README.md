@@ -902,6 +902,8 @@ Planned and executed checks for foundation, RBAC, and Stripe work. Fill **Actual
 | 32 | Teacher sign-off approve | `POST /api/homework/submissions/{id}/sign_off/` as assigning teacher | Status `approved`; student notification created | | | |
 | 33 | Wrong teacher sign-off blocked | Same endpoint as another teacher | 403 or 404 (not assigned teacher) | | | |
 | 34 | In-app notifications list | `GET /api/notifications/` as `student_demo` | User's own notifications, newest first | | | |
+| 36 | Web registration | Open `/register/`, submit as parent with school | Account created and logged in | | | |
+| 37 | Login redirect by role | Log in as `teacher_demo` | Lands on teacher dashboard | | | |
 | 35 | Mark notification read | `POST /api/notifications/{id}/mark_read/` | `is_read` true on that row | | | |
 
 ### Automated testing
