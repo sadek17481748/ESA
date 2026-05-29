@@ -3,7 +3,9 @@ pages/views.py
 Portal UI — login redirect, registration, dashboards, and placeholder feature pages.
 """
 import json
+from datetime import datetime
 
+from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
@@ -19,11 +21,27 @@ from teachers.models import TeacherProfile
 
 from timetable.models import Timetable
 
+from .attendance_service import (
+    build_class_register,
+    build_school_attendance_overview,
+    parent_children_attendance,
+    save_class_register,
+    session_date_or_today,
+    student_attendance_history,
+    teacher_classes,
+)
 from .decorators import role_required
+from .enrollment_service import (
+    enroll_student,
+    student_needs_class,
+    student_portal_context,
+    student_profile_for_user,
+)
 from .forms import (
     AddTeacherForm,
     CreateSubjectForm,
     EsaAuthenticationForm,
+    PickClassForm,
     RegisterForm,
     SchoolRegisterForm,
     TimetableForm,
@@ -38,6 +56,7 @@ from .timetable_service import (
     create_subject,
     create_timetable,
     get_or_create_default_timetable,
+    list_live_timetables,
     list_school_subjects,
     list_timetables,
     rename_timetable,
@@ -60,6 +79,17 @@ def dashboard_router(request):
         return redirect('login')
     url_name = ROLE_DASHBOARD.get(request.user.role, 'home')
     return redirect(url_name)
+
+
+def register_classes(request):
+    """Public JSON — classes for a school (registration class picker)."""
+    school_id = request.GET.get('school')
+    if not school_id:
+        return JsonResponse({'classes': []})
+    classes = ClassGroup.objects.filter(school_id=school_id).order_by('name')
+    return JsonResponse({
+        'classes': [{'id': c.pk, 'name': c.name} for c in classes],
+    })
 
 
 def register(request):
@@ -142,27 +172,73 @@ def _portal_page(request, template_name, page_title, page_meta=''):
 
 
 @login_required
+def pick_class(request):
+    """Students without a class enrolment pick their class."""
+    if request.user.role != 'student':
+        return redirect('pages:dashboard')
+    profile = student_profile_for_user(request.user)
+    if not profile or not student_needs_class(request.user):
+        return redirect('pages:dashboard')
+
+    if request.method == 'POST':
+        form = PickClassForm(request.user.school, request.POST)
+        if form.is_valid():
+            enroll_student(profile, form.cleaned_data['class_group'])
+            messages.success(request, f'You are now enrolled in {form.cleaned_data["class_group"].name}.')
+            return redirect('pages:dashboard_student')
+    else:
+        form = PickClassForm(request.user.school)
+
+    return render(request, 'registration/pick_class.html', {
+        'form': form,
+        'school_name': request.user.school.name if request.user.school else '',
+    })
+
+
+@login_required
 def dashboard_parent(request):
-    return _portal_page(
-        request, 'pages/dashboard/parent.html',
-        'Parent overview', 'Progress, attendance, and fees for your children.',
+    session_date = session_date_or_today(request.GET.get('date'))
+    children = parent_children_attendance(request.user, session_date)
+    ctx = build_portal_context(
+        request,
+        'Parent overview',
+        'Attendance and progress for your children.',
     )
+    ctx.update({'children': children, 'session_date': session_date})
+    return render(request, 'pages/dashboard/parent.html', ctx)
 
 
 @login_required
 def dashboard_teacher(request):
-    return _portal_page(
-        request, 'pages/dashboard/teacher.html',
-        'Teacher workspace', "Today's sessions, assignments, and verification queues.",
+    school = request.user.school
+    teacher_profile = TeacherProfile.objects.filter(user=request.user).first()
+    classes = list(teacher_classes(school, teacher_profile))
+    primary_class = classes[0] if classes else None
+    ctx = build_portal_context(
+        request,
+        'Teacher workspace',
+        "Take today's register and manage your classes.",
     )
+    ctx.update({
+        'teacher_classes': classes,
+        'primary_class': primary_class,
+    })
+    return render(request, 'pages/dashboard/teacher.html', ctx)
 
 
 @login_required
 def dashboard_student(request):
-    return _portal_page(
-        request, 'pages/dashboard/student.html',
-        'Student overview', 'Timetable, homework, and progress in one place.',
+    if student_needs_class(request.user):
+        return redirect('pages:pick_class')
+    profile = student_profile_for_user(request.user)
+    portal = student_portal_context(profile) if profile else {}
+    ctx = build_portal_context(
+        request,
+        'Student overview',
+        'Your class timetable, homework, and progress.',
     )
+    ctx.update(portal)
+    return render(request, 'pages/dashboard/student.html', ctx)
 
 
 @login_required
@@ -274,6 +350,7 @@ def page_timetable(request):
     ctx.update({
         'classes': classes,
         'class_group': class_group,
+        'live_timetables': list_live_timetables(school),
         'timetables': timetables,
         'timetable': timetable,
         'subjects': subjects,
@@ -284,6 +361,7 @@ def page_timetable(request):
         'grid_json': json.dumps({f'{w}-{t}': v for (w, t), v in grid.items()}) if timetable else '{}',
         'can_edit': can_edit,
         'can_manage_timetables': request.user.role == 'school_admin',
+        'can_add_class': request.user.role == 'school_admin',
         'timetable_form': TimetableForm(school),
         'subject_form': CreateSubjectForm(),
     })
@@ -462,6 +540,45 @@ def subject_create(request):
     })
 
 
+@role_required('school_admin')
+@require_POST
+def class_create(request):
+    school = request.user.school
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    from .forms import AddClassForm
+    form = AddClassForm(school, payload)
+    if not form.is_valid():
+        errors = '; '.join(
+            f'{field}: {msgs[0]}' for field, msgs in form.errors.items()
+        )
+        return JsonResponse({'error': errors or 'Invalid class details'}, status=400)
+
+    if ClassGroup.objects.filter(school=school, name=form.cleaned_data['name']).exists():
+        return JsonResponse({'error': 'A class with that name already exists'}, status=400)
+
+    class_group = form.save(school)
+    get_or_create_default_timetable(school, class_group)
+    log_action(
+        user=request.user,
+        action=AuditLog.ACTION_CREATE,
+        resource='ClassGroup',
+        resource_id=class_group.pk,
+        detail=f'Created class {class_group.name}',
+        request=request,
+    )
+    return JsonResponse({
+        'ok': True,
+        'class': {
+            'id': class_group.pk,
+            'name': class_group.name,
+        },
+    })
+
+
 @role_required('super_admin')
 def dashboard_super_admin(request):
     ctx = build_super_admin_dashboard_context()
@@ -475,7 +592,97 @@ def dashboard_super_admin(request):
 
 @login_required
 def page_attendance(request):
+    school = request.user.school
+    role = request.user.role
+
+    if role == 'school_admin':
+        session_date = session_date_or_today(_parse_date_param(request.GET.get('date')))
+        overview, totals, session_date = build_school_attendance_overview(school, session_date)
+        ctx = build_portal_context(
+            request,
+            'Attendance',
+            'All students grouped by class — track registers across your school.',
+        )
+        ctx.update({
+            'overview': overview,
+            'totals': totals,
+            'session_date': session_date,
+        })
+        return render(request, 'pages/features/attendance_admin.html', ctx)
+
+    if role == 'teacher':
+        teacher_profile = TeacherProfile.objects.filter(user=request.user).first()
+        classes = list(teacher_classes(school, teacher_profile))
+        class_id = request.GET.get('class')
+        if class_id:
+            class_group = get_object_or_404(ClassGroup, pk=class_id, school=school)
+        else:
+            class_group = classes[0] if classes else None
+
+        session_date = session_date_or_today(_parse_date_param(request.GET.get('date')))
+        register = build_class_register(class_group, session_date) if class_group else None
+
+        if request.method == 'POST' and class_group:
+            marks_payload = {}
+            for key, value in request.POST.items():
+                if key.startswith('status_'):
+                    student_id = key.replace('status_', '')
+                    marks_payload[student_id] = {'status': value}
+            session, count = save_class_register(
+                school, class_group, session_date, request.user, marks_payload,
+            )
+            log_action(
+                user=request.user,
+                action=AuditLog.ACTION_UPDATE,
+                resource='AttendanceSession',
+                resource_id=session.pk,
+                detail=f'Saved register for {class_group.name} ({count} marks)',
+                request=request,
+            )
+            messages.success(request, f'Register saved for {class_group.name}.')
+            return redirect(
+                f'{reverse("pages:attendance")}?class={class_group.pk}&date={session_date.isoformat()}',
+            )
+
+        ctx = build_portal_context(
+            request,
+            'Take register',
+            'Mark each student present, late, or absent for today.',
+        )
+        ctx.update({
+            'classes': classes,
+            'class_group': class_group,
+            'register': register,
+            'session_date': session_date,
+        })
+        return render(request, 'pages/features/attendance_register.html', ctx)
+
+    if role == 'student':
+        if student_needs_class(request.user):
+            return redirect('pages:pick_class')
+        profile = student_profile_for_user(request.user)
+        history = student_attendance_history(profile) if profile else []
+        ctx = build_portal_context(request, 'My attendance', 'Your attendance record.')
+        ctx.update({'history': history, 'student': profile})
+        return render(request, 'pages/features/attendance_student.html', ctx)
+
+    if role == 'parent':
+        session_date = session_date_or_today(_parse_date_param(request.GET.get('date')))
+        children = parent_children_attendance(request.user, session_date)
+        ctx = build_portal_context(request, 'Attendance', 'Attendance for your children.')
+        ctx.update({'children': children, 'session_date': session_date})
+        return render(request, 'pages/features/attendance_student.html', ctx)
+
     return _portal_page(request, 'pages/features/attendance.html', 'Attendance')
+
+
+def _parse_date_param(value):
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, '%Y-%m-%d').date()
+    except ValueError:
+        return None
 
 
 @login_required
@@ -494,11 +701,6 @@ def page_hifz(request):
 
 
 @login_required
-def page_messages(request):
-    return _portal_page(request, 'pages/features/messages.html', 'Messages')
-
-
-@login_required
 def page_payments_info(request):
     return _portal_page(request, 'pages/features/payments_info.html', 'Payments overview')
 
@@ -510,12 +712,20 @@ def page_quran(request):
 
 @login_required
 def page_subscription(request):
-    return _portal_page(request, 'pages/features/subscription.html', 'Subscription plans')
+    if request.user.role == 'school_admin':
+        return redirect('payments:subscription')
+    return _portal_page(
+        request,
+        'pages/features/subscription.html',
+        'Subscription plans',
+        'Only school admins can manage subscriptions.',
+    )
 
 
 @login_required
 def page_worksheets(request):
-    return _portal_page(request, 'pages/features/worksheets.html', 'Worksheets & homework')
+    from lms.views import lms_student_worksheets
+    return lms_student_worksheets(request)
 
 
 @login_required

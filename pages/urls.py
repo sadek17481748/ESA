@@ -7,6 +7,8 @@ app_name = 'pages'
 
 urlpatterns = [
     path('register/', views.register, name='register'),
+    path('register/classes/', views.register_classes, name='register_classes'),
+    path('register/pick-class/', views.pick_class, name='pick_class'),
     path('register/school/', views.register_school, name='register_school'),
     path('dashboard/', views.dashboard_router, name='dashboard'),
     path('dashboard/parent/', views.dashboard_parent, name='dashboard_parent'),
@@ -18,7 +20,6 @@ urlpatterns = [
     path('behaviour/', views.page_behaviour, name='behaviour'),
     path('exams/', views.page_exams, name='exams'),
     path('hifz/', views.page_hifz, name='hifz'),
-    path('messages/', views.page_messages, name='messages'),
     path('payments-info/', views.page_payments_info, name='payments_info'),
     path('quran/', views.page_quran, name='quran'),
     path('subscription/', views.page_subscription, name='subscription'),
@@ -30,6 +31,7 @@ urlpatterns = [
     path('timetable/update/', views.timetable_update, name='timetable_update'),
     path('timetable/delete/', views.timetable_delete, name='timetable_delete'),
     path('timetable/subject/create/', views.subject_create, name='subject_create'),
+    path('timetable/class/create/', views.class_create, name='class_create'),
     path('worksheets/', views.page_worksheets, name='worksheets'),
     path('analytics/', views.page_analytics, name='analytics'),
 ]
