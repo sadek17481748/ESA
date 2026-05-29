@@ -64,6 +64,12 @@ class RegisterForm(forms.ModelForm):
             else:
                 field.widget.attrs.setdefault('class', 'form-input')
 
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username and User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError('That username is already taken.')
+        return username
+
     def clean_password2(self):
         p1 = self.cleaned_data.get('password1')
         p2 = self.cleaned_data.get('password2')
