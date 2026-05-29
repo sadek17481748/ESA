@@ -11,6 +11,7 @@ from parents.models import ParentProfile
 from schools.models import School
 from students.models import StudentProfile
 from academics.models import ClassGroup
+from teachers.models import TeacherProfile
 
 User = get_user_model()
 
@@ -85,10 +86,22 @@ class RegisterForm(forms.Form):
         label='Confirm password',
         widget=forms.PasswordInput(attrs={'autocomplete': 'new-password', 'class': 'form-input'}),
     )
+    class_group = forms.ModelChoiceField(
+        label='Class',
+        queryset=ClassGroup.objects.none(),
+        required=False,
+        empty_label='Select your class',
+        widget=forms.Select(attrs={'class': 'form-input', 'id': 'id_class_group'}),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['school'].queryset = active_schools()
+        school_id = self.data.get('school') if self.data else None
+        if school_id:
+            self.fields['class_group'].queryset = ClassGroup.objects.filter(
+                school_id=school_id,
+            ).order_by('name')
 
     def clean_username(self):
         username = self.cleaned_data['username'].strip()
@@ -109,6 +122,17 @@ class RegisterForm(forms.Form):
             raise forms.ValidationError('Choose Parent or Student.')
         return role
 
+    def clean(self):
+        cleaned = super().clean()
+        role = cleaned.get('role')
+        school = cleaned.get('school')
+        class_group = cleaned.get('class_group')
+        if role == 'student' and not class_group:
+            self.add_error('class_group', 'Students must select a class.')
+        if role == 'student' and class_group and school and class_group.school_id != school.pk:
+            self.add_error('class_group', 'That class does not belong to the selected school.')
+        return cleaned
+
     @transaction.atomic
     def save(self):
         data = self.cleaned_data
@@ -127,12 +151,16 @@ class RegisterForm(forms.Form):
         if user.role == 'parent':
             ParentProfile.objects.create(user=user, school=school)
         else:
-            StudentProfile.objects.create(
+            profile = StudentProfile.objects.create(
                 user=user,
                 school=school,
                 first_name=user.first_name,
                 last_name=user.last_name,
             )
+            class_group = data.get('class_group')
+            if class_group:
+                from pages.enrollment_service import enroll_student
+                enroll_student(profile, class_group)
 
         return user
 
@@ -332,3 +360,65 @@ class TimetableForm(forms.Form):
 
     def clean_name(self):
         return self.cleaned_data['name'].strip()
+
+
+class AddClassForm(forms.Form):
+    name = forms.CharField(
+        max_length=120,
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Year 8'}),
+    )
+    year_group_name = forms.CharField(
+        label='Year group',
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Same as class name if blank'}),
+    )
+    teacher = forms.ModelChoiceField(
+        queryset=TeacherProfile.objects.none(),
+        required=False,
+        empty_label='Assign teacher later',
+        widget=forms.Select(attrs={'class': 'form-input'}),
+    )
+
+    def __init__(self, school, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['teacher'].queryset = TeacherProfile.objects.filter(
+            school=school,
+        ).select_related('user').order_by('user__last_name')
+
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip()
+        if not name:
+            raise forms.ValidationError('Class name is required.')
+        return name
+
+    @transaction.atomic
+    def save(self, school):
+        data = self.cleaned_data
+        year_name = (data.get('year_group_name') or data['name']).strip()
+        year_group, _ = YearGroup.objects.get_or_create(
+            school=school,
+            name=year_name,
+            defaults={'sort_order': 0},
+        )
+        return ClassGroup.objects.create(
+            school=school,
+            name=data['name'],
+            year_group=year_group,
+            teacher=data.get('teacher'),
+        )
+
+
+class PickClassForm(forms.Form):
+    class_group = forms.ModelChoiceField(
+        label='Your class',
+        queryset=ClassGroup.objects.none(),
+        empty_label='Select your class',
+        widget=forms.Select(attrs={'class': 'form-input'}),
+    )
+
+    def __init__(self, school, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['class_group'].queryset = ClassGroup.objects.filter(
+            school=school,
+        ).order_by('name')

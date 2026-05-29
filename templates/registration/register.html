@@ -34,6 +34,16 @@
           <span style="color:#e57373;font-size:0.9rem;">{{ form.role.errors.0 }}</span>
         {% endif %}
       </div>
+      <div class="field" id="class-field" style="display:none;">
+        <label for="id_class_group">Class</label>
+        {{ form.class_group }}
+        {% if form.class_group.errors %}
+          <span style="color:#e57373;font-size:0.9rem;">{{ form.class_group.errors.0 }}</span>
+        {% endif %}
+        <span style="color:var(--muted);font-size:0.85rem;display:block;margin-top:0.35rem;">
+          Pick your class — your timetable and class content are set automatically.
+        </span>
+      </div>
       <div class="field">
         <label for="id_first_name">First name</label>
         {{ form.first_name }}
@@ -87,4 +97,43 @@
     <a href="{% url 'login' %}">Already have an account?</a>
   </p>
 </section>
+{% if has_schools %}
+<script>
+(function() {
+  const schoolSelect = document.getElementById('id_school');
+  const roleSelect = document.getElementById('id_role');
+  const classField = document.getElementById('class-field');
+  const classSelect = document.getElementById('id_class_group');
+
+  async function loadClasses() {
+    if (!schoolSelect.value) {
+      classSelect.innerHTML = '<option value="">Select your class</option>';
+      return;
+    }
+    const res = await fetch('{% url "pages:register_classes" %}?school=' + encodeURIComponent(schoolSelect.value));
+    const data = await res.json();
+    const current = classSelect.value;
+    classSelect.innerHTML = '<option value="">Select your class</option>';
+    data.classes.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      if (String(c.id) === current) opt.selected = true;
+      classSelect.appendChild(opt);
+    });
+  }
+
+  function toggleClassField() {
+    const isStudent = roleSelect.value === 'student';
+    classField.style.display = isStudent ? 'block' : 'none';
+    classSelect.required = isStudent;
+  }
+
+  schoolSelect.addEventListener('change', loadClasses);
+  roleSelect.addEventListener('change', toggleClassField);
+  loadClasses();
+  toggleClassField();
+})();
+</script>
+{% endif %}
 {% endblock %}
