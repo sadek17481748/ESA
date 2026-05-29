@@ -20,9 +20,16 @@ from pages.portal import build_portal_context
 from pages.decorators import role_required
 
 from .forms import SchoolFeeForm
-from .models import FeeItem, Payment
+from .models import FeeItem, Payment, SubscriptionPayment
 from .school_fees import build_school_fee_overview, create_fees_for_students
-from .services import create_fee_checkout_session, retrieve_checkout_session
+from .services import (
+    create_fee_checkout_session,
+    create_subscription_checkout_session,
+    retrieve_checkout_session,
+    stripe_is_configured,
+)
+from .subscription_plans import PLANS, plan_for_tier
+from schools.models import School
 
 
 @login_required
@@ -42,6 +49,7 @@ def fee_list(request):
         'outstanding': outstanding,
         'paid': paid,
         'publishable_key': settings.STRIPE_PUBLISHABLE_KEY,
+        'stripe_configured': stripe_is_configured(),
         **build_portal_context(request, 'School fees', 'Outstanding and paid invoices for your children.'),
     })
 
@@ -102,6 +110,10 @@ def create_checkout(request, fee_id):
         messages.info(request, 'This fee is already paid.')
         return redirect('payments:fee_list')
 
+    if not stripe_is_configured():
+        messages.error(request, 'Stripe is not configured. Add STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY to enable payments.')
+        return redirect('payments:fee_list')
+
     success_url = (
         request.build_absolute_uri(reverse('payments:success'))
         + '?session_id={CHECKOUT_SESSION_ID}'
@@ -121,44 +133,175 @@ def create_checkout(request, fee_id):
         return redirect('payments:fee_list')
 
 
+        return redirect('payments:fee_list')
+
+
+@role_required('school_admin')
+def subscription_page(request):
+    """School admin — view plans and pay via Stripe Checkout."""
+    school = request.user.school
+    if not school:
+        return redirect('pages:dashboard')
+
+    ctx = build_portal_context(
+        request,
+        'Subscription',
+        'Upgrade your school plan — pay securely with Stripe test mode.',
+    )
+    ctx.update({
+        'plans': PLANS.values(),
+        'current_tier': school.subscription_tier,
+        'stripe_configured': stripe_is_configured(),
+        'payment_history': SubscriptionPayment.objects.filter(
+            school=school, status=SubscriptionPayment.STATUS_COMPLETE,
+        )[:10],
+    })
+    return render(request, 'pages/features/subscription.html', ctx)
+
+
+@role_required('school_admin')
+@require_POST
+def subscription_checkout(request):
+    """POST — start Stripe Checkout for Standard or Premium."""
+    if not stripe_is_configured():
+        messages.error(request, 'Stripe is not configured on this server.')
+        return redirect('pages:subscription')
+
+    tier = request.POST.get('tier')
+    plan = plan_for_tier(tier)
+    if not plan:
+        messages.error(request, 'Invalid plan selected.')
+        return redirect('pages:subscription')
+
+    school = request.user.school
+    if school.subscription_tier == plan['tier']:
+        messages.info(request, f'You are already on the {plan["name"]} plan.')
+        return redirect('pages:subscription')
+
+    success_url = (
+        request.build_absolute_uri(reverse('payments:success'))
+        + '?session_id={CHECKOUT_SESSION_ID}'
+    )
+    cancel_url = request.build_absolute_uri(reverse('payments:subscription_cancel'))
+
+    try:
+        session = create_subscription_checkout_session(
+            school=school,
+            tier=plan['tier'],
+            plan_name=plan['name'],
+            amount_pence=plan['amount_pence'],
+            success_url=success_url,
+            cancel_url=cancel_url,
+            customer_email=request.user.email or None,
+            admin_user_id=request.user.pk,
+        )
+        return redirect(session.url, code=303)
+    except stripe.error.StripeError as exc:
+        messages.error(request, f'Payment could not be started: {exc}')
+        return redirect('pages:subscription')
+
+
+@login_required
+def subscription_cancel(request):
+    messages.info(request, 'Subscription payment cancelled — no charge was made.')
+    return redirect('pages:subscription')
+
+
 @login_required
 def payment_success(request):
-    """GET /payments/success/?session_id=... — verify with Stripe, save Payment once."""
+    """GET /payments/success/?session_id=... — verify with Stripe, save payment once."""
     session_id = request.GET.get('session_id')
     payment = None
+    subscription_payment = None
+    redirect_url = 'payments:fee_list'
 
     if session_id:
+        if not stripe_is_configured():
+            messages.error(request, 'Stripe is not configured.')
+            return redirect('pages:dashboard')
+
         try:
             session = retrieve_checkout_session(session_id)
             if session.payment_status != 'paid':
                 messages.warning(request, 'Payment not completed yet.')
                 return redirect('payments:fee_list')
 
-            if not Payment.objects.filter(stripe_session_id=session_id).exists():
-                fee_id = session.metadata.get('fee_item_id')
-                fee = get_object_or_404(FeeItem, pk=fee_id, parent=request.user)
-
-                payment = Payment.objects.create(
-                    fee_item=fee,
-                    parent=request.user,
-                    stripe_session_id=session_id,
-                    stripe_payment_intent=session.payment_intent or '',
-                    amount_pence=session.amount_total,
-                    currency=(session.currency or 'gbp').upper(),
-                    status=Payment.STATUS_COMPLETE,
-                    receipt_reference=uuid.uuid4().hex[:12].upper(),
-                    paid_at=timezone.now(),
-                )
-                fee.status = FeeItem.STATUS_PAID
-                fee.save(update_fields=['status'])
+            payment_type = session.metadata.get('payment_type', 'fee')
+            if payment_type == 'subscription':
+                subscription_payment = _complete_subscription_from_session(session, request.user)
+                redirect_url = 'pages:subscription'
+                if subscription_payment:
+                    messages.success(
+                        request,
+                        f'Subscription upgraded to {subscription_payment.tier.title()}.',
+                    )
             else:
-                payment = Payment.objects.get(stripe_session_id=session_id)
+                payment = _complete_fee_from_session(session, request.user)
 
         except stripe.error.StripeError:
             messages.error(request, 'Could not verify payment with Stripe.')
-            return redirect('payments:fee_list')
+            return redirect(redirect_url)
 
-    return render(request, 'payments/success.html', {'payment': payment})
+    return render(request, 'payments/success.html', {
+        'payment': payment,
+        'subscription_payment': subscription_payment,
+    })
+
+
+def _complete_fee_from_session(session, user):
+    session_id = session.get('id')
+    if Payment.objects.filter(stripe_session_id=session_id).exists():
+        return Payment.objects.get(stripe_session_id=session_id)
+
+    fee_id = session.metadata.get('fee_item_id')
+    if not fee_id:
+        return None
+
+    fee = get_object_or_404(FeeItem, pk=fee_id, parent=user)
+    payment = Payment.objects.create(
+        fee_item=fee,
+        parent=user,
+        stripe_session_id=session_id,
+        stripe_payment_intent=session.payment_intent or '',
+        amount_pence=session.amount_total,
+        currency=(session.currency or 'gbp').upper(),
+        status=Payment.STATUS_COMPLETE,
+        receipt_reference=uuid.uuid4().hex[:12].upper(),
+        paid_at=timezone.now(),
+    )
+    fee.status = FeeItem.STATUS_PAID
+    fee.save(update_fields=['status'])
+    return payment
+
+
+def _complete_subscription_from_session(session, user):
+    session_id = session.get('id')
+    if SubscriptionPayment.objects.filter(stripe_session_id=session_id).exists():
+        return SubscriptionPayment.objects.get(stripe_session_id=session_id)
+
+    school_id = session.metadata.get('school_id')
+    tier = session.metadata.get('tier')
+    if not school_id or not tier:
+        return None
+
+    school = get_object_or_404(School, pk=school_id)
+    if user.role == 'school_admin' and user.school_id != school.pk:
+        return None
+
+    subscription_payment = SubscriptionPayment.objects.create(
+        school=school,
+        admin=user,
+        tier=tier,
+        amount_pence=session.amount_total or 0,
+        stripe_session_id=session_id,
+        stripe_payment_intent=session.payment_intent or '',
+        status=SubscriptionPayment.STATUS_COMPLETE,
+        receipt_reference=uuid.uuid4().hex[:12].upper(),
+        paid_at=timezone.now(),
+    )
+    school.subscription_tier = tier
+    school.save(update_fields=['subscription_tier'])
+    return subscription_payment
 
 
 @login_required
@@ -193,7 +336,11 @@ def stripe_webhook(request):
 
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-        _mark_fee_paid_from_session(session)
+        payment_type = session.get('metadata', {}).get('payment_type', 'fee')
+        if payment_type == 'subscription':
+            _mark_subscription_paid_from_session(session)
+        else:
+            _mark_fee_paid_from_session(session)
 
     return HttpResponse(status=200)
 
@@ -226,6 +373,45 @@ def _mark_fee_paid_from_session(session):
     )
     fee.status = FeeItem.STATUS_PAID
     fee.save(update_fields=['status'])
+
+
+def _mark_subscription_paid_from_session(session):
+    session_id = session.get('id')
+    if not session_id or SubscriptionPayment.objects.filter(stripe_session_id=session_id).exists():
+        return
+
+    school_id = session.get('metadata', {}).get('school_id')
+    tier = session.get('metadata', {}).get('tier')
+    admin_id = session.get('metadata', {}).get('admin_user_id')
+    if not school_id or not tier:
+        return
+
+    try:
+        school = School.objects.get(pk=school_id)
+    except School.DoesNotExist:
+        return
+
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    admin = User.objects.filter(pk=admin_id).first() if admin_id else None
+    if not admin:
+        admin = User.objects.filter(school=school, role='school_admin').first()
+    if not admin:
+        return
+
+    SubscriptionPayment.objects.create(
+        school=school,
+        admin=admin,
+        tier=tier,
+        amount_pence=session.get('amount_total') or 0,
+        stripe_session_id=session_id,
+        stripe_payment_intent=session.get('payment_intent') or '',
+        status=SubscriptionPayment.STATUS_COMPLETE,
+        receipt_reference=uuid.uuid4().hex[:12].upper(),
+        paid_at=timezone.now(),
+    )
+    school.subscription_tier = tier
+    school.save(update_fields=['subscription_tier'])
 
 
 # ---------------------------------------------------------------------------
