@@ -328,3 +328,51 @@ class WebAuthTests(TestCase):
         self.client.force_login(user)
         response = self.client.get(reverse('logout'))
         self.assertRedirects(response, reverse('home'), fetch_redirect_response=False)
+
+
+class AttendancePortalTests(TestCase):
+    def setUp(self):
+        call_command('ensure_platform_seed')
+        self.school = School.objects.get(name='Al-Noor Academy')
+        self.admin = User.objects.get(username='schooladmin')
+        self.teacher = User.objects.get(username='mr_mohammed')
+        self.class_group = ClassGroup.objects.filter(school=self.school).first()
+
+    def test_school_admin_attendance_overview(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('pages:attendance'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'School attendance')
+        self.assertContains(response, self.class_group.name)
+
+    def test_teacher_can_save_register(self):
+        self.client.force_login(self.teacher)
+        student = StudentProfile.objects.filter(school=self.school).first()
+        response = self.client.post(
+            reverse('pages:attendance') + f'?class={self.class_group.pk}',
+            {f'status_{student.pk}': 'present'},
+        )
+        self.assertEqual(response.status_code, 302)
+        from attendance.models import AttendanceSession
+        self.assertTrue(
+            AttendanceSession.objects.filter(class_group=self.class_group).exists()
+        )
+
+    def test_student_registration_enrols_in_class(self):
+        response = self.client.post(reverse('pages:register'), {
+            'school': self.school.pk,
+            'role': 'student',
+            'class_group': self.class_group.pk,
+            'first_name': 'New',
+            'last_name': 'Student',
+            'username': 'new_student_test',
+            'email': 'new@test.com',
+            'password1': 'securepass1',
+            'password2': 'securepass1',
+        })
+        self.assertEqual(response.status_code, 302)
+        from academics.models import ClassEnrollment
+        profile = StudentProfile.objects.get(user__username='new_student_test')
+        self.assertTrue(
+            ClassEnrollment.objects.filter(student=profile, class_group=self.class_group).exists()
+        )
