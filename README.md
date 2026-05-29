@@ -53,11 +53,11 @@ Assessor-facing links and evidence paths:
 | Resource | Link or path |
 |----------|--------------|
 | **Source repository** | https://github.com/sadek17481748/ESA |
-| **Live deployment** | (to be added) |
+| **Live deployment** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
 | **Bug tracker (GitHub Project board)** | https://github.com/users/sadek17481748/projects/8/views/1 |
 | **Wireframes (README anchor)** | [Wireframes](#wireframes) |
 | **ERD / data model** | [Data model and ERD](#data-model-and-erd-entity-relationships) |
-| **Test credentials** | (to be added) |
+| **Test credentials** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
 | **Manual test evidence (screenshots)** | `docs/images/manual-testing/` |
 | **Validation evidence** | `docs/images/validation/` |
 | **Sprint checklist** | Follow the delivery timeline under [Planning notes](#planning-notes-written-at-project-start) |
@@ -180,17 +180,17 @@ Screenshots will be stored under `docs/images/manual-testing/` so key screens ar
 
 | Screen | Screenshot |
 |--------|------------|
-| Landing page | (to be added) |
-| Login | (to be added) |
-| Super Admin dashboard | (to be added) |
-| School Admin dashboard | (to be added) |
-| Teacher dashboard | (to be added) |
-| Student dashboard | (to be added) |
-| Parent dashboard | (to be added) |
-| Timetable | (to be added) |
-| Attendance register | (to be added) |
-| Hifz progress | (to be added) |
-| Payments / fees | (to be added) |
+| Landing page | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| Login | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| Super Admin dashboard | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| School Admin dashboard | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| Teacher dashboard | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| Student dashboard | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| Parent dashboard | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| Timetable | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| Attendance register | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| Hifz progress | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| Payments / fees | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
 
 ---
 
@@ -1035,23 +1035,23 @@ To be added as implementation progresses (docs, tutorials, UI references).
 
 ### ERD and schema design references
 
-(to be added)
+https://esa-project-2a7a33dfe3fc.herokuapp.com/
 
 ### Feature resources
 
-(to be added)
+https://esa-project-2a7a33dfe3fc.herokuapp.com/
 
 ### Django and DRF
 
-(to be added)
+https://esa-project-2a7a33dfe3fc.herokuapp.com/
 
 ### PostgreSQL
 
-(to be added)
+https://esa-project-2a7a33dfe3fc.herokuapp.com/
 
 ### Images used in this project
 
-(to be added)
+https://esa-project-2a7a33dfe3fc.herokuapp.com/
 
 ---
 
