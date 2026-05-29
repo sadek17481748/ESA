@@ -244,7 +244,63 @@ a:hover {
   border-radius: var(--radius);
   font-weight: 600;
   font: inherit;
-  cursor: default;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: #e6c04a;
+  color: var(--bg);
+  text-decoration: none;
+  box-shadow: 0 2px 12px rgba(212, 175, 55, 0.35);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+button.btn-primary:disabled,
+.btn-primary[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-outline {
+  display: inline-block;
+  padding: 0.55rem 1.1rem;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  font-weight: 600;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-outline:hover {
+  background: var(--gold-soft);
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.btn-outline:active {
+  background: rgba(212, 175, 55, 0.22);
+}
+
+.btn-outline:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 .grid-cards {
@@ -1245,6 +1301,306 @@ a:hover {
 
 .timetable-cell.has-lesson {
   min-width: 100px;
+}
+
+.timetable-page-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.live-timetables-section {
+  margin: 1.25rem 0;
+}
+
+.live-timetables-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.live-timetables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.live-timetable-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.live-timetable-card:hover {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+  text-decoration: none;
+}
+
+.live-timetable-card.is-active {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+
+.live-timetable-meta,
+.live-timetable-updated {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.timetable-workspace {
+  margin-top: 1rem;
+}
+
+.timetable-workspace-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.timetable-editing-label {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.stripe-test-banner {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--gold-soft);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+
+.stripe-test-banner code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.88em;
+}
+
+.stripe-test-banner-warn {
+  background: rgba(229, 115, 115, 0.12);
+  border-color: #e57373;
+  color: var(--text);
+}
+
+.card-featured {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+}
+
+.attendance-head,
+.attendance-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.attendance-date-picker,
+.attendance-toolbar .field {
+  min-width: 160px;
+}
+
+.attendance-class-block {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.attendance-class-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.attendance-class-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.attendance-register-table .attendance-radio {
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.attendance-register-table input[type="radio"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
+.timetable-cell-readonly {
+  font-size: 0.82rem;
+  vertical-align: top;
+  min-width: 88px;
+}
+
+.student-timetable-readonly td,
+.student-timetable-readonly th {
+  padding: 0.45rem;
+}
+
+/* -------- Messaging -------- */
+.msg-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.msg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.section-label {
+  margin: 0 0 0.65rem;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.msg-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.msg-list li {
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.msg-meta {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.msg-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.msg-bubble {
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+}
+
+.msg-bubble.msg-staff {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+}
+
+.msg-bubble header {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.report-dl dt {
+  font-weight: 600;
+  margin-top: 0.75rem;
+  color: var(--gold);
+}
+
+.report-dl dd {
+  margin: 0.25rem 0 0;
+}
+
+/* -------- LMS -------- */
+.lms-subject-block {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.lms-subject-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.lms-track-card {
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-top: 0.65rem;
+}
+
+.lms-track-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lms-material-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.88rem;
+}
+
+.lms-progress-card {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.lms-progress-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar span {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+  border-radius: 4px;
+  transition: width 0.2s ease;
 }
 
 @media (max-width: 900px) {
