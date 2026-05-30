@@ -49,6 +49,18 @@
   - [HTML, CSS and JS validation](#html-css-and-js-validation)
 - [Security](#security)
 - [Sources and references](#sources-and-references)
+- [Sprint delivery evidence (June–July 2025)](#sprint-delivery-evidence-junejuly-2025)
+  - [Portal login hub](#portal-login-hub-introduction)
+  - [Login credentials by role](#super-admin-login-credentials)
+  - [Quick navigation links](#quick-navigation-links)
+  - [Qur'an annotation sprint (19–23 June)](#quran-sprint-overview-1923-june)
+  - [Exams and sign-off sprint (24–28 June)](#exams-sprint-overview-2428-june)
+  - [Payments and deployment sprint (29 June–1 July)](#payments-sprint-overview-29-june1-july)
+  - [User acceptance testing](#user-acceptance-testing-overview)
+  - [Design inspiration (videos and websites)](#design-inspiration--islamic-school-platforms)
+  - [Deployment readiness checklist](#deployment-readiness--heroku-platform)
+  - [Systems used summary](#systems-used--technology-summary)
+  - [Closing assessor guide](#closing-assessor-guide)
 - [Author](#author)
 
 ---
@@ -1397,20 +1409,26 @@ The goal is to arrive at submission week with **most evidence already captured**
 ### Web portal (Heroku)
 
 Session login at `/accounts/login/`. Parent and student registration at `/register/`.
-After login, users go to `/dashboard/` by role. Feature pages are UI placeholders while
-API endpoints are wired separately.
+After login, users go to `/dashboard/` by role. Qur'an (`/quran/`), exams (`/exams/`), payments
+(`/payments/`), messages, attendance, timetable, and homework are implemented as Django portal pages
+alongside the REST API.
 
 | Route | Purpose |
 |-------|---------|
 | `/register/` | Parent or student sign-up |
+| `/accounts/verify-email/` | Six-digit email verification (real addresses) |
+| `/accounts/password-reset/` | Password recovery flow |
 | `/dashboard/parent/` | Parent portal |
 | `/dashboard/teacher/` | Teacher workspace |
 | `/dashboard/student/` | Student portal |
-| `/attendance/` | Attendance screen (placeholder) |
-| `/timetable/` | Timetable screen (placeholder) |
-| `/worksheets/` | Homework screen (placeholder) |
+| `/quran/` | Qur'an sessions, annotations, audio upload |
+| `/exams/` | Exams, MCQ auto-mark, teacher finalise sign-off |
+| `/payments/` | Fees, Stripe Checkout, receipts |
+| `/attendance/` | Attendance screen |
+| `/timetable/` | Timetable screen |
+| `/worksheets/` | Homework screen |
 
-Planned and executed checks for foundation, RBAC, and Stripe work. Fill **Actual**, **Pass/Fail**, and **Screenshot** as evidence is captured (`docs/images/manual-testing/`).
+Planned and executed checks for foundation, RBAC, Stripe, Qur'an, exams, and sign-off work. Fill **Actual**, **Pass/Fail**, and **Screenshot** as evidence is captured (`docs/images/manual-testing/`).
 
 | # | Test | Steps | Expected | Actual | Pass/Fail | Screenshot |
 |---|------|-------|----------|--------|-----------|------------|
@@ -1482,7 +1500,9 @@ Tests are added incrementally alongside features.
 | Attendance CRUD | — | — | Not started |
 | Homework assign / submit / review | — | — | Not started |
 | Hifz sign-off flow | — | — | Not started |
-| Exam create / finalise | — | — | Not started |
+| Exam create / finalise | `exams` tests | Rows 42, manual exam walkthrough | Implemented |
+| Qur'an sessions / annotations | `quran` tests | Teacher annotate + student upload | Implemented |
+| Email verification / password reset | `accounts.tests_auth` | Register + verify flow | Implemented |
 | Notifications delivery | | | |
 | Messaging (send / receive) | | | |
 | Analytics dashboard metrics | | | |
