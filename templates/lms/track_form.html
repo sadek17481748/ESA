@@ -1,0 +1,6 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel"><h2 style="margin-top:0;">New level — {{ subject.name }}</h2><div class="accent-bar"></div>
+<form method="post" class="form-stack" style="max-width:480px;">{% csrf_token %}{% for field in form %}<div class="field"><label>{{ field.label }}</label>{{ field }}</div>{% endfor %}<button type="submit" class="btn-primary">Create level</button></form>
+<p style="margin-top:1rem;"><a href="{% url 'lms:hub' %}">← LMS</a></p></section>
+{% endblock %}

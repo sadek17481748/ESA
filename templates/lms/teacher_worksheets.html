@@ -1,0 +1,14 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <h2 style="margin-top:0;">Class content</h2>
+  <div class="accent-bar"></div>
+  <p class="lead">Assign the correct subject level (e.g. Maths Foundation) to each class.</p>
+  <p><a class="btn-primary" href="{% url 'lms:assign' %}">Assign LMS content to class</a></p>
+  <p style="margin-top:1rem;"><a href="{% url 'lms:assign' %}">Assign content to your classes</a></p>
+  {% if classes %}
+  <h3 style="margin-top:1.25rem;font-size:1rem;">Your classes</h3>
+  <ul>{% for c in classes %}<li>{{ c.name }}</li>{% endfor %}</ul>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <h2 style="margin-top:0;">My learning</h2>
+  <div class="accent-bar"></div>
+
+  {% for summary in summaries %}
+  <article class="lms-progress-card">
+    <div class="lms-progress-head">
+      <strong>{{ summary.subject.name }} — {{ summary.track.name }}</strong>
+      <span>{{ summary.completed }}/{{ summary.total }} complete</span>
+    </div>
+    <div class="progress-bar"><span style="width:{{ summary.progress_percent }}%;"></span></div>
+  </article>
+  {% empty %}
+  <p class="lead">No subjects assigned yet — your teacher will assign the correct level for your class.</p>
+  {% endfor %}
+
+  {% if materials_with_progress %}
+  <h3 style="margin-top:1.5rem;font-size:1rem;">Assignments &amp; worksheets</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Title</th><th>Subject</th><th>Progress</th><th></th></tr></thead>
+      <tbody>
+        {% for row in materials_with_progress %}
+        {% with m=row.material %}
+        <tr>
+          <td><strong>{{ m.title }}</strong></td>
+          <td>{{ m.track.subject.name }} / {{ m.track.name }}</td>
+          <td>{{ row.progress }}%</td>
+          <td>
+            {% if m.file %}<a href="{{ m.file.url }}" target="_blank" rel="noopener">Open</a>{% elif m.external_url %}<a href="{{ m.external_url }}" target="_blank" rel="noopener">Open</a>{% endif %}
+            <form method="post" action="{% url 'lms:mark_complete' m.pk %}" style="display:inline;">{% csrf_token %}<button type="submit" class="btn-outline" style="padding:0.2rem 0.5rem;font-size:0.78rem;">Mark done</button></form>
+          </td>
+        </tr>
+        {% endwith %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <div class="msg-head">
+    <div><h2 style="margin:0;">LMS — Learning management</h2><p class="lead" style="margin:0.35rem 0 0;">Create subjects, levels, and upload worksheets &amp; content.</p></div>
+    <a class="btn-primary" href="{% url 'lms:subject_create' %}">+ New subject</a>
+  </div>
+  <div class="accent-bar"></div>
+
+  {% for subject in subjects %}
+  <section class="lms-subject-block">
+    <header class="lms-subject-header">
+      <h3 style="margin:0;">{{ subject.name }}</h3>
+      <a class="btn-outline" href="{% url 'lms:track_create' subject.pk %}">+ Add level</a>
+    </header>
+    {% if subject.description %}<p class="lead" style="font-size:0.88rem;">{{ subject.description }}</p>{% endif %}
+    {% for track in subject.tracks.all %}
+    <article class="lms-track-card">
+      <div class="lms-track-head">
+        <strong>{{ track.name }}</strong>
+        <a class="btn-outline" style="padding:0.2rem 0.5rem;font-size:0.82rem;" href="{% url 'lms:material_upload' track.pk %}">Upload content</a>
+      </div>
+      <ul class="lms-material-list">
+        {% for m in track.materials.all %}
+        <li>{{ m.title }} <span class="msg-meta">({{ m.get_material_type_display }})</span></li>
+        {% empty %}<li class="msg-meta">No content yet</li>{% endfor %}
+      </ul>
+    </article>
+    {% empty %}
+    <p class="lead">No levels yet — add e.g. Foundation and Higher.</p>
+    {% endfor %}
+  </section>
+  {% empty %}
+  <p class="lead">Start by creating a subject like Maths or English.</p>
+  {% endfor %}
+</section>
+{% endblock %}
