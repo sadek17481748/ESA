@@ -907,6 +907,10 @@ Planned and executed checks for foundation, RBAC, and Stripe work. Fill **Actual
 | 38 | Portal attendance page | Log in, open `/attendance/` | Placeholder page loads | | | |
 | 39 | Portal timetable page | Log in, open `/timetable/` | Placeholder page loads | | | |
 | 40 | Portal worksheets page | Log in, open `/worksheets/` | Placeholder page loads | | | |
+| 41 | Portal messages page | Log in, open `/messages/` | Placeholder inbox loads | | | |
+| 42 | Portal exams page | Log in, open `/exams/` | Placeholder page loads | | | |
+| 43 | Register validation | Submit register with mismatched passwords | Inline error shown | | | |
+| 44 | Home auth nav | Log in, open `/` | Dashboard and log out links shown | | | |
 | 35 | Mark notification read | `POST /api/notifications/{id}/mark_read/` | `is_read` true on that row | | | |
 
 ### Automated testing
