@@ -39,6 +39,7 @@ class WebAuthTests(TestCase):
             'username': 'u1', 'password': 'securepass1',
         })
         self.assertRedirects(response, reverse('pages:dashboard'), fetch_redirect_response=False)
+
     def test_register_rejects_duplicate_username(self):
         User.objects.create_user(username='taken', password='x', role='parent', school=self.school)
         response = self.client.post(reverse('pages:register'), {
@@ -48,3 +49,11 @@ class WebAuthTests(TestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'already taken')
+
+    def test_home_shows_dashboard_link_when_logged_in(self):
+        user = User.objects.create_user(
+            username='u2', password='securepass1', role='parent', school=self.school,
+        )
+        self.client.force_login(user)
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, 'Dashboard')
