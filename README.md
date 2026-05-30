@@ -511,7 +511,9 @@ As any user, I want the site to meet WCAG AA standards for colour contrast, keyb
 
 ## Wireframes
 
-The wireframes are built as static HTML/CSS pages that live at the repository root. Each page represents a key screen of the application and uses the shared stylesheet (`css/base.css`) to maintain visual consistency. They serve as the design blueprint — showing layout, navigation, and content hierarchy — before full Django template integration.
+The wireframes are built as static HTML/CSS pages at the repository root and are being
+integrated into Django templates under `templates/pages/` for the Heroku deployment.
+Each page represents a key screen and uses the shared stylesheet (`css/base.css`).
 
 To preview the wireframes locally:
 
@@ -679,7 +681,8 @@ CSS variables and component tokens are defined in `css/base.css`; contrast targe
 | `.gitignore` | Ignores `.env`, `.venv`, `__pycache__`, `db.sqlite3`, media, staticfiles |
 | `PROGRESS.md` | Development progress tracker |
 | `css/base.css` | Shared wireframe stylesheet (colour tokens, layout, navigation) |
-| `*.html` | Static wireframe pages (18 files — see [Wireframe inventory](#wireframe-inventory)) |
+| `pages/` | Portal UI — login, register, dashboards, feature placeholders |
+| `*.html` | Static wireframe reference pages at repo root |
 | `templates/` | Django templates (to be populated as apps are built) |
 | `static/` | Django static assets (to be populated) |
 | `docs/` | Documentation, ERD, screenshots, validation evidence (to be populated) |
