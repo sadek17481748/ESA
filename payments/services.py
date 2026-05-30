@@ -51,6 +51,11 @@ def create_fee_checkout_session(*, fee_item, success_url, cancel_url, customer_e
     if customer_email:
         kwargs['customer_email'] = customer_email
 
+    from .connect import apply_connect_to_checkout_kwargs
+    kwargs = apply_connect_to_checkout_kwargs(
+        kwargs, school=fee_item.school, amount_pence=fee_item.amount_pence,
+    )
+
     return stripe.checkout.Session.create(**kwargs)
 
 

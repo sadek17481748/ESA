@@ -44,11 +44,14 @@
   <h2 style="margin-top:2rem;font-size:1.1rem;">Payment history</h2>
   <div class="table-wrap">
     <table class="data-table">
-      <thead><tr><th>Fee</th><th>Child</th><th>Amount</th><th>Status</th></tr></thead>
+      <thead><tr><th>Fee</th><th>Child</th><th>Amount</th><th>Status</th><th></th></tr></thead>
       <tbody>
-        {% for fee in paid %}
-        <tr><td>{{ fee.title }}</td><td>{{ fee.child_name }}</td><td>{{ fee.amount_display }}</td><td>Paid</td></tr>
-        {% empty %}<tr class="placeholder-row"><td colspan="4">No paid fees yet.</td></tr>{% endfor %}
+        {% for row in paid_rows %}
+        <tr>
+          <td>{{ row.fee.title }}</td><td>{{ row.fee.child_name }}</td><td>{{ row.fee.amount_display }}</td><td>Paid</td>
+          <td>{% if row.payment %}<a href="{% url 'payments:receipt' row.payment.pk %}">Receipt (PDF)</a>{% else %}—{% endif %}</td>
+        </tr>
+        {% empty %}<tr class="placeholder-row"><td colspan="5">No paid fees yet.</td></tr>{% endfor %}
       </tbody>
     </table>
   </div>

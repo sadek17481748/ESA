@@ -8,6 +8,21 @@
 </ul>
 {% endif %}
 
+<section class="panel" style="margin-bottom:1.5rem;">
+  <h2 style="margin-top:0;font-size:1.1rem;">Stripe Connect</h2>
+  <div class="accent-bar"></div>
+  {% if connect.connected and connect.charges_enabled %}
+  <p class="lead">Connected — parent fee payments route to your school Stripe account.</p>
+  {% elif connect.connected %}
+  <p class="lead">Onboarding started — complete Stripe setup to accept online payments.</p>
+  {% else %}
+  <p class="lead">Connect your school bank account so parent fees are paid directly to you.</p>
+  {% endif %}
+  {% if stripe_configured %}
+  <a class="btn-primary" href="{% url 'payments:connect_start' %}">{% if connect.connected %}Manage Connect{% else %}Connect with Stripe{% endif %}</a>
+  {% endif %}
+</section>
+
 <div class="kpi-grid" style="margin-bottom:1.5rem;">
   <article class="kpi-card">
     <span class="kpi-label">Students</span>

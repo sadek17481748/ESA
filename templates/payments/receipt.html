@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Receipt {{ payment.receipt_reference }} — ESA</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; color: #111; }
+    h1 { font-size: 1.25rem; margin-bottom: 0.25rem; }
+    .meta { color: #555; font-size: 0.9rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+    td, th { text-align: left; padding: 0.5rem 0; border-bottom: 1px solid #ddd; }
+    .total { font-size: 1.2rem; font-weight: 700; }
+    @media print { body { margin: 1rem; } .no-print { display: none; } }
+  </style>
+</head>
+<body>
+  <h1>Payment receipt</h1>
+  <p class="meta">ESA — Education &amp; Schooling Applications</p>
+  <p class="meta">Receipt ref: <strong>{{ payment.receipt_reference }}</strong></p>
+  <p class="meta">Issued: {{ issued_at|date:"d M Y H:i" }}</p>
+  <table>
+    <tr><th>School</th><td>{{ school.name }}</td></tr>
+    <tr><th>Fee</th><td>{{ fee.title }}</td></tr>
+    <tr><th>Child</th><td>{{ fee.child_name }}</td></tr>
+    <tr><th>Parent</th><td>{{ parent.get_full_name|default:parent.username }}</td></tr>
+    <tr><th>Amount</th><td class="total">{{ amount_display }}</td></tr>
+    <tr><th>Status</th><td>Paid</td></tr>
+  </table>
+  <p class="no-print" style="margin-top:2rem;"><button onclick="window.print()">Print / Save as PDF</button></p>
+</body>
+</html>

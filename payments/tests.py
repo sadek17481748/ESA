@@ -36,9 +36,11 @@ class SchoolAdminFeesTests(TestCase):
         self.school = School.objects.create(name='Fee Test School')
         self.admin = User.objects.create_user(
             username='fee_admin', password='pass', role='school_admin', school=self.school,
+            email='admin@feetest.example', email_verified=True,
         )
         self.parent = User.objects.create_user(
             username='fee_parent', password='pass', role='parent', school=self.school,
+            email='parent@feetest.example', email_verified=True,
         )
         self.parent_profile = ParentProfile.objects.create(school=self.school, user=self.parent)
         self.student = StudentProfile.objects.create(

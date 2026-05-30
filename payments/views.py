@@ -45,10 +45,21 @@ def fee_list(request):
     fees = FeeItem.objects.filter(parent=request.user).select_related('school')
     outstanding = fees.exclude(status=FeeItem.STATUS_PAID)
     paid = fees.filter(status=FeeItem.STATUS_PAID)
+    payment_by_fee = {
+        p.fee_item_id: p
+        for p in Payment.objects.filter(
+            parent=request.user, status=Payment.STATUS_COMPLETE,
+        )
+    }
+    paid_rows = [
+        {'fee': fee, 'payment': payment_by_fee.get(fee.pk)}
+        for fee in paid
+    ]
 
     return render(request, 'payments/fees.html', {
         'outstanding': outstanding,
         'paid': paid,
+        'paid_rows': paid_rows,
         'publishable_key': settings.STRIPE_PUBLISHABLE_KEY,
         'stripe_configured': stripe_is_configured(),
         **build_portal_context(request, 'School fees', 'Outstanding and paid invoices for your children.'),
@@ -90,11 +101,14 @@ def school_fees(request):
         'School fees',
         'Track payments for all students — set fees and mark cash payments received.',
     )
+    from .connect import connect_status
     ctx.update({
         'rows': rows,
         'totals': totals,
         'form': form,
         'student_count': len(rows),
+        'connect': connect_status(school),
+        'stripe_configured': stripe_is_configured(),
     })
     return render(request, 'payments/school_fees.html', ctx)
 
@@ -134,7 +148,50 @@ def create_checkout(request, fee_id):
         return redirect('payments:fee_list')
 
 
-        return redirect('payments:fee_list')
+@role_required('school_admin')
+def stripe_connect_start(request):
+    """Start Stripe Connect Express onboarding for the school."""
+    school = request.user.school
+    if not stripe_is_configured():
+        messages.error(request, 'Stripe is not configured on this server.')
+        return redirect('payments:school_fees')
+
+    from .connect import create_connect_onboarding_link
+    return_url = request.build_absolute_uri(reverse('payments:connect_return'))
+    refresh_url = request.build_absolute_uri(reverse('payments:connect_refresh'))
+    try:
+        url = create_connect_onboarding_link(
+            school=school, return_url=return_url, refresh_url=refresh_url,
+        )
+        return redirect(url)
+    except stripe.error.StripeError as exc:
+        messages.error(request, f'Could not start Stripe Connect: {exc}')
+        return redirect('payments:school_fees')
+
+
+@role_required('school_admin')
+def stripe_connect_return(request):
+    messages.success(request, 'Stripe Connect onboarding submitted — check status on the fees page.')
+    return redirect('payments:school_fees')
+
+
+@role_required('school_admin')
+def stripe_connect_refresh(request):
+    return stripe_connect_start(request)
+
+
+@login_required
+def payment_receipt(request, payment_id):
+    """Printable receipt — use browser Print → Save as PDF."""
+    payment = get_object_or_404(
+        Payment, pk=payment_id, status=Payment.STATUS_COMPLETE,
+    )
+    if request.user.role == 'parent' and payment.parent_id != request.user.id:
+        return HttpResponseForbidden('Not your receipt.')
+    if request.user.role == 'school_admin' and payment.fee_item.school_id != request.user.school_id:
+        return HttpResponseForbidden('Not your school.')
+    from .receipt import receipt_context
+    return render(request, 'payments/receipt.html', receipt_context(payment))
 
 
 @role_required('school_admin')

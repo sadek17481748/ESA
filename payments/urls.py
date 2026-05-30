@@ -18,4 +18,8 @@ urlpatterns = [
     path('success/', views.payment_success, name='success'),
     path('cancel/', views.payment_cancel, name='cancel'),
     path('webhook/', views.stripe_webhook, name='webhook'),
+    path('connect/start/', views.stripe_connect_start, name='connect_start'),
+    path('connect/return/', views.stripe_connect_return, name='connect_return'),
+    path('connect/refresh/', views.stripe_connect_refresh, name='connect_refresh'),
+    path('receipt/<int:payment_id>/', views.payment_receipt, name='receipt'),
 ]
