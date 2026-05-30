@@ -17,11 +17,28 @@ env = environ.Env(
 )
 environ.Env.read_env(BASE_DIR / '.env')
 
+# Heroku sets DYNO on every dyno — use for production defaults
+IS_HEROKU = bool(os.environ.get('DYNO'))
+
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-dev-only-change-me')
 
-DEBUG = env('DEBUG', default=True)
+DEBUG = env('DEBUG', default=not IS_HEROKU)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+if IS_HEROKU and '.herokuapp.com' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.herokuapp.com')
+
+# HTTPS forms (login, payments) on Heroku need the app origin trusted for CSRF
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
+if IS_HEROKU and not CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = [
+        f'https://{host}'
+        for host in ALLOWED_HOSTS
+        if host and not host.startswith('.')
+    ]
+
+if IS_HEROKU:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # ---------------------------------------------------------------------------
