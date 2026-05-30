@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESA — Education &amp; Schooling Applications</title>
+  <link rel="stylesheet" href="/css/base.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-geometry" aria-hidden="true"></div>
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-mark">ESA</span>
+        <span class="brand-tag">Education &amp; Schooling Applications</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-wrap">
+    <main id="main" class="main-wide">
+      <section class="panel">
+        <h1>ESA platform</h1>
+        <div class="accent-bar"></div>
+        <p class="lead">Multi-tenant school management for Islamic schools — Hifz, Alimiyah, attendance, homework, and parent payments.</p>
+        <ul class="link-list" style="margin-top:1.5rem;line-height:2;">
+          <li><a href="/accounts/login/">Log in</a> — parents and staff (session auth)</li>
+          <li><a href="/payments/">Parent payments</a> — fees and Stripe checkout</li>
+          <li><a href="/admin/">Admin</a> — Django admin</li>
+          <li><a href="/api/auth/token/">API token</a> — JWT for REST clients</li>
+        </ul>
+        <p style="margin-top:1.5rem;color:var(--muted);font-size:0.9rem;">
+          Demo users: run <code>python manage.py seed_rbac_users</code> on the server, then log in as
+          <code>schooladmin</code>, <code>teacher_demo</code>, <code>parent_demo</code>, or <code>student_demo</code>.
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

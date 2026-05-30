@@ -9,7 +9,10 @@ from django.urls import include, path
 from django.views.static import serve
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from core_app.views import home
+
 urlpatterns = [
+    path('', home, name='home'),
     path('admin/', admin.site.urls),
     # JWT — used by API clients and Postman
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -28,13 +31,12 @@ urlpatterns = [
     # parent fee pages (session login)
     path('payments/', include('payments.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    # shared wireframe stylesheet (login, payments, home)
+    path('css/<path:path>', serve, {'document_root': settings.BASE_DIR / 'css'}),
 ]
 
-# dev only — wireframe css at repo root and uploaded media
+# dev only — uploaded media
 if settings.DEBUG:
-    urlpatterns += [
-        path('css/<path:path>', serve, {'document_root': settings.BASE_DIR / 'css'}),
-    ]
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # ---------------------------------------------------------------------------
