@@ -39,8 +39,24 @@ class AttendanceSessionViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet)
             taken_by=request.user,
             **data,
         )
+        enrolled_ids = set(
+            session.class_group.enrollments.values_list('student_id', flat=True)
+        )
         for m in marks_data:
+            student_id = m['student'].pk if hasattr(m['student'], 'pk') else m['student']
+            if student_id not in enrolled_ids:
+                return Response(
+                    {'detail': f'Student {student_id} is not enrolled in this class.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             AttendanceMark.objects.create(session=session, **m)
         log_action(user=request.user, action='create', resource='AttendanceSession',
                    resource_id=session.pk, request=request)
         return Response(AttendanceSessionSerializer(session).data, status=status.HTTP_201_CREATED)
+
+
+# ---------------------------------------------------------------------------
+# BUGGY CODE (commented out) — created marks without checking student in class
+# ---------------------------------------------------------------------------
+# for m in marks_data:
+#     AttendanceMark.objects.create(session=session, student_id=m['student'], status=m['status'])
