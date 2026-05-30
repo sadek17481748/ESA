@@ -7,6 +7,16 @@
   <a href="{% url 'pages:hifz' %}"{% if current_portal_url == 'hifz' %} aria-current="page"{% endif %}>Hifz</a>
   <a href="{% url 'pages:quran' %}"{% if current_portal_url == 'quran' %} aria-current="page"{% endif %}>Qur’an</a>
   <a href="{% url 'pages:behaviour' %}"{% if current_portal_url == 'behaviour' %} aria-current="page"{% endif %}>Behaviour</a>
+  <a href="{% url 'messaging:inbox' %}"{% if current_portal_url == 'inbox' %} aria-current="page"{% endif %}>Messages</a>
+</nav>
+<p class="sidebar-title">Reports</p>
+<nav class="sidebar-nav">
+  <a href="{% url 'messaging:report_create' %}"{% if current_portal_url == 'report_create' %} aria-current="page"{% endif %}>Create report</a>
+  <a href="{% url 'messaging:reports_list' %}"{% if current_portal_url == 'reports_list' %} aria-current="page"{% endif %}>Sent reports</a>
+</nav>
+<p class="sidebar-title">Content</p>
+<nav class="sidebar-nav">
+  <a href="{% url 'lms:assign' %}"{% if current_portal_url == 'assign' %} aria-current="page"{% endif %}>Assign to class</a>
 </nav>
 <p class="sidebar-title">Sign-off</p>
 <nav class="sidebar-nav">

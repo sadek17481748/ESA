@@ -3,5 +3,6 @@
   <a href="{% url 'pages:dashboard_super_admin' %}"{% if current_portal_url == 'dashboard_super_admin' %} aria-current="page"{% endif %}>Overview</a>
   <a href="{% url 'pages:analytics' %}"{% if current_portal_url == 'analytics' %} aria-current="page"{% endif %}>Analytics</a>
   <a href="{% url 'pages:subscription' %}"{% if current_portal_url == 'subscription' %} aria-current="page"{% endif %}>Subscriptions</a>
+  <a href="{% url 'messaging:inbox' %}"{% if current_portal_url == 'inbox' %} aria-current="page"{% endif %}>Support queue</a>
   <a href="{% url 'admin:index' %}">Admin panel</a>
 </nav>

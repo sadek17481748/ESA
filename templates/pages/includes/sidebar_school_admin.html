@@ -2,7 +2,7 @@
 <nav class="sidebar-nav">
   <a href="{% url 'pages:dashboard_school_admin' %}"{% if current_portal_url == 'dashboard_school_admin' %} aria-current="page"{% endif %}>Overview</a>
   <a href="{% url 'pages:analytics' %}"{% if current_portal_url == 'analytics' %} aria-current="page"{% endif %}>Analytics</a>
-  <a href="{% url 'pages:subscription' %}"{% if current_portal_url == 'subscription' %} aria-current="page"{% endif %}>Subscription</a>
+  <a href="{% url 'payments:subscription' %}"{% if current_portal_url == 'subscription' %} aria-current="page"{% endif %}>Subscription</a>
   <a href="{% url 'payments:school_fees' %}"{% if current_portal_url == 'school_fees' or current_portal_url == 'fee_list' %} aria-current="page"{% endif %}>Fees</a>
 </nav>
 <p class="sidebar-title">Staff</p>
@@ -14,4 +14,6 @@
 <nav class="sidebar-nav">
   <a href="{% url 'pages:timetable' %}"{% if current_portal_url == 'timetable' %} aria-current="page"{% endif %}>Timetable</a>
   <a href="{% url 'pages:attendance' %}"{% if current_portal_url == 'attendance' %} aria-current="page"{% endif %}>Attendance</a>
+  <a href="{% url 'lms:hub' %}"{% if current_portal_url == 'hub' %} aria-current="page"{% endif %}>LMS</a>
+  <a href="{% url 'messaging:inbox' %}"{% if current_portal_url == 'inbox' %} aria-current="page"{% endif %}>Messages</a>
 </nav>

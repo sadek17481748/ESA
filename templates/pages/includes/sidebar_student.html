@@ -6,4 +6,6 @@
   <a href="{% url 'pages:exams' %}"{% if current_portal_url == 'exams' %} aria-current="page"{% endif %}>Exams</a>
   <a href="{% url 'pages:hifz' %}"{% if current_portal_url == 'hifz' %} aria-current="page"{% endif %}>Hifz</a>
   <a href="{% url 'pages:attendance' %}"{% if current_portal_url == 'attendance' %} aria-current="page"{% endif %}>Attendance</a>
+  <a href="{% url 'messaging:inbox' %}"{% if current_portal_url == 'inbox' %} aria-current="page"{% endif %}>Messages</a>
+  <a href="{% url 'messaging:reports_list' %}"{% if current_portal_url == 'reports_list' %} aria-current="page"{% endif %}>Reports</a>
 </nav>
