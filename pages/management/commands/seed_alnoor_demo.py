@@ -151,7 +151,46 @@ class Command(BaseCommand):
                     status=status,
                 )
 
+        from lms.models import ClassTrackAssignment, CourseMaterial, CourseSubject, CourseTrack
+
+        maths, _ = CourseSubject.objects.get_or_create(
+            school=school,
+            name='Maths',
+            defaults={'description': 'Mathematics curriculum'},
+        )
+        foundation, _ = CourseTrack.objects.get_or_create(
+            subject=maths,
+            name='Foundation',
+            defaults={'sort_order': 0},
+        )
+        higher, _ = CourseTrack.objects.get_or_create(
+            subject=maths,
+            name='Higher',
+            defaults={'sort_order': 1},
+        )
+        CourseMaterial.objects.get_or_create(
+            track=foundation,
+            title='Number basics worksheet',
+            defaults={
+                'material_type': CourseMaterial.TYPE_LINK,
+                'external_url': 'https://example.com/maths-foundation-1',
+            },
+        )
+        CourseMaterial.objects.get_or_create(
+            track=higher,
+            title='Algebra challenge',
+            defaults={
+                'material_type': CourseMaterial.TYPE_LINK,
+                'external_url': 'https://example.com/maths-higher-1',
+            },
+        )
+        ClassTrackAssignment.objects.get_or_create(
+            class_group=class_7a,
+            track=foundation,
+            defaults={'assigned_by': teacher_user},
+        )
+
         self.stdout.write(self.style.SUCCESS(
             'Al-Noor demo: Year 7 (Mr Mohammed), 30 students, 30 parents — '
-            'mr_mohammed/teacher1234, parent_alnoor_01/parent1234, student_alnoor_01/student1234'
+            'mr_mohammed/teacher1234 · test_parent/test1234 · test_student/test1234'
         ))
