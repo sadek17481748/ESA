@@ -42,7 +42,7 @@ class RegisterForm(forms.ModelForm):
         widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
     )
     school = forms.ModelChoiceField(
-        queryset=School.objects.filter(status=School.STATUS_ACTIVE).order_by('name'),
+        queryset=School.objects.none(),
         empty_label='Select your school',
     )
 
@@ -58,11 +58,11 @@ class RegisterForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['role'].initial = 'parent'
+        self.fields['school'].queryset = School.objects.filter(
+            status=School.STATUS_ACTIVE,
+        ).order_by('name')
         for name, field in self.fields.items():
-            if name not in ('role', 'school'):
-                field.widget.attrs.setdefault('class', 'form-input')
-            else:
-                field.widget.attrs.setdefault('class', 'form-input')
+            field.widget.attrs.setdefault('class', 'form-input')
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
