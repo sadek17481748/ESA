@@ -39,3 +39,12 @@ class WebAuthTests(TestCase):
             'username': 'u1', 'password': 'securepass1',
         })
         self.assertRedirects(response, reverse('pages:dashboard'), fetch_redirect_response=False)
+    def test_register_rejects_duplicate_username(self):
+        User.objects.create_user(username='taken', password='x', role='parent', school=self.school)
+        response = self.client.post(reverse('pages:register'), {
+            'username': 'taken', 'email': 'x@test.com', 'first_name': 'A', 'last_name': 'B',
+            'role': 'parent', 'school': self.school.pk,
+            'password1': 'securepass1', 'password2': 'securepass1',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'already taken')
