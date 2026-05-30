@@ -57,7 +57,7 @@ Assessor-facing links and evidence paths:
 | **Bug tracker (GitHub Project board)** | https://github.com/users/sadek17481748/projects/8/views/1 |
 | **Wireframes (README anchor)** | [Wireframes](#wireframes) |
 | **ERD / data model** | [Data model and ERD](#data-model-and-erd-entity-relationships) |
-| **Test credentials** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| **Test credentials** | `schooladmin` / `admin1234`, `parent_demo` / `demo1234`, `teacher_demo` / `teacher1234` — run `seed_rbac_users` on Heroku |
 | **Manual test evidence (screenshots)** | `docs/images/manual-testing/` |
 | **Validation evidence** | `docs/images/validation/` |
 | **Sprint checklist** | Follow the delivery timeline under [Planning notes](#planning-notes-written-at-project-start) |
