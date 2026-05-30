@@ -35,6 +35,8 @@ urlpatterns = [
     path('api/notifications/', include('notifications.urls')),
     # parent fee pages (session login)
     path('payments/', include('payments.urls')),
+    path('messages/', include('messaging.urls')),
+    path('lms/', include('lms.urls')),
     # shared wireframe stylesheet (login, payments, home)
     path('css/<path:path>', serve, {'document_root': settings.BASE_DIR / 'css'}),
 ]
