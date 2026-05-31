@@ -28,7 +28,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 if IS_HEROKU and '.herokuapp.com' not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append('.herokuapp.com')
 
-# HTTPS forms (login, payments) on Heroku need the app origin trusted for CSRF
+# HTTPS forms (login, register, payments) on Heroku need the origin trusted for CSRF
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
 if IS_HEROKU and not CSRF_TRUSTED_ORIGINS:
     CSRF_TRUSTED_ORIGINS = [
@@ -36,9 +36,14 @@ if IS_HEROKU and not CSRF_TRUSTED_ORIGINS:
         for host in ALLOWED_HOSTS
         if host and not host.startswith('.')
     ]
+    # ALLOWED_HOSTS uses .herokuapp.com — trust all Heroku app subdomains (Django 4.2+)
+    if '.herokuapp.com' in ALLOWED_HOSTS:
+        CSRF_TRUSTED_ORIGINS.append('https://*.herokuapp.com')
 
 if IS_HEROKU:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
 
 
 # ---------------------------------------------------------------------------
