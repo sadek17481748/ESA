@@ -475,6 +475,51 @@ a:hover {
   opacity: 0.5;
 }
 
+.pricing-tagline {
+  margin: 0 0 0.75rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.pricing-includes-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.pricing-includes-label.pricing-not-included {
+  margin-top: 1rem;
+  color: var(--muted);
+}
+
+.pricing-features li strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.pricing-features-muted {
+  margin-bottom: 1rem;
+}
+
+.pricing-features-muted li {
+  font-size: 0.82rem;
+}
+
+.pricing-comparison td:not(:first-child),
+.pricing-comparison th:not(:first-child) {
+  text-align: center;
+}
+
+.comparison-section h2 {
+  margin: 2.5rem 0 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
 .btn-full {
   width: 100%;
   text-align: center;
@@ -492,6 +537,434 @@ a:hover {
 
 .comparison-section {
   margin-top: 1rem;
+}
+
+/* -------- Homepage landing sections -------- */
+.home-page {
+  padding-bottom: 3rem;
+}
+
+.section-head {
+  margin-bottom: 1.75rem;
+}
+
+.section-head h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.65rem;
+  font-weight: 600;
+}
+
+.section-head .lead {
+  margin: 0;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  padding: 2rem 0 3rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 3rem;
+}
+
+.hero-eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+}
+
+.hero h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.85rem, 4vw, 2.75rem);
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.hero-lead {
+  margin: 0 0 1.5rem;
+  color: var(--muted);
+  font-size: 1.05rem;
+  max-width: 36rem;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.hero-btn-secondary {
+  display: inline-block;
+  padding: 0.6rem 1.25rem;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  color: var(--gold);
+}
+
+.hero-btn-secondary:hover {
+  background: var(--gold-soft);
+  text-decoration: none;
+}
+
+.hero-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.stat-value {
+  font-weight: 700;
+  color: var(--gold);
+  font-size: 1.1rem;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.carousel-section,
+.benefits-section,
+.steps-section,
+.pricing-section,
+.faq-section {
+  margin-bottom: 3.5rem;
+}
+
+.carousel {
+  position: relative;
+}
+
+.carousel input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.carousel-viewport {
+  position: relative;
+  min-height: 320px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.carousel-slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.carousel-visual {
+  flex: 1;
+  min-height: 200px;
+  background-size: cover;
+  background-position: center;
+}
+
+.slide-attendance .carousel-visual {
+  background: linear-gradient(135deg, #1a2a1a 0%, #2c3e20 40%, var(--gold-soft) 100%);
+}
+
+.slide-hifz .carousel-visual {
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d2a4a 50%, rgba(201, 162, 39, 0.25) 100%);
+}
+
+.slide-parents .carousel-visual {
+  background: linear-gradient(135deg, #1a2528 0%, #1e3a3f 50%, var(--gold-soft) 100%);
+}
+
+.slide-admin .carousel-visual {
+  background: linear-gradient(135deg, #252015 0%, #3d3420 50%, rgba(201, 162, 39, 0.2) 100%);
+}
+
+.carousel-slide figcaption {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface-up);
+}
+
+.carousel-slide figcaption h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.carousel-slide figcaption p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+#carousel-1:checked ~ .carousel-viewport .slide-attendance,
+#carousel-2:checked ~ .carousel-viewport .slide-hifz,
+#carousel-3:checked ~ .carousel-viewport .slide-parents,
+#carousel-4:checked ~ .carousel-viewport .slide-admin {
+  opacity: 1;
+  z-index: 1;
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.carousel-dots label {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#carousel-1:checked ~ .carousel-dots label[for="carousel-1"],
+#carousel-2:checked ~ .carousel-dots label[for="carousel-2"],
+#carousel-3:checked ~ .carousel-dots label[for="carousel-3"],
+#carousel-4:checked ~ .carousel-dots label[for="carousel-4"] {
+  background: var(--gold);
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.benefit-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.benefit-icon {
+  font-size: 1.75rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.benefit-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  color: var(--gold);
+}
+
+.benefit-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.step-item {
+  display: flex;
+  gap: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.step-num {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.step-item h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.step-item p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.pricing-section {
+  padding-top: 0.5rem;
+}
+
+.pricing-note {
+  margin: 1.5rem 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.cta-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface-up) 100%);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 2rem 2.25rem;
+  margin-bottom: 3.5rem;
+}
+
+.cta-banner h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.35rem;
+}
+
+.cta-banner p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.cta-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.faq-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 1.25rem;
+}
+
+.faq-item summary {
+  padding: 1rem 0;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+  list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary::after {
+  content: "+";
+  float: right;
+  color: var(--gold);
+}
+
+.faq-item[open] summary::after {
+  content: "−";
+}
+
+.faq-item p {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.footer-links {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+}
+
+.footer-links a {
+  color: var(--muted);
+}
+
+.footer-links a:hover {
+  color: var(--gold);
+}
+
+.demo-logins {
+  margin-top: 1.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface-up);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+.demo-logins-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.demo-logins-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.demo-logins-list li {
+  padding: 0.25rem 0;
+}
+
+.demo-logins-list code {
+  color: var(--gold);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-stats {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    flex: 1 1 140px;
+  }
+
+  .cta-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 /* Stack sidebar above main on narrow viewports */

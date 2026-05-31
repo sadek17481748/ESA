@@ -1,46 +1,332 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ESA — Education &amp; Schooling Applications</title>
-  <link rel="stylesheet" href="/css/base.css">
-</head>
-<body>
-  <header class="site-header">
-    <div class="header-geometry" aria-hidden="true"></div>
-    <div class="header-inner">
-      <div class="brand">
-        <span class="brand-mark">ESA</span>
-        <span class="brand-tag">Education &amp; Schooling Applications</span>
-      </div>
-      <nav class="top-nav" aria-label="Primary">
-        {% if user.is_authenticated %}
-          <a href="{% url 'pages:dashboard' %}">Dashboard</a>
-          <a href="{% url 'logout' %}">Log out</a>
-        {% else %}
-          <a href="{% url 'login' %}">Log in</a>
-          <a class="btn-outline" href="{% url 'pages:register' %}">Register</a>
-        {% endif %}
-      </nav>
-    </div>
-  </header>
+{% extends "base/marketing.html" %}
 
-  <div class="page-wrap">
-    <main id="main" class="main-wide">
-      <section class="panel">
-        <h1>ESA platform</h1>
-        <div class="accent-bar"></div>
-        <p class="lead">Multi-tenant school management for Islamic schools — Hifz, Alimiyah, attendance, homework, and parent payments.</p>
-        <ul class="link-list" style="margin-top:1.5rem;line-height:2;">
-          <li><a href="{% url 'pages:register' %}">Create an account</a> — parents and students</li>
-          <li><a href="{% url 'login' %}">Log in</a> — staff, parents, and students</li>
-          <li><a href="{% url 'payments:fee_list' %}">Parent payments</a> — fees and Stripe checkout</li>
-          <li><a href="{% url 'pages:dashboard' %}">Dashboard</a> — role-based portal</li>
-          <li><a href="/admin/">Admin</a> — Django admin</li>
-        </ul>
-      </section>
-    </main>
+{% block title %}ESA — Education &amp; Schooling Applications{% endblock %}
+
+{% block main_class %}main-wide home-page{% endblock %}
+
+{% block top_nav %}
+<a href="{% url 'home' %}">Home</a>
+{% if user.is_authenticated %}
+  <a href="{% url 'pages:dashboard' %}">Dashboard</a>
+  <a href="{% url 'logout' %}">Log out</a>
+{% else %}
+  <a href="#benefits">Benefits</a>
+  <a href="#pricing">Pricing</a>
+  <a href="{% url 'login' %}">Log in</a>
+  <a class="btn-outline" href="{% url 'pages:register_school' %}">Register your school</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<section class="panel">
+  <h1>Welcome back</h1>
+  <div class="accent-bar"></div>
+  <p class="lead">You are signed in as <strong>{{ user.get_full_name|default:user.username }}</strong>.</p>
+  <p><a class="btn-primary" href="{% url 'pages:dashboard' %}">Go to your dashboard</a></p>
+</section>
+{% else %}
+
+<section class="hero">
+  <div class="hero-copy">
+    <p class="hero-eyebrow">Built for Islamic schools</p>
+    <h1>Run your madrasa on one platform</h1>
+    <p class="hero-lead">
+      ESA brings attendance, Hifz progress, homework, parent communication, and fee payments
+      together — so your staff spend less time on admin and more time with students.
+    </p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="{% url 'pages:register_school' %}">Register your school</a>
+      <a class="btn-outline hero-btn-secondary" href="{% url 'pages:register' %}">Parent or student sign-up</a>
+    </div>
   </div>
-</body>
-</html>
+  <div class="hero-stats">
+    <div class="stat-card">
+      <span class="stat-value">Hifz</span>
+      <span class="stat-label">Progress tracking</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">Parents</span>
+      <span class="stat-label">Portal &amp; payments</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">Staff</span>
+      <span class="stat-label">Timetables &amp; classes</span>
+    </div>
+  </div>
+</section>
+
+<section class="carousel-section" aria-label="Platform highlights">
+  <div class="section-head">
+    <h2>See ESA in action</h2>
+    <p class="lead">A glimpse of what your school, teachers, and families get on day one.</p>
+  </div>
+  <div class="carousel">
+    <input type="radio" name="esa-carousel" id="carousel-1" checked>
+    <input type="radio" name="esa-carousel" id="carousel-2">
+    <input type="radio" name="esa-carousel" id="carousel-3">
+    <input type="radio" name="esa-carousel" id="carousel-4">
+    <div class="carousel-viewport">
+      <figure class="carousel-slide slide-attendance">
+        <div class="carousel-visual" aria-hidden="true"></div>
+        <figcaption>
+          <h3>Attendance &amp; behaviour</h3>
+          <p>Mark registers in seconds and keep a clear record for every class.</p>
+        </figcaption>
+      </figure>
+      <figure class="carousel-slide slide-hifz">
+        <div class="carousel-visual" aria-hidden="true"></div>
+        <figcaption>
+          <h3>Hifz &amp; Qur’an progress</h3>
+          <p>Track surah, juz, and revision — visible to teachers and parents.</p>
+        </figcaption>
+      </figure>
+      <figure class="carousel-slide slide-parents">
+        <div class="carousel-visual" aria-hidden="true"></div>
+        <figcaption>
+          <h3>Parent portal</h3>
+          <p>Families see homework, messages, and pay school fees securely online.</p>
+        </figcaption>
+      </figure>
+      <figure class="carousel-slide slide-admin">
+        <div class="carousel-visual" aria-hidden="true"></div>
+        <figcaption>
+          <h3>School admin dashboard</h3>
+          <p>Manage staff, classes, subscriptions, and school settings in one place.</p>
+        </figcaption>
+      </figure>
+    </div>
+    <div class="carousel-dots" role="tablist" aria-label="Carousel slides">
+      <label for="carousel-1" role="tab" aria-label="Attendance"></label>
+      <label for="carousel-2" role="tab" aria-label="Hifz progress"></label>
+      <label for="carousel-3" role="tab" aria-label="Parent portal"></label>
+      <label for="carousel-4" role="tab" aria-label="School admin"></label>
+    </div>
+  </div>
+</section>
+
+<section class="benefits-section" id="benefits">
+  <div class="section-head">
+    <h2>Why schools choose ESA</h2>
+    <p class="lead">Purpose-built for madrasas, hifz schools, and full-time Islamic schools — not generic school software.</p>
+  </div>
+  <div class="benefits-grid">
+    <article class="benefit-card">
+      <span class="benefit-icon" aria-hidden="true">📋</span>
+      <h3>Less paperwork</h3>
+      <p>Registers, homework, and class lists live in one system instead of spreadsheets and WhatsApp groups.</p>
+    </article>
+    <article class="benefit-card">
+      <span class="benefit-icon" aria-hidden="true">📖</span>
+      <h3>Islamic curriculum ready</h3>
+      <p>Hifz tracking, Qur’an annotation, and Alimiyah-friendly workflows out of the box.</p>
+    </article>
+    <article class="benefit-card">
+      <span class="benefit-icon" aria-hidden="true">👨‍👩‍👧</span>
+      <h3>Parents stay informed</h3>
+      <p>Secure parent accounts for progress updates, messages, and online fee payments.</p>
+    </article>
+    <article class="benefit-card">
+      <span class="benefit-icon" aria-hidden="true">🔒</span>
+      <h3>Each school is isolated</h3>
+      <p>Multi-tenant architecture — your data stays separate from other schools on the platform.</p>
+    </article>
+    <article class="benefit-card">
+      <span class="benefit-icon" aria-hidden="true">⚡</span>
+      <h3>Quick to set up</h3>
+      <p>Register your school in minutes, invite staff, and open parent sign-up when you are ready.</p>
+    </article>
+    <article class="benefit-card">
+      <span class="benefit-icon" aria-hidden="true">📊</span>
+      <h3>Insights that matter</h3>
+      <p>Attendance trends, homework completion, and progress reports to support better decisions.</p>
+    </article>
+  </div>
+</section>
+
+<section class="steps-section">
+  <div class="section-head">
+    <h2>How it works</h2>
+    <p class="lead">Three steps from sign-up to a school your community can use.</p>
+  </div>
+  <ol class="steps-list">
+    <li class="step-item">
+      <span class="step-num">1</span>
+      <div>
+        <h3>Register your school</h3>
+        <p>Create your school profile and admin account on ESA.</p>
+      </div>
+    </li>
+    <li class="step-item">
+      <span class="step-num">2</span>
+      <div>
+        <h3>Set up classes &amp; staff</h3>
+        <p>Add teachers, timetables, and year groups from your admin dashboard.</p>
+      </div>
+    </li>
+    <li class="step-item">
+      <span class="step-num">3</span>
+      <div>
+        <h3>Invite parents &amp; students</h3>
+        <p>Share the registration link — families pick your school and create their accounts.</p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section class="pricing-section" id="pricing">
+  <div class="section-head">
+    <h2>Subscription plans for schools</h2>
+    <p class="lead">Start free, upgrade when you need more. All plans include secure hosting, regular updates, and your own isolated school workspace.</p>
+  </div>
+  <div class="pricing-grid">
+    <article class="pricing-card">
+      <div class="pricing-header">
+        <h2>Free</h2>
+        <p class="pricing-tagline">For small madrasas getting started on ESA.</p>
+        <p class="pricing-amount">£0 <span class="pricing-period">/ month</span></p>
+      </div>
+      <p class="pricing-includes-label">What you get</p>
+      <ul class="pricing-features">
+        <li><strong>Up to 30 students</strong> — enrol pupils and manage their profiles</li>
+        <li><strong>Up to 5 staff accounts</strong> — teachers and school admins on your team</li>
+        <li><strong>Attendance tracking</strong> — daily registers with present, late, and absent marks</li>
+        <li><strong>Basic timetable</strong> — weekly class schedule for your school</li>
+        <li><strong>School admin dashboard</strong> — overview of students, staff, and classes</li>
+        <li><strong>Community support</strong> — help via documentation and community channels</li>
+      </ul>
+      <p class="pricing-includes-label pricing-not-included">Not included on Free</p>
+      <ul class="pricing-features pricing-features-muted">
+        <li class="disabled">Hifz progress tracking &amp; teacher sign-off</li>
+        <li class="disabled">Homework, worksheets &amp; exams</li>
+        <li class="disabled">Parent &amp; student self-registration portals</li>
+        <li class="disabled">Online fee payments (Stripe)</li>
+        <li class="disabled">Analytics, messaging &amp; behaviour logs</li>
+      </ul>
+      <a class="btn-outline btn-full" href="{% url 'pages:register_school' %}">Get started free</a>
+    </article>
+    <article class="pricing-card pricing-featured">
+      <span class="pricing-badge">Most popular</span>
+      <div class="pricing-header">
+        <h2>Standard</h2>
+        <p class="pricing-tagline">For growing schools that need full teaching and parent tools.</p>
+        <p class="pricing-amount">£49 <span class="pricing-period">/ month</span></p>
+      </div>
+      <p class="pricing-includes-label">What you get</p>
+      <ul class="pricing-features">
+        <li><strong>Up to 200 students</strong> — scale beyond the free tier limit</li>
+        <li><strong>Up to 25 staff accounts</strong> — teachers, admins, and support staff</li>
+        <li><strong>Everything in Free</strong> — attendance, basic admin, and your school workspace</li>
+        <li><strong>Full timetable</strong> — scheduling with conflict detection across classes</li>
+        <li><strong>Hifz tracking &amp; sign-off</strong> — surah/juz progress with teacher verification</li>
+        <li><strong>Homework &amp; worksheets</strong> — set assignments, collect submissions, give feedback</li>
+        <li><strong>Exams &amp; results</strong> — enter scores and finalise results per class</li>
+        <li><strong>Parent &amp; student portals</strong> — families register, log in, and view progress</li>
+        <li><strong>Email support</strong> — direct help from the ESA team on weekdays</li>
+      </ul>
+      <p class="pricing-includes-label pricing-not-included">Upgrade to Premium for</p>
+      <ul class="pricing-features pricing-features-muted">
+        <li class="disabled">Stripe Connect online fee payments</li>
+        <li class="disabled">Analytics dashboard &amp; data exports</li>
+        <li class="disabled">Qur’an annotation, staff messaging &amp; behaviour logs</li>
+      </ul>
+      <a class="btn-primary btn-full" href="{% url 'pages:register_school' %}">Register &amp; subscribe</a>
+    </article>
+    <article class="pricing-card">
+      <div class="pricing-header">
+        <h2>Premium</h2>
+        <p class="pricing-tagline">For established schools that want payments, analytics, and full communication.</p>
+        <p class="pricing-amount">£99 <span class="pricing-period">/ month</span></p>
+      </div>
+      <p class="pricing-includes-label">What you get</p>
+      <ul class="pricing-features">
+        <li><strong>Unlimited students</strong> — no cap on enrolment</li>
+        <li><strong>Unlimited staff accounts</strong> — add as many teachers and admins as you need</li>
+        <li><strong>Everything in Standard</strong> — Hifz, homework, exams, timetables, and parent portals</li>
+        <li><strong>Stripe Connect payments</strong> — parents pay school fees securely online</li>
+        <li><strong>Analytics dashboard</strong> — attendance trends, homework completion, and school KPIs</li>
+        <li><strong>Qur’an annotation &amp; audio</strong> — recitation sessions with teacher notes and uploads</li>
+        <li><strong>Behaviour logging</strong> — record incidents and follow-ups per student</li>
+        <li><strong>Staff messaging</strong> — in-platform messages between teachers and admins</li>
+        <li><strong>Priority support</strong> — faster response times and dedicated help for your school</li>
+      </ul>
+      <a class="btn-outline btn-full" href="{% url 'pages:register_school' %}">Register &amp; subscribe</a>
+    </article>
+  </div>
+
+  <div class="comparison-section">
+    <h2>Compare plans side by side</h2>
+    <div class="table-wrap">
+      <table class="data-table pricing-comparison">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Free</th>
+            <th>Standard</th>
+            <th>Premium</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Students</td><td>Up to 30</td><td>Up to 200</td><td>Unlimited</td></tr>
+          <tr><td>Staff accounts</td><td>Up to 5</td><td>Up to 25</td><td>Unlimited</td></tr>
+          <tr><td>Attendance tracking</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Timetable</td><td>Basic</td><td>Full (with conflicts)</td><td>Full (with conflicts)</td></tr>
+          <tr><td>School admin dashboard</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Hifz tracking &amp; sign-off</td><td>—</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Homework &amp; worksheets</td><td>—</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Exams &amp; results</td><td>—</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Parent &amp; student portals</td><td>—</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Qur’an annotation &amp; audio</td><td>—</td><td>—</td><td>✓</td></tr>
+          <tr><td>Stripe Connect fee payments</td><td>—</td><td>—</td><td>✓</td></tr>
+          <tr><td>Analytics dashboard</td><td>—</td><td>—</td><td>✓</td></tr>
+          <tr><td>Staff messaging</td><td>—</td><td>—</td><td>✓</td></tr>
+          <tr><td>Behaviour logging</td><td>—</td><td>—</td><td>✓</td></tr>
+          <tr><td>Support</td><td>Community</td><td>Email</td><td>Priority</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="pricing-note">
+    Already registered?
+    <a href="{% url 'pages:subscription' %}">Manage your subscription</a> from your school admin dashboard after login.
+  </p>
+</section>
+
+<section class="cta-banner">
+  <div>
+    <h2>Ready to bring your school online?</h2>
+    <p>Join schools using ESA to simplify admin and keep families connected.</p>
+  </div>
+  <div class="cta-banner-actions">
+    <a class="btn-primary" href="{% url 'pages:register_school' %}">Register your school</a>
+    <a class="btn-outline" href="{% url 'login' %}">Log in</a>
+  </div>
+</section>
+
+<section class="faq-section">
+  <div class="section-head">
+    <h2>Common questions</h2>
+  </div>
+  <div class="faq-grid">
+    <details class="faq-item">
+      <summary>Can parents register themselves?</summary>
+      <p>Yes. Once your school is on ESA, parents and students choose your school from the list and create their own accounts.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Do I need a credit card for the free plan?</summary>
+      <p>No. Register your school on the free tier and upgrade later when you need Standard or Premium features.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Is our school data kept separate?</summary>
+      <p>Yes. ESA is multi-tenant — each school’s users, classes, and records are scoped to that school only.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What about fee payments?</summary>
+      <p>Standard and Premium plans support Stripe-powered online payments so parents can pay school fees securely.</p>
+    </details>
+  </div>
+</section>
+
+{% endif %}
+{% endblock %}
