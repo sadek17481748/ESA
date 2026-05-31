@@ -1,11 +1,199 @@
 {% extends "base/portal.html" %}
 {% block portal_content %}
-<section class="panel">
+<section class="panel timetable-builder">
+  <div class="toolbar">
+    <div>
+      <h2 style="margin:0;font-size:1.1rem;">Timetable builder</h2>
+      {% if class_group %}
+      <p class="lead" style="margin:0.35rem 0 0;">
+        <strong>{{ class_group.name }}</strong>
+        {% if class_group.teacher %}
+          — {{ class_group.teacher.user.get_full_name|default:class_group.teacher.user.username }}
+        {% endif %}
+      </p>
+      {% endif %}
+    </div>
+    {% if classes %}
+    <form method="get" class="timetable-class-picker">
+      <label for="class-select">Class</label>
+      <select id="class-select" name="class" class="form-input" onchange="this.form.submit()">
+        {% for c in classes %}
+        <option value="{{ c.pk }}"{% if class_group and c.pk == class_group.pk %} selected{% endif %}>
+          {{ c.name }}{% if c.teacher %} — {{ c.teacher.user.get_full_name|default:c.teacher.user.username }}{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+    </form>
+    {% endif %}
+  </div>
   <div class="accent-bar"></div>
-  <p class="lead">Weekly grid — class, subject, teacher slots placeholder.</p>
-  <table class="data-table" style="width:100%;margin-top:1rem;">
-    <thead><tr><th>Day</th><th>Time</th><th>Class</th><th>Subject</th></tr></thead>
-    <tbody><tr><td>Mon</td><td>09:00</td><td>—</td><td>—</td></tr></tbody>
-  </table>
+
+  {% if not class_group %}
+  <p class="lead">No classes set up yet. Run the Al-Noor demo seed or add a class via admin.</p>
+  {% else %}
+
+  <div class="timetable-layout">
+    <aside class="timetable-palette">
+      <p class="sidebar-title">Drag a subject</p>
+      {% for subject in subjects %}
+      <div class="lesson-chip" draggable="true" data-subject-id="{{ subject.pk }}" data-subject-name="{{ subject.name }}">
+        {{ subject.name }}
+      </div>
+      {% endfor %}
+      <p class="lead" style="font-size:0.82rem;margin-top:1rem;">Drop onto a slot, drag between cells, or double-click a cell to clear.</p>
+      {% if can_edit %}
+      <button type="button" id="save-timetable" class="btn-primary btn-full" style="margin-top:1rem;">Save timetable</button>
+      <p id="save-status" class="lead" style="font-size:0.85rem;margin-top:0.5rem;"></p>
+      {% endif %}
+    </aside>
+
+    <div class="timetable-grid-wrap">
+      <table class="timetable-grid" id="timetable-grid">
+        <thead>
+          <tr>
+            <th>Time</th>
+            {% for label in weekday_labels %}
+            <th>{{ label }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for period in periods %}
+          <tr>
+            <td class="period-label">{{ period.label }}</td>
+            {% for wd in weekdays %}
+            <td class="timetable-cell"
+                data-weekday="{{ wd }}"
+                data-start="{{ period.start }}"
+                data-end="{{ period.end }}"></td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <section class="panel" style="margin-top:1.5rem;">
+    <h3 style="margin-top:0;font-size:1rem;">School timetables</h3>
+    <p class="lead" style="margin:0;">Saved lessons appear here for {{ school_name }} — each slot stores class, subject, and teacher.</p>
+    <ul id="saved-summary" class="timetable-summary"></ul>
+  </section>
+
+  {% endif %}
 </section>
+
+{% if class_group and can_edit %}
+<script>
+(function() {
+  const gridData = {{ grid_json|safe }};
+  const classGroupId = {{ class_group.pk }};
+  const csrfToken = '{{ csrf_token }}';
+  const cells = document.querySelectorAll('.timetable-cell');
+
+  function cellKey(cell) {
+    return cell.dataset.weekday + '-' + cell.dataset.start;
+  }
+
+  function renderCell(cell, data) {
+    cell.innerHTML = '';
+    cell.classList.remove('has-lesson');
+    if (!data) return;
+    cell.classList.add('has-lesson');
+    const chip = document.createElement('div');
+    chip.className = 'lesson-chip placed';
+    chip.draggable = true;
+    chip.dataset.subjectId = data.subject_id;
+    chip.dataset.subjectName = data.subject_name;
+    chip.textContent = data.subject_name;
+    cell.appendChild(chip);
+    cell.dataset.subjectId = data.subject_id;
+  }
+
+  cells.forEach(cell => {
+    const key = cellKey(cell);
+    if (gridData[key]) renderCell(cell, gridData[key]);
+  });
+
+  function updateSummary() {
+    const list = document.getElementById('saved-summary');
+    list.innerHTML = '';
+    cells.forEach(cell => {
+      if (!cell.dataset.subjectId) return;
+      const li = document.createElement('li');
+      const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      li.textContent = days[cell.dataset.weekday] + ' ' + cell.dataset.start + ' — ' + cell.dataset.subjectName;
+      list.appendChild(li);
+    });
+  }
+  updateSummary();
+
+  document.querySelectorAll('.lesson-chip[draggable="true"]').forEach(chip => {
+    chip.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('subjectId', chip.dataset.subjectId);
+      e.dataTransfer.setData('subjectName', chip.dataset.subjectName);
+      e.dataTransfer.setData('fromCell', chip.closest('.timetable-cell') ? cellKey(chip.closest('.timetable-cell')) : '');
+    });
+  });
+
+  cells.forEach(cell => {
+    cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
+    cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
+    cell.addEventListener('drop', e => {
+      e.preventDefault();
+      cell.classList.remove('drag-over');
+      const subjectId = e.dataTransfer.getData('subjectId');
+      const subjectName = e.dataTransfer.getData('subjectName');
+      const fromKey = e.dataTransfer.getData('fromCell');
+      if (fromKey) {
+        const fromCell = [...cells].find(c => cellKey(c) === fromKey);
+        if (fromCell) { delete fromCell.dataset.subjectId; delete fromCell.dataset.subjectName; fromCell.innerHTML = ''; fromCell.classList.remove('has-lesson'); }
+      }
+      renderCell(cell, { subject_id: subjectId, subject_name: subjectName });
+      cell.dataset.subjectId = subjectId;
+      cell.dataset.subjectName = subjectName;
+      const placed = cell.querySelector('.lesson-chip');
+      placed.addEventListener('dragstart', ev => {
+        ev.dataTransfer.setData('subjectId', subjectId);
+        ev.dataTransfer.setData('subjectName', subjectName);
+        ev.dataTransfer.setData('fromCell', cellKey(cell));
+      });
+      updateSummary();
+    });
+    cell.addEventListener('dblclick', () => {
+      cell.innerHTML = '';
+      cell.classList.remove('has-lesson');
+      delete cell.dataset.subjectId;
+      delete cell.dataset.subjectName;
+      updateSummary();
+    });
+  });
+
+  document.getElementById('save-timetable').addEventListener('click', async () => {
+    const slots = [];
+    cells.forEach(cell => {
+      if (!cell.dataset.subjectId) return;
+      slots.push({
+        weekday: parseInt(cell.dataset.weekday, 10),
+        start_time: cell.dataset.start,
+        end_time: cell.dataset.end,
+        subject_id: parseInt(cell.dataset.subjectId, 10),
+      });
+    });
+    const status = document.getElementById('save-status');
+    status.textContent = 'Saving…';
+    const res = await fetch('{% url "pages:timetable_save" %}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      body: JSON.stringify({ class_group_id: classGroupId, slots }),
+    });
+    if (res.ok) {
+      status.textContent = 'Timetable saved for {{ class_group.name }}.';
+    } else {
+      status.textContent = 'Could not save — try again.';
+    }
+  });
+})();
+</script>
+{% endif %}
 {% endblock %}
