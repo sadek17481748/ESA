@@ -213,3 +213,70 @@ class SchoolRegisterForm(forms.Form):
             school=school,
         )
         return school, user
+
+
+class AddTeacherForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-input', 'autocomplete': 'username'}),
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-input', 'autocomplete': 'email'}),
+    )
+    first_name = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-input', 'autocomplete': 'given-name'}),
+    )
+    last_name = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={'class': 'form-input', 'autocomplete': 'family-name'}),
+    )
+    subject = forms.CharField(
+        label='Main subject',
+        max_length=120,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Quran'}),
+    )
+    password1 = forms.CharField(
+        label='Password',
+        min_length=8,
+        widget=forms.PasswordInput(attrs={'class': 'form-input', 'autocomplete': 'new-password'}),
+    )
+    password2 = forms.CharField(
+        label='Confirm password',
+        widget=forms.PasswordInput(attrs={'class': 'form-input', 'autocomplete': 'new-password'}),
+    )
+
+    def clean_username(self):
+        username = self.cleaned_data['username'].strip()
+        if User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError('That username is already taken.')
+        return username
+
+    def clean_password2(self):
+        p1 = self.cleaned_data.get('password1')
+        p2 = self.cleaned_data.get('password2')
+        if p1 and p2 and p1 != p2:
+            raise forms.ValidationError('Passwords do not match.')
+        return p2
+
+    @transaction.atomic
+    def save(self, school):
+        from teachers.models import TeacherProfile
+
+        data = self.cleaned_data
+        user = User.objects.create_user(
+            username=data['username'],
+            email=data['email'],
+            password=data['password1'],
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            role='teacher',
+            school=school,
+        )
+        profile = TeacherProfile.objects.create(
+            school=school,
+            user=user,
+            subject=data.get('subject', ''),
+        )
+        return user, profile
