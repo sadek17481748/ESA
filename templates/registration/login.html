@@ -6,18 +6,28 @@
 <section class="panel">
   <h1>Log in</h1>
   <div class="accent-bar"></div>
-  {% if form.errors %}
-    <p class="lead" style="color:#e57373;">Invalid username or password. Try again.</p>
+  {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+      <p class="lead" style="color:#e57373;">{{ error }}</p>
+    {% endfor %}
+  {% elif form.errors %}
+    <p class="lead" style="color:#e57373;">Check your username and password and try again.</p>
   {% endif %}
   <form method="post" class="form-stack" action="{% url 'login' %}">
     {% csrf_token %}
     <div class="field">
       <label for="id_username">Username</label>
       {{ form.username }}
+      {% if form.username.errors %}
+        <span style="color:#e57373;font-size:0.9rem;">{{ form.username.errors.0 }}</span>
+      {% endif %}
     </div>
     <div class="field">
       <label for="id_password">Password</label>
       {{ form.password }}
+      {% if form.password.errors %}
+        <span style="color:#e57373;font-size:0.9rem;">{{ form.password.errors.0 }}</span>
+      {% endif %}
     </div>
     <button type="submit" class="btn-primary">Sign in</button>
   </form>

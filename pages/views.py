@@ -5,13 +5,11 @@ Portal UI — login redirect, registration, dashboards, and placeholder feature 
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from django.db import DatabaseError, OperationalError
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from audit.models import AuditLog
 from audit.services import log_action
-from schools.models import School
 
 from .forms import EsaAuthenticationForm, RegisterForm
 
@@ -34,19 +32,9 @@ def dashboard_router(request):
 
 
 def register(request):
-    """Create account — parent or student linked to a school."""
+    """Create account — school admin, teacher, parent, or student."""
     if request.user.is_authenticated:
         return redirect('pages:dashboard')
-    try:
-        has_schools = School.objects.filter(status=School.STATUS_ACTIVE).exists()
-    except (DatabaseError, OperationalError):
-        return render(request, 'registration/register.html', {
-            'form': None,
-            'setup_error': (
-                'Registration is temporarily unavailable. '
-                'The database may still be initialising — refresh in a minute or contact your school admin.'
-            ),
-        })
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -56,17 +44,14 @@ def register(request):
                 action=AuditLog.ACTION_CREATE,
                 resource='User',
                 resource_id=user.pk,
-                detail=f'Web registration as {user.role}',
+                detail=f'Web registration as {user.role} at {user.school.name}',
                 request=request,
             )
             login(request, user)
             return redirect('pages:dashboard')
     else:
         form = RegisterForm()
-    return render(request, 'registration/register.html', {
-        'form': form,
-        'no_schools': not has_schools,
-    })
+    return render(request, 'registration/register.html', {'form': form})
 
 
 class EsaLoginView(LoginView):

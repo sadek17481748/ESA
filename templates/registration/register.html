@@ -6,18 +6,16 @@
 <section class="panel">
   <h1>Register</h1>
   <div class="accent-bar"></div>
-  <p class="lead">Create a parent or student account linked to your school.</p>
-  {% if setup_error %}
-    <p class="lead" style="color:#e57373;">{{ setup_error }}</p>
-  {% elif no_schools %}
-    <p class="lead" style="color:#e57373;">No schools are set up yet. Ask your school admin to run the platform seed on the server.</p>
-  {% else %}
-  <form method="post" class="form-stack" action="">
+  <p class="lead">Create a school admin, teacher, parent, or student account.</p>
+  <form method="post" class="form-stack" action="{% url 'pages:register' %}">
     {% csrf_token %}
     {% for field in form %}
       <div class="field">
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         {{ field }}
+        {% if field.help_text %}
+          <span style="color:var(--muted);font-size:0.85rem;">{{ field.help_text }}</span>
+        {% endif %}
         {% if field.errors %}
           <span style="color:#e57373;font-size:0.9rem;">{{ field.errors.0 }}</span>
         {% endif %}
@@ -28,7 +26,6 @@
     {% endif %}
     <button type="submit" class="btn-primary">Create account</button>
   </form>
-  {% endif %}
   <p class="lead" style="margin-top:1.25rem;margin-bottom:0;">
     <a href="{% url 'login' %}">Already have an account?</a>
   </p>
