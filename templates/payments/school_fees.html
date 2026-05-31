@@ -1,0 +1,101 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+{% if messages %}
+<ul class="flash-list" style="list-style:none;padding:0;margin:0 0 1rem;">
+  {% for message in messages %}
+  <li style="padding:0.5rem;background:var(--gold-soft);border-radius:6px;margin-bottom:0.35rem;">{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<div class="kpi-grid" style="margin-bottom:1.5rem;">
+  <article class="kpi-card">
+    <span class="kpi-label">Students</span>
+    <span class="kpi-value">{{ student_count }}</span>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">Paid</span>
+    <span class="kpi-value kpi-live">{{ totals.paid|default:0 }}</span>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">Outstanding</span>
+    <span class="kpi-value">{{ totals.outstanding|default:0 }}</span>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">Overdue</span>
+    <span class="kpi-value">{{ totals.overdue|default:0 }}</span>
+  </article>
+</div>
+
+<section class="panel" style="margin-bottom:1.5rem;">
+  <h2 style="margin-top:0;font-size:1.1rem;">Set a fee</h2>
+  <div class="accent-bar"></div>
+  <p class="lead">Create an invoice for one student or all {{ student_count }} students at {{ school_name }}.</p>
+  <form method="post" class="form-stack" style="max-width:520px;">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="create">
+    {% for field in form %}
+      <div class="field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<span style="color:#e57373;font-size:0.9rem;">{{ field.errors.0 }}</span>{% endif %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="btn-primary">Create fee invoice(s)</button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2 style="margin-top:0;font-size:1.1rem;">All students — fee status</h2>
+  <div class="accent-bar"></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Parent</th>
+          <th>Latest fee</th>
+          <th>Amount</th>
+          <th>Due</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td><strong>{{ row.child_name }}</strong><br><span style="color:var(--muted);font-size:0.82rem;">{{ row.student.admission_number }}</span></td>
+          <td>{{ row.parent_name }}<br><span style="color:var(--muted);font-size:0.82rem;">{{ row.parent_username }}</span></td>
+          <td>{% if row.latest_fee %}{{ row.latest_fee.title }}{% else %}—{% endif %}</td>
+          <td>{% if row.latest_fee %}{{ row.latest_fee.amount_display }}{% else %}—{% endif %}</td>
+          <td>{% if row.latest_fee %}{{ row.latest_fee.due_date }}{% else %}—{% endif %}</td>
+          <td>
+            {% if row.status_code == 'paid' %}
+              <span class="pill pill-ok">Paid</span>
+            {% elif row.status_code == 'overdue' %}
+              <span class="pill pill-warn">Overdue</span>
+            {% elif row.status_code == 'outstanding' %}
+              <span class="pill">Outstanding</span>
+            {% else %}
+              <span style="color:var(--muted);">No fee</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if row.latest_fee and row.latest_fee.status != 'paid' %}
+            <form method="post" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="mark_paid">
+              <input type="hidden" name="fee_id" value="{{ row.latest_fee.pk }}">
+              <button type="submit" class="btn-outline" style="padding:0.25rem 0.6rem;font-size:0.82rem;">Mark paid</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="placeholder-row">No students enrolled yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

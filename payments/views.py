@@ -16,15 +16,21 @@ from django.views.decorators.http import require_POST
 
 import stripe
 
-from .models import FeeItem, Payment
-from .services import create_fee_checkout_session, retrieve_checkout_session
-
 from pages.portal import build_portal_context
+from pages.decorators import role_required
+
+from .forms import SchoolFeeForm
+from .models import FeeItem, Payment
+from .school_fees import build_school_fee_overview, create_fees_for_students
+from .services import create_fee_checkout_session, retrieve_checkout_session
 
 
 @login_required
 def fee_list(request):
-    """GET /payments/ — outstanding and paid fees for this parent only."""
+    """GET /payments/ — parents see their fees; school admins go to school fee manager."""
+    if request.user.role == 'school_admin':
+        return redirect('payments:school_fees')
+
     if request.user.role != 'parent':
         return HttpResponseForbidden('Parents only.')
 
@@ -38,6 +44,50 @@ def fee_list(request):
         'publishable_key': settings.STRIPE_PUBLISHABLE_KEY,
         **build_portal_context(request, 'School fees', 'Outstanding and paid invoices for your children.'),
     })
+
+
+@role_required('school_admin')
+def school_fees(request):
+    """School admin — all students, fee status, and create fees."""
+    school = request.user.school
+    rows, totals = build_school_fee_overview(school)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'mark_paid':
+            fee = get_object_or_404(FeeItem, pk=request.POST.get('fee_id'), school=school)
+            fee.status = FeeItem.STATUS_PAID
+            fee.save(update_fields=['status'])
+            messages.success(request, f'Marked {fee.child_name} — {fee.title} as paid.')
+            return redirect('payments:school_fees')
+
+        form = SchoolFeeForm(school, request.POST)
+        if form.is_valid():
+            student = form.cleaned_data.get('student')
+            created = create_fees_for_students(
+                school,
+                title=form.cleaned_data['title'],
+                amount_pence=form.amount_pence(),
+                due_date=form.cleaned_data['due_date'],
+                student=student,
+            )
+            messages.success(request, f'Created {len(created)} fee invoice(s).')
+            return redirect('payments:school_fees')
+    else:
+        form = SchoolFeeForm(school)
+
+    ctx = build_portal_context(
+        request,
+        'School fees',
+        'Track payments for all students — set fees and mark cash payments received.',
+    )
+    ctx.update({
+        'rows': rows,
+        'totals': totals,
+        'form': form,
+        'student_count': len(rows),
+    })
+    return render(request, 'payments/school_fees.html', ctx)
 
 
 @login_required
