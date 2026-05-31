@@ -1,13 +1,26 @@
 {% extends "base/portal.html" %}
-{% block title %}School admin — ESA{% endblock %}
 {% block portal_content %}
 <div class="grid-cards">
   <article class="card">
     <h2>Welcome, {{ user_display }}</h2>
     <p>Managing <strong>{{ school_name }}</strong> on the {{ school_tier|default:"Free" }} plan.</p>
   </article>
-  <article class="card"><h2>Staff &amp; students</h2><p>Invite teachers and enrol students from the admin panel.</p></article>
-  <article class="card"><h2>Classes</h2><p>Set up year groups, classes, and timetables.</p></article>
-  <article class="card"><h2>Outstanding fees</h2><p><a href="{% url 'payments:fee_list' %}">View fee summary</a> (when Stripe is connected).</p></article>
+  <article class="card">
+    <h2>Teachers ({{ teacher_count }})</h2>
+    <p><a href="{% url 'pages:school_admin_add_teacher' %}">Add a new teacher</a> with login details.</p>
+    <p><a href="{% url 'pages:school_admin_teachers' %}">View all teachers</a></p>
+  </article>
+  <article class="card">
+    <h2>Timetables</h2>
+    <p><a href="{% url 'pages:timetable' %}">Build class timetables</a> — English, Maths, Science, Arabic, Quran, Alimiyah.</p>
+  </article>
+  <article class="card">
+    <h2>Classes</h2>
+    <p>Year groups, registers, homework, and Hifz/Alimiyah tracking via the teacher portal.</p>
+  </article>
+  <article class="card">
+    <h2>School fees</h2>
+    <p><a href="{% url 'payments:school_fees' %}">Manage fees for all students</a> — track who has paid and set invoices.</p>
+  </article>
 </div>
 {% endblock %}
