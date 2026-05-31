@@ -11,7 +11,7 @@ from django.urls import reverse
 from audit.models import AuditLog
 from audit.services import log_action
 
-from .forms import EsaAuthenticationForm, RegisterForm
+from .forms import EsaAuthenticationForm, RegisterForm, SchoolRegisterForm, active_schools
 
 # Maps user.role to the dashboard they land on after login
 ROLE_DASHBOARD = {
@@ -32,9 +32,10 @@ def dashboard_router(request):
 
 
 def register(request):
-    """Create account — school admin, teacher, parent, or student."""
+    """Parent or student sign-up — pick a school from the list."""
     if request.user.is_authenticated:
         return redirect('pages:dashboard')
+    has_schools = active_schools().exists()
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -51,7 +52,33 @@ def register(request):
             return redirect('pages:dashboard')
     else:
         form = RegisterForm()
-    return render(request, 'registration/register.html', {'form': form})
+    return render(request, 'registration/register.html', {
+        'form': form,
+        'has_schools': has_schools,
+    })
+
+
+def register_school(request):
+    """Register a new school — adds it to the parent/student school picker."""
+    if request.user.is_authenticated:
+        return redirect('pages:dashboard')
+    if request.method == 'POST':
+        form = SchoolRegisterForm(request.POST)
+        if form.is_valid():
+            school, user = form.save()
+            log_action(
+                user=user,
+                action=AuditLog.ACTION_CREATE,
+                resource='School',
+                resource_id=school.pk,
+                detail=f'Web school registration: {school.name}',
+                request=request,
+            )
+            login(request, user)
+            return redirect('pages:dashboard')
+    else:
+        form = SchoolRegisterForm()
+    return render(request, 'registration/register_school.html', {'form': form})
 
 
 class EsaLoginView(LoginView):

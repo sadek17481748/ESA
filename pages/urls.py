@@ -7,6 +7,7 @@ app_name = 'pages'
 
 urlpatterns = [
     path('register/', views.register, name='register'),
+    path('register/school/', views.register_school, name='register_school'),
     path('dashboard/', views.dashboard_router, name='dashboard'),
     path('dashboard/parent/', views.dashboard_parent, name='dashboard_parent'),
     path('dashboard/teacher/', views.dashboard_teacher, name='dashboard_teacher'),

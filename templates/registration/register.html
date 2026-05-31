@@ -6,26 +6,83 @@
 <section class="panel">
   <h1>Register</h1>
   <div class="accent-bar"></div>
-  <p class="lead">Create a school admin, teacher, parent, or student account.</p>
-  <form method="post" class="form-stack" action="{% url 'pages:register' %}">
-    {% csrf_token %}
-    {% for field in form %}
+  <p class="lead">Create a parent or student account for your school.</p>
+
+  {% if not has_schools %}
+    <p class="lead" style="color:#e57373;">No schools are registered yet.</p>
+    <p class="lead">
+      <a href="{% url 'pages:register_school' %}">Register a school</a> first, then come back to create your account.
+    </p>
+  {% else %}
+    <form method="post" class="form-stack" action="{% url 'pages:register' %}">
+      {% csrf_token %}
       <div class="field">
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
-        {% if field.help_text %}
-          <span style="color:var(--muted);font-size:0.85rem;">{{ field.help_text }}</span>
+        <label for="id_school">School</label>
+        {{ form.school }}
+        {% if form.school.errors %}
+          <span style="color:#e57373;font-size:0.9rem;">{{ form.school.errors.0 }}</span>
         {% endif %}
-        {% if field.errors %}
-          <span style="color:#e57373;font-size:0.9rem;">{{ field.errors.0 }}</span>
+        <span style="color:var(--muted);font-size:0.85rem;">
+          Don’t see your school?
+          <a href="{% url 'pages:register_school' %}">Register a school</a>
+        </span>
+      </div>
+      <div class="field">
+        <label for="id_role">{{ form.role.label }}</label>
+        {{ form.role }}
+        {% if form.role.errors %}
+          <span style="color:#e57373;font-size:0.9rem;">{{ form.role.errors.0 }}</span>
         {% endif %}
       </div>
-    {% endfor %}
-    {% if form.non_field_errors %}
-      <p style="color:#e57373;">{{ form.non_field_errors.0 }}</p>
-    {% endif %}
-    <button type="submit" class="btn-primary">Create account</button>
-  </form>
+      <div class="field">
+        <label for="id_first_name">First name</label>
+        {{ form.first_name }}
+        {% if form.first_name.errors %}
+          <span style="color:#e57373;font-size:0.9rem;">{{ form.first_name.errors.0 }}</span>
+        {% endif %}
+      </div>
+      <div class="field">
+        <label for="id_last_name">Last name</label>
+        {{ form.last_name }}
+        {% if form.last_name.errors %}
+          <span style="color:#e57373;font-size:0.9rem;">{{ form.last_name.errors.0 }}</span>
+        {% endif %}
+      </div>
+      <div class="field">
+        <label for="id_username">Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <span style="color:#e57373;font-size:0.9rem;">{{ form.username.errors.0 }}</span>
+        {% endif %}
+      </div>
+      <div class="field">
+        <label for="id_email">Email</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+          <span style="color:#e57373;font-size:0.9rem;">{{ form.email.errors.0 }}</span>
+        {% endif %}
+      </div>
+      <div class="field">
+        <label for="id_password1">Password</label>
+        {{ form.password1 }}
+        {% if form.password1.errors %}
+          <span style="color:#e57373;font-size:0.9rem;">{{ form.password1.errors.0 }}</span>
+        {% endif %}
+      </div>
+      <div class="field">
+        <label for="id_password2">Confirm password</label>
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+          <span style="color:#e57373;font-size:0.9rem;">{{ form.password2.errors.0 }}</span>
+        {% endif %}
+      </div>
+      {% if form.non_field_errors %}
+        <p style="color:#e57373;">{{ form.non_field_errors.0 }}</p>
+      {% endif %}
+      <button type="submit" class="btn-primary">Create account</button>
+    </form>
+  {% endif %}
+
   <p class="lead" style="margin-top:1.25rem;margin-bottom:0;">
     <a href="{% url 'login' %}">Already have an account?</a>
   </p>

@@ -1,0 +1,80 @@
+{% extends "base/marketing.html" %}
+
+{% block title %}Register a school — ESA{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <h1>Register a school</h1>
+  <div class="accent-bar"></div>
+  <p class="lead">
+    Add your school to ESA. Once registered, parents and students can select it when they sign up.
+  </p>
+  <form method="post" class="form-stack" action="{% url 'pages:register_school' %}">
+    {% csrf_token %}
+    <div class="field">
+      <label for="id_school_name">School name</label>
+      {{ form.school_name }}
+      {% if form.school_name.errors %}
+        <span style="color:#e57373;font-size:0.9rem;">{{ form.school_name.errors.0 }}</span>
+      {% endif %}
+    </div>
+    <div class="field">
+      <label for="id_contact_email">School contact email</label>
+      {{ form.contact_email }}
+      {% if form.contact_email.errors %}
+        <span style="color:#e57373;font-size:0.9rem;">{{ form.contact_email.errors.0 }}</span>
+      {% endif %}
+    </div>
+    <p class="lead" style="margin:1rem 0 0.5rem;font-size:0.95rem;color:var(--muted);">Your admin account</p>
+    <div class="field">
+      <label for="id_first_name">First name</label>
+      {{ form.first_name }}
+      {% if form.first_name.errors %}
+        <span style="color:#e57373;font-size:0.9rem;">{{ form.first_name.errors.0 }}</span>
+      {% endif %}
+    </div>
+    <div class="field">
+      <label for="id_last_name">Last name</label>
+      {{ form.last_name }}
+      {% if form.last_name.errors %}
+        <span style="color:#e57373;font-size:0.9rem;">{{ form.last_name.errors.0 }}</span>
+      {% endif %}
+    </div>
+    <div class="field">
+      <label for="id_username">Username</label>
+      {{ form.username }}
+      {% if form.username.errors %}
+        <span style="color:#e57373;font-size:0.9rem;">{{ form.username.errors.0 }}</span>
+      {% endif %}
+    </div>
+    <div class="field">
+      <label for="id_email">Email</label>
+      {{ form.email }}
+      {% if form.email.errors %}
+        <span style="color:#e57373;font-size:0.9rem;">{{ form.email.errors.0 }}</span>
+      {% endif %}
+    </div>
+    <div class="field">
+      <label for="id_password1">Password</label>
+      {{ form.password1 }}
+      {% if form.password1.errors %}
+        <span style="color:#e57373;font-size:0.9rem;">{{ form.password1.errors.0 }}</span>
+      {% endif %}
+    </div>
+    <div class="field">
+      <label for="id_password2">Confirm password</label>
+      {{ form.password2 }}
+      {% if form.password2.errors %}
+        <span style="color:#e57373;font-size:0.9rem;">{{ form.password2.errors.0 }}</span>
+      {% endif %}
+    </div>
+    {% if form.non_field_errors %}
+      <p style="color:#e57373;">{{ form.non_field_errors.0 }}</p>
+    {% endif %}
+    <button type="submit" class="btn-primary">Register school</button>
+  </form>
+  <p class="lead" style="margin-top:1.25rem;margin-bottom:0;">
+    <a href="{% url 'pages:register' %}">Back to parent/student registration</a>
+  </p>
+</section>
+{% endblock %}
