@@ -1,0 +1,34 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <div class="toolbar">
+    <h2 style="margin:0;font-size:1.1rem;">Teachers at {{ school_name }}</h2>
+    <a class="btn-primary" href="{% url 'pages:school_admin_add_teacher' %}">Add teacher</a>
+  </div>
+  <div class="accent-bar"></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Subject</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in teachers %}
+        <tr>
+          <td><strong>{{ t.user.get_full_name|default:t.user.username }}</strong></td>
+          <td>{{ t.user.username }}</td>
+          <td>{{ t.user.email }}</td>
+          <td>{{ t.subject|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="placeholder-row">No teachers yet. <a href="{% url 'pages:school_admin_add_teacher' %}">Add one</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

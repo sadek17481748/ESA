@@ -1,0 +1,20 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <h2 style="margin-top:0;font-size:1.1rem;">Add teacher</h2>
+  <div class="accent-bar"></div>
+  <p class="lead">Teachers can build timetables, set homework, take registers, and track Hifz and Alimiyah work.</p>
+  <form method="post" class="form-stack" style="max-width:480px;">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<span style="color:#e57373;font-size:0.9rem;">{{ field.errors.0 }}</span>{% endif %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="btn-primary">Create teacher account</button>
+  </form>
+  <p class="lead" style="margin-top:1rem;"><a href="{% url 'pages:school_admin_teachers' %}">Back to teachers</a></p>
+</section>
+{% endblock %}
