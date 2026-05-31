@@ -57,3 +57,13 @@ class WebAuthTests(TestCase):
         self.client.force_login(user)
         response = self.client.get(reverse('home'))
         self.assertContains(response, 'Dashboard')
+
+    def test_logout_redirects_to_home(self):
+        user = User.objects.create_user(
+            username='u3', password='securepass1', role='parent', school=self.school,
+        )
+        self.client.force_login(user)
+        response = self.client.get(reverse('logout'))
+        self.assertRedirects(response, reverse('home'), fetch_redirect_response=False)
+        self.client.get(reverse('home'))
+        self.assertNotIn('_auth_user_id', self.client.session)

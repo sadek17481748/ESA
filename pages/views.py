@@ -2,7 +2,7 @@
 pages/views.py
 Portal UI — login redirect, registration, dashboards, and placeholder feature pages.
 """
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.db import DatabaseError, OperationalError
@@ -78,6 +78,12 @@ class EsaLoginView(LoginView):
 
     def get_success_url(self):
         return reverse('pages:dashboard')
+
+
+def logout_view(request):
+    """Log out and return to the landing page (works from nav links)."""
+    logout(request)
+    return redirect('home')
 
 
 def _placeholder(request, template_name, page_title, page_meta=''):

@@ -7,18 +7,17 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from django.views.static import serve
-from django.contrib.auth.views import LogoutView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from core_app.views import home
-from pages.views import EsaLoginView
+from pages.views import EsaLoginView, logout_view
 
 urlpatterns = [
     path('', home, name='home'),
     path('admin/', admin.site.urls),
     # session auth — login / logout for portal and payments
     path('accounts/login/', EsaLoginView.as_view(), name='login'),
-    path('accounts/logout/', LogoutView.as_view(next_page='home'), name='logout'),
+    path('accounts/logout/', logout_view, name='logout'),
     path('', include('pages.urls')),
     # JWT — used by API clients and Postman
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
