@@ -22,7 +22,10 @@ urlpatterns = [
     path('payments-info/', views.page_payments_info, name='payments_info'),
     path('quran/', views.page_quran, name='quran'),
     path('subscription/', views.page_subscription, name='subscription'),
+    path('school-admin/teachers/', views.school_admin_teachers, name='school_admin_teachers'),
+    path('school-admin/teachers/add/', views.school_admin_add_teacher, name='school_admin_add_teacher'),
     path('timetable/', views.page_timetable, name='timetable'),
+    path('timetable/save/', views.timetable_save, name='timetable_save'),
     path('worksheets/', views.page_worksheets, name='worksheets'),
     path('analytics/', views.page_analytics, name='analytics'),
 ]
