@@ -1,4 +1,6 @@
 """pages/tests.py — web registration, school sign-up, homepage, and demo seed."""
+import json
+
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import TestCase
@@ -8,8 +10,55 @@ from pages.forms import DEFAULT_SCHOOL_NAME
 from parents.models import ParentProfile
 from schools.models import School
 from students.models import StudentProfile
+from academics.models import ClassGroup
 
 User = get_user_model()
+
+
+class SchoolAdminTeacherTests(TestCase):
+    def setUp(self):
+        call_command('ensure_platform_seed')
+
+    def test_school_admin_can_add_teacher(self):
+        admin = User.objects.get(username='schooladmin')
+        self.client.force_login(admin)
+        response = self.client.post(reverse('pages:school_admin_add_teacher'), {
+            'username': 'newteacher',
+            'email': 't@test.com',
+            'first_name': 'Tariq',
+            'last_name': 'Ali',
+            'subject': 'Maths',
+            'password1': 'securepass1',
+            'password2': 'securepass1',
+        })
+        self.assertRedirects(response, reverse('pages:school_admin_teachers'))
+        self.assertTrue(User.objects.filter(username='newteacher', role='teacher').exists())
+
+    def test_timetable_save_creates_slots(self):
+        admin = User.objects.get(username='schooladmin')
+        self.client.force_login(admin)
+        from subjects.models import Subject
+        school = School.objects.get(name='Al-Noor Academy')
+        subject = Subject.objects.filter(school=school).first()
+        class_group = ClassGroup.objects.filter(school=school).first()
+        self.assertIsNotNone(class_group)
+        payload = json.dumps({
+            'class_group_id': class_group.pk,
+            'slots': [{
+                'weekday': 0,
+                'start_time': '08:30',
+                'end_time': '09:15',
+                'subject_id': subject.pk,
+            }],
+        })
+        response = self.client.post(
+            reverse('pages:timetable_save'),
+            data=payload,
+            content_type='application/json',
+        )
+        self.assertEqual(response.status_code, 200)
+        from timetable.models import TimetableSlot
+        self.assertEqual(TimetableSlot.objects.filter(class_group=class_group).count(), 1)
 
 
 class DemoSeedTests(TestCase):
@@ -27,6 +76,14 @@ class DemoSeedTests(TestCase):
         super_user = User.objects.get(username='super')
         self.assertEqual(super_user.role, 'super_admin')
         self.assertTrue(super_user.check_password('super1234'))
+
+    def test_alnoor_seed_creates_30_students_and_parents(self):
+        call_command('seed_alnoor_demo')
+        school = School.objects.get(name='Al-Noor Academy')
+        self.assertEqual(StudentProfile.objects.filter(school=school).count(), 30)
+        self.assertGreaterEqual(ParentProfile.objects.filter(school=school).count(), 30)
+        self.assertTrue(User.objects.filter(username='mr_mohammed').exists())
+        self.assertTrue(ClassGroup.objects.filter(school=school, name='Year 7').exists())
 
 
 class SuperAdminDashboardTests(TestCase):
