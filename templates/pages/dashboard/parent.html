@@ -1,10 +1,11 @@
-{% extends "base/dashboard.html" %}
+{% extends "base/portal.html" %}
 {% block title %}Parent — ESA{% endblock %}
-{% block brand_tag %}Parent{% endblock %}
-{% block top_nav_extra %}<a href="{% url 'payments:fee_list' %}">Payments</a>{% endblock %}
-{% block sidebar %}{% include "pages/includes/sidebar_parent.html" %}{% endblock %}
-{% block page_title %}{{ page_title }}{% endblock %}
-{% block dashboard_content %}
+{% block portal_content %}
+<section class="panel" style="margin-bottom:1.25rem;">
+  <h2 style="margin-top:0;font-size:1.1rem;">Welcome, {{ user_display }}</h2>
+  <div class="accent-bar"></div>
+  <p class="lead" style="margin:0;">Family portal for <strong>{{ school_name }}</strong>.</p>
+</section>
 <section class="panel" style="margin-bottom:1.25rem;">
   <h2 style="margin-top:0;font-size:1.1rem;">Linked students</h2>
   <div class="accent-bar"></div>

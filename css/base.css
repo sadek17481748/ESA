@@ -914,37 +914,164 @@ a:hover {
   color: var(--gold);
 }
 
-.demo-logins {
-  margin-top: 1.75rem;
-  padding: 1rem 1.25rem;
-  background: var(--surface-up);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius);
+.leaderboard-section {
+  margin-bottom: 3.5rem;
 }
 
-.demo-logins-title {
-  margin: 0 0 0.5rem;
-  font-size: 0.78rem;
+.leaderboard-table .rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.leaderboard-table .rank-badge.rank-top {
+  background: var(--gold-soft);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.portal-school-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.portal-school-banner-platform {
+  border-left-color: #6fcf97;
+}
+
+.portal-banner-eyebrow {
+  margin: 0 0 0.2rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--muted);
 }
 
-.demo-logins-list {
+.portal-banner-school {
   margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.88rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* -------- Super admin dashboard KPIs -------- */
+.live-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: -0.5rem;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4caf50;
+  box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.5);
+  animation: live-pulse 2s infinite;
+}
+
+@keyframes live-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(76, 175, 80, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.kpi-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--muted);
 }
 
-.demo-logins-list li {
-  padding: 0.25rem 0;
+.kpi-value {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1.2;
 }
 
-.demo-logins-list code {
-  color: var(--gold);
-  font-size: 0.85rem;
+.kpi-value.kpi-live {
+  color: #6fcf97;
+}
+
+.kpi-sub {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.dash-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.dash-panel-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.dash-split {
+  margin-bottom: 0;
+}
+
+.pill-ok {
+  border-color: rgba(76, 175, 80, 0.4);
+  color: #6fcf97;
+}
+
+.pill-warn {
+  border-color: rgba(229, 115, 115, 0.4);
+  color: #e57373;
+}
+
+.pill-tier-free { color: var(--muted); }
+.pill-tier-standard { color: var(--gold); }
+.pill-tier-premium { color: #c9a227; border-color: var(--gold); }
+
+.data-table tfoot td {
+  background: var(--surface-up);
+  font-weight: 600;
+  border-bottom: none;
 }
 
 @media (max-width: 768px) {

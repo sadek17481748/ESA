@@ -1,0 +1,30 @@
+{% extends "base/dashboard.html" %}
+{% block title %}{{ page_title }} — {% if school_name %}{{ school_name }}{% else %}ESA{% endif %}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block brand_tag %}
+  {% if school_name %}{{ school_name }}{% elif user.role == 'super_admin' %}Super admin{% else %}{{ user.get_role_display }}{% endif %}
+{% endblock %}
+{% block top_nav_extra %}
+  {% if user.role == 'parent' %}<a href="{% url 'payments:fee_list' %}">Payments</a>{% endif %}
+  {% if user.role == 'teacher' %}<a href="{% url 'pages:timetable' %}">Timetable</a>{% endif %}
+{% endblock %}
+{% block sidebar %}{% include sidebar_template %}{% endblock %}
+{% block dashboard_content %}
+  {% if school_name %}
+  <div class="portal-school-banner">
+    <div>
+      <p class="portal-banner-eyebrow">{{ user.get_role_display }}</p>
+      <p class="portal-banner-school">{{ school_name }}</p>
+    </div>
+    {% if school_tier %}<span class="pill pill-tier-standard">{{ school_tier }} plan</span>{% endif %}
+  </div>
+  {% elif user.role == 'super_admin' %}
+  <div class="portal-school-banner portal-school-banner-platform">
+    <div>
+      <p class="portal-banner-eyebrow">Platform admin</p>
+      <p class="portal-banner-school">ESA — all schools</p>
+    </div>
+  </div>
+  {% endif %}
+  {% block portal_content %}{% endblock %}
+{% endblock %}

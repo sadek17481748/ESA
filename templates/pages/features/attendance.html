@@ -1,16 +1,5 @@
-{% extends "base/dashboard.html" %}
-{% block title %}{{ page_title }} — ESA{% endblock %}
-{% block brand_tag %}Portal{% endblock %}
-{% block sidebar %}
-<p class="sidebar-title">Sections</p>
-<nav class="sidebar-nav">
-  <a href="{% url 'pages:dashboard' %}">Dashboard</a>
-  <a href="{% url 'pages:attendance' %}" aria-current="page">Attendance</a>
-  <a href="{% url 'pages:timetable' %}">Timetable</a>
-</nav>
-{% endblock %}
-{% block page_title %}{{ page_title }}{% endblock %}
-{% block dashboard_content %}
+{% extends "base/portal.html" %}
+{% block portal_content %}
 <section class="panel">
   <div class="accent-bar"></div>
   <p class="lead">Register and marks table placeholder — API is wired; UI data loading comes next.</p>

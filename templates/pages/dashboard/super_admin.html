@@ -1,12 +1,204 @@
-{% extends "base/dashboard.html" %}
-{% block title %}Super admin — ESA{% endblock %}
-{% block brand_tag %}Super admin{% endblock %}
-{% block sidebar %}{% include "pages/includes/sidebar_super_admin.html" %}{% endblock %}
-{% block page_title %}{{ page_title }}{% endblock %}
-{% block dashboard_content %}
-<div class="grid-cards">
-  <article class="card"><h2>Schools on platform</h2><p>Tenant list placeholder</p></article>
-  <article class="card"><h2>Subscriptions</h2><p>Stripe billing overview</p></article>
-  <article class="card"><h2>Platform health</h2><p>Usage metrics placeholder</p></article>
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<p class="page-meta live-meta">
+  <span class="live-dot" aria-hidden="true"></span>
+  {{ kpis.active_now }} user{{ kpis.active_now|pluralize }} active in the last {{ live_cutoff_minutes }} minutes
+  · Updated {{ generated_at|date:"H:i" }} on {{ generated_at|date:"j M Y" }}
+</p>
+
+<section class="kpi-grid" aria-label="Platform KPIs">
+  <article class="kpi-card">
+    <span class="kpi-label">Schools</span>
+    <span class="kpi-value">{{ kpis.schools_total }}</span>
+    <span class="kpi-sub">{{ kpis.schools_active }} active · {{ kpis.schools_suspended }} suspended</span>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">Total users</span>
+    <span class="kpi-value">{{ kpis.users_total }}</span>
+    <span class="kpi-sub">{{ kpis.new_users_7d }} joined in the last 7 days</span>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">Live users</span>
+    <span class="kpi-value kpi-live">{{ kpis.active_now }}</span>
+    <span class="kpi-sub">Logged in within {{ live_cutoff_minutes }} min</span>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">Est. MRR</span>
+    <span class="kpi-value">{{ kpis.mrr_display }}</span>
+    <span class="kpi-sub">From active school subscriptions</span>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">Students</span>
+    <span class="kpi-value">{{ kpis.students_total }}</span>
+    <span class="kpi-sub">{{ kpis.teachers_total }} teachers · {{ kpis.parents_total }} parents</span>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">Fee payments</span>
+    <span class="kpi-value">{{ kpis.payments_total_display }}</span>
+    <span class="kpi-sub">{{ kpis.payments_count }} completed payment{{ kpis.payments_count|pluralize }}</span>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">New schools</span>
+    <span class="kpi-value">{{ kpis.new_schools_30d }}</span>
+    <span class="kpi-sub">Registered in the last 30 days</span>
+  </article>
+  <article class="kpi-card">
+    <span class="kpi-label">Users by role</span>
+    <span class="kpi-value" style="font-size:1rem;line-height:1.6;">
+      {% for role, count in role_totals.items %}
+        {{ role|title }} {{ count }}{% if not forloop.last %} · {% endif %}
+      {% empty %}
+        —
+      {% endfor %}
+    </span>
+  </article>
+</section>
+
+<section id="schools" class="dash-panel">
+  <h2 class="dash-panel-title">All schools</h2>
+  <div class="accent-bar"></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>School</th>
+          <th>Subscription</th>
+          <th>Status</th>
+          <th>Users</th>
+          <th>Students</th>
+          <th>Teachers</th>
+          <th>Parents</th>
+          <th>Stripe</th>
+          <th>Joined</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for school in schools %}
+        <tr>
+          <td>
+            <strong>{{ school.name }}</strong>
+            {% if school.contact_email %}
+              <br><span style="color:var(--muted);font-size:0.82rem;">{{ school.contact_email }}</span>
+            {% endif %}
+          </td>
+          <td><span class="pill pill-tier-{{ school.subscription_tier }}">{{ school.get_subscription_tier_display }}</span></td>
+          <td>
+            {% if school.status == 'active' %}
+              <span class="pill pill-ok">Active</span>
+            {% else %}
+              <span class="pill pill-warn">Suspended</span>
+            {% endif %}
+          </td>
+          <td>{{ school.user_count }}</td>
+          <td>{{ school.student_count }}</td>
+          <td>{{ school.teacher_count }}</td>
+          <td>{{ school.parent_count }}</td>
+          <td>{% if school.stripe_account_id %}Connected{% else %}—{% endif %}</td>
+          <td>{{ school.created_at|date:"j M Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" class="placeholder-row">No schools registered yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="split dash-split">
+  <section id="subscriptions" class="dash-panel">
+    <h2 class="dash-panel-title">Subscriptions</h2>
+    <div class="accent-bar"></div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th>Schools</th>
+            <th>Price / mo</th>
+            <th>MRR share</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in subscription_rows %}
+          <tr>
+            <td><strong>{{ row.label }}</strong></td>
+            <td>{{ row.school_count }}</td>
+            <td>{{ row.monthly_display }}</td>
+            <td>{{ row.mrr_contribution_display }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3"><strong>Total estimated MRR</strong></td>
+            <td><strong>{{ kpis.mrr_display }}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>
+
+  <section id="users" class="dash-panel">
+    <h2 class="dash-panel-title">Recent sign-ups</h2>
+    <div class="accent-bar"></div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>School</th>
+            <th>Joined</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in recent_users %}
+          <tr>
+            <td>
+              <strong>{{ u.username }}</strong>
+              {% if u.get_full_name %}<br><span style="color:var(--muted);font-size:0.82rem;">{{ u.get_full_name }}</span>{% endif %}
+            </td>
+            <td>{{ u.get_role_display }}</td>
+            <td>{% if u.school %}{{ u.school.name }}{% else %}—{% endif %}</td>
+            <td>{{ u.date_joined|date:"j M Y H:i" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="placeholder-row">No users yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
 </div>
+
+<section id="audit" class="dash-panel">
+  <h2 class="dash-panel-title">Platform activity</h2>
+  <div class="accent-bar"></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Action</th>
+          <th>User</th>
+          <th>School</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in recent_audit %}
+        <tr>
+          <td>{{ entry.created_at|date:"j M H:i" }}</td>
+          <td><span class="pill">{{ entry.get_action_display }}</span></td>
+          <td>{% if entry.user %}{{ entry.user.username }}{% else %}—{% endif %}</td>
+          <td>{% if entry.school %}{{ entry.school.name }}{% else %}Platform{% endif %}</td>
+          <td style="max-width:280px;">{{ entry.detail|default:entry.resource|truncatechars:80 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="placeholder-row">No audit entries yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
 {% endblock %}

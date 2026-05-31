@@ -24,6 +24,39 @@ class DemoSeedTests(TestCase):
         self.assertTrue(ParentProfile.objects.filter(user=parent).exists())
         self.assertTrue(admin.check_password('admin1234'))
         self.assertTrue(parent.check_password('demo1234'))
+        super_user = User.objects.get(username='super')
+        self.assertEqual(super_user.role, 'super_admin')
+        self.assertTrue(super_user.check_password('super1234'))
+
+
+class SuperAdminDashboardTests(TestCase):
+    def setUp(self):
+        call_command('ensure_platform_seed')
+        self.super_user = User.objects.get(username='super')
+        self.parent = User.objects.get(username='parent_demo')
+
+    def test_super_admin_dashboard_loads(self):
+        self.client.force_login(self.super_user)
+        response = self.client.get(reverse('pages:dashboard_super_admin'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Platform overview')
+        self.assertContains(response, 'Al-Noor Academy')
+        self.assertContains(response, 'Subscriptions')
+        self.assertContains(response, 'Platform activity')
+
+    def test_parent_cannot_access_super_admin_dashboard(self):
+        self.client.force_login(self.parent)
+        response = self.client.get(reverse('pages:dashboard_super_admin'))
+        self.assertRedirects(response, reverse('pages:dashboard'), fetch_redirect_response=False)
+
+    def test_super_login_lands_on_super_admin_dashboard(self):
+        response = self.client.post(reverse('login'), {
+            'username': 'super',
+            'password': 'super1234',
+        })
+        self.assertRedirects(response, reverse('pages:dashboard'), fetch_redirect_response=False)
+        response = self.client.get(reverse('pages:dashboard'))
+        self.assertRedirects(response, reverse('pages:dashboard_super_admin'), fetch_redirect_response=False)
 
 
 class HomePageTests(TestCase):
@@ -31,8 +64,8 @@ class HomePageTests(TestCase):
         response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Subscription plans for schools')
-        self.assertContains(response, 'Compare plans side by side')
-        self.assertContains(response, 'Hifz tracking &amp; sign-off')
+        self.assertContains(response, 'Students of the week')
+        self.assertContains(response, 'Schools of the week')
         self.assertContains(response, 'Register your school')
 
     def test_home_shows_dashboard_prompt_when_logged_in(self):
@@ -135,10 +168,45 @@ class WebAuthTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'already registered')
 
-    def test_login_page_shows_demo_credentials(self):
+    def test_school_admin_can_log_in_after_register_and_logout(self):
+        self.client.post(reverse('pages:register_school'), {
+            'school_name': 'Sunrise Madrasa',
+            'contact_email': 'office@sunrise.example',
+            'first_name': 'Admin',
+            'last_name': 'User',
+            'username': 'sunriseadmin',
+            'email': 'admin@sunrise.example',
+            'password1': 'securepass1',
+            'password2': 'securepass1',
+        })
+        self.client.get(reverse('logout'))
+        response = self.client.post(reverse('login'), {
+            'username': 'sunriseadmin',
+            'password': 'securepass1',
+        })
+        self.assertRedirects(response, reverse('pages:dashboard'), fetch_redirect_response=False)
+
+    def test_school_admin_subscription_keeps_sidebar_and_school_name(self):
+        self.client.post(reverse('pages:register_school'), {
+            'school_name': 'Oak Tree Academy',
+            'contact_email': 'a@oak.example',
+            'first_name': 'A',
+            'last_name': 'B',
+            'username': 'oakadmin',
+            'email': 'a@oak.example',
+            'password1': 'securepass1',
+            'password2': 'securepass1',
+        })
+        response = self.client.get(reverse('pages:subscription'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Oak Tree Academy')
+        self.assertContains(response, 'Subscription')
+        self.assertContains(response, 'Timetable')
+
+    def test_login_page_has_no_demo_credentials(self):
         response = self.client.get(reverse('login'))
-        self.assertContains(response, 'schooladmin')
-        self.assertContains(response, 'parent_demo')
+        self.assertNotContains(response, 'Demo logins')
+        self.assertNotContains(response, 'super1234')
 
     def test_login_redirects_to_dashboard(self):
         User.objects.create_user(

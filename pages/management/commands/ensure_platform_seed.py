@@ -54,6 +54,20 @@ class Command(BaseCommand):
                     defaults={'school': school},
                 )
 
+        super_user, super_created = User.objects.get_or_create(
+            username='super',
+            defaults={'email': 'super@esa.demo'},
+        )
+        super_user.email = 'super@esa.demo'
+        super_user.first_name = 'Super'
+        super_user.last_name = 'Admin'
+        super_user.role = 'super_admin'
+        super_user.school = None
+        super_user.set_password('super1234')
+        super_user.is_active = True
+        super_user.save()
+        self.stdout.write(f"{'Created' if super_created else 'Updated'} super (super_admin)")
+
         self.stdout.write(self.style.SUCCESS(
-            'Demo logins ready — schooladmin / admin1234 · parent_demo / demo1234'
+            'Demo logins — super / super1234 · schooladmin / admin1234 · parent_demo / demo1234'
         ))

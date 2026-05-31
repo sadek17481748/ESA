@@ -1,31 +1,26 @@
-"""
-core_app/tests.py
-TenantMiddleware sets request.tenant_school from the logged-in user.
-"""
-from django.contrib.auth import get_user_model
-from django.test import RequestFactory, TestCase
+"""core_app/tests.py — homepage leaderboards."""
+from django.test import TestCase
+from django.urls import reverse
 
-from core_app.middleware import TenantMiddleware
 from schools.models import School
+from students.models import StudentProfile
 
-User = get_user_model()
 
-
-class TenantMiddlewareTests(TestCase):
-    def test_sets_tenant_school_on_request(self):
-        school = School.objects.create(name='Test')
-        user = User.objects.create_user(
-            username='u1', password='x', role='teacher', school=school,
+class HomeLeaderboardTests(TestCase):
+    def test_homepage_shows_leaderboard_sections(self):
+        School.objects.create(name='Test School', contact_email='a@test.com')
+        StudentProfile.objects.create(
+            school=School.objects.get(name='Test School'),
+            first_name='Ali',
+            last_name='Khan',
+            year_group='Year 7',
         )
-        user.backend = 'django.contrib.auth.backends.ModelBackend'
+        response = self.client.get(reverse('home'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Students of the week')
+        self.assertContains(response, 'Schools of the week')
 
-        factory = RequestFactory()
-        request = factory.get('/')
-        request.user = user
-
-        def get_response(req):
-            return req
-
-        middleware = TenantMiddleware(get_response)
-        middleware(request)
-        self.assertEqual(request.tenant_school, school)
+    def test_logged_in_home_skips_leaderboards(self):
+        response = self.client.get(reverse('home'))
+        # guest sees leaderboards
+        self.assertContains(response, 'Students of the week')

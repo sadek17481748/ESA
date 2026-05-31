@@ -11,6 +11,7 @@
   <a href="{% url 'logout' %}">Log out</a>
 {% else %}
   <a href="#benefits">Benefits</a>
+  <a href="#leaderboards">Leaderboards</a>
   <a href="#pricing">Pricing</a>
   <a href="{% url 'login' %}">Log in</a>
   <a class="btn-outline" href="{% url 'pages:register_school' %}">Register your school</a>
@@ -102,6 +103,78 @@
       <label for="carousel-3" role="tab" aria-label="Parent portal"></label>
       <label for="carousel-4" role="tab" aria-label="School admin"></label>
     </div>
+  </div>
+</section>
+
+<section class="leaderboard-section" id="leaderboards">
+  <div class="section-head">
+    <h2>Students of the week</h2>
+    <p class="lead">Top 10 students by homework and attendance activity over the last 7 days.</p>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table leaderboard-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Student</th>
+          <th>School</th>
+          <th>Year</th>
+          <th>Homework</th>
+          <th>Attendance</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in students_of_week %}
+        <tr>
+          <td><span class="rank-badge{% if row.rank <= 3 %} rank-top{% endif %}">{{ row.rank }}</span></td>
+          <td><strong>{{ row.name }}</strong></td>
+          <td>{{ row.school }}</td>
+          <td>{{ row.year_group }}</td>
+          <td>{{ row.homework }}</td>
+          <td>{{ row.attendance }}</td>
+          <td><strong>{{ row.score }}</strong></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="placeholder-row">No student activity yet this week — check back soon.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-head" style="margin-top:2.5rem;">
+    <h2>Schools of the week</h2>
+    <p class="lead">Schools leading the platform for sign-ups, attendance, and engagement this week.</p>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table leaderboard-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>School</th>
+          <th>Plan</th>
+          <th>Students</th>
+          <th>New users</th>
+          <th>Sessions</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in schools_of_week %}
+        <tr>
+          <td><span class="rank-badge{% if row.rank <= 3 %} rank-top{% endif %}">{{ row.rank }}</span></td>
+          <td><strong>{{ row.name }}</strong></td>
+          <td><span class="pill pill-tier-{{ row.tier_key }}">{{ row.tier }}</span></td>
+          <td>{{ row.students }}</td>
+          <td>{{ row.new_users }}</td>
+          <td>{{ row.sessions }}</td>
+          <td><strong>{{ row.score }}</strong></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="placeholder-row">No schools on the platform yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </section>
 

@@ -33,6 +33,9 @@ class EsaAuthenticationForm(AuthenticationForm):
         'inactive': 'This account is inactive.',
     }
 
+    def clean_username(self):
+        return self.cleaned_data.get('username', '').strip()
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({
@@ -111,7 +114,7 @@ class RegisterForm(forms.Form):
         school = data['school']
 
         user = User.objects.create_user(
-            username=data['username'],
+            username=data['username'].strip(),
             email=data['email'],
             password=data['password1'],
             first_name=data['first_name'],
@@ -201,7 +204,7 @@ class SchoolRegisterForm(forms.Form):
             contact_email=data['contact_email'],
         )
         user = User.objects.create_user(
-            username=data['username'],
+            username=data['username'].strip(),
             email=data['email'],
             password=data['password1'],
             first_name=data['first_name'],

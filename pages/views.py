@@ -11,9 +11,11 @@ from django.urls import reverse
 from audit.models import AuditLog
 from audit.services import log_action
 
+from .decorators import role_required
 from .forms import EsaAuthenticationForm, RegisterForm, SchoolRegisterForm, active_schools
+from .portal import build_portal_context
+from .super_admin_stats import build_super_admin_dashboard_context
 
-# Maps user.role to the dashboard they land on after login
 ROLE_DASHBOARD = {
     'super_admin': 'pages:dashboard_super_admin',
     'school_admin': 'pages:dashboard_school_admin',
@@ -24,7 +26,6 @@ ROLE_DASHBOARD = {
 
 
 def dashboard_router(request):
-    """Send logged-in users to the right dashboard."""
     if not request.user.is_authenticated:
         return redirect('login')
     url_name = ROLE_DASHBOARD.get(request.user.role, 'home')
@@ -32,7 +33,6 @@ def dashboard_router(request):
 
 
 def register(request):
-    """Parent or student sign-up — pick a school from the list."""
     if request.user.is_authenticated:
         return redirect('pages:dashboard')
     has_schools = active_schools().exists()
@@ -59,7 +59,6 @@ def register(request):
 
 
 def register_school(request):
-    """Register a new school — adds it to the parent/student school picker."""
     if request.user.is_authenticated:
         return redirect('pages:dashboard')
     if request.method == 'POST':
@@ -82,8 +81,6 @@ def register_school(request):
 
 
 class EsaLoginView(LoginView):
-    """Session login styled like the wireframe."""
-
     template_name = 'registration/login.html'
     authentication_form = EsaAuthenticationForm
     redirect_authenticated_user = True
@@ -91,31 +88,40 @@ class EsaLoginView(LoginView):
     def get_success_url(self):
         return reverse('pages:dashboard')
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        log_action(
+            user=self.request.user,
+            action=AuditLog.ACTION_LOGIN,
+            resource='User',
+            resource_id=self.request.user.pk,
+            detail='Session login',
+            request=self.request,
+        )
+        return response
+
 
 def logout_view(request):
-    """Log out and return to the landing page (works from nav links)."""
     logout(request)
     return redirect('home')
 
 
-def _placeholder(request, template_name, page_title, page_meta=''):
-    return render(request, template_name, {
-        'page_title': page_title,
-        'page_meta': page_meta or 'Placeholder — data wiring comes later.',
-    })
+def _portal_page(request, template_name, page_title, page_meta=''):
+    ctx = build_portal_context(request, page_title, page_meta)
+    return render(request, template_name, ctx)
 
 
 @login_required
 def dashboard_parent(request):
-    return _placeholder(
+    return _portal_page(
         request, 'pages/dashboard/parent.html',
-        'Parent portal', 'Verified progress and school home communication.',
+        'Parent overview', 'Progress, attendance, and fees for your children.',
     )
 
 
 @login_required
 def dashboard_teacher(request):
-    return _placeholder(
+    return _portal_page(
         request, 'pages/dashboard/teacher.html',
         'Teacher workspace', "Today's sessions, assignments, and verification queues.",
     )
@@ -123,78 +129,81 @@ def dashboard_teacher(request):
 
 @login_required
 def dashboard_student(request):
-    return _placeholder(
+    return _portal_page(
         request, 'pages/dashboard/student.html',
-        'Student portal', 'Timetable, homework, and progress in one place.',
+        'Student overview', 'Timetable, homework, and progress in one place.',
     )
 
 
 @login_required
 def dashboard_school_admin(request):
-    return _placeholder(
+    return _portal_page(
         request, 'pages/dashboard/school_admin.html',
-        'School admin', 'Staff, classes, fees, and school settings.',
+        'School overview', 'Staff, classes, fees, and settings for your school.',
     )
 
 
-@login_required
+@role_required('super_admin')
 def dashboard_super_admin(request):
-    return _placeholder(
-        request, 'pages/dashboard/super_admin.html',
-        'Platform admin', 'Schools, subscriptions, and platform analytics.',
-    )
+    ctx = build_super_admin_dashboard_context()
+    ctx.update(build_portal_context(
+        request,
+        'Platform overview',
+        'Live view of schools, subscriptions, users, and platform activity.',
+    ))
+    return render(request, 'pages/dashboard/super_admin.html', ctx)
 
 
 @login_required
 def page_attendance(request):
-    return _placeholder(request, 'pages/features/attendance.html', 'Attendance')
+    return _portal_page(request, 'pages/features/attendance.html', 'Attendance')
 
 
 @login_required
 def page_behaviour(request):
-    return _placeholder(request, 'pages/features/behaviour.html', 'Behaviour')
+    return _portal_page(request, 'pages/features/behaviour.html', 'Behaviour')
 
 
 @login_required
 def page_exams(request):
-    return _placeholder(request, 'pages/features/exams.html', 'Exams')
+    return _portal_page(request, 'pages/features/exams.html', 'Exams')
 
 
 @login_required
 def page_hifz(request):
-    return _placeholder(request, 'pages/features/hifz_progress.html', 'Hifz progress')
+    return _portal_page(request, 'pages/features/hifz_progress.html', 'Hifz progress')
 
 
 @login_required
 def page_messages(request):
-    return _placeholder(request, 'pages/features/messages.html', 'Messages')
+    return _portal_page(request, 'pages/features/messages.html', 'Messages')
 
 
 @login_required
 def page_payments_info(request):
-    return _placeholder(request, 'pages/features/payments_info.html', 'Payments overview')
+    return _portal_page(request, 'pages/features/payments_info.html', 'Payments overview')
 
 
 @login_required
 def page_quran(request):
-    return _placeholder(request, 'pages/features/quran_annotation.html', 'Qur’an annotation')
+    return _portal_page(request, 'pages/features/quran_annotation.html', 'Qur’an annotation')
 
 
 @login_required
 def page_subscription(request):
-    return _placeholder(request, 'pages/features/subscription.html', 'Subscription plans')
+    return _portal_page(request, 'pages/features/subscription.html', 'Subscription plans')
 
 
 @login_required
 def page_timetable(request):
-    return _placeholder(request, 'pages/features/timetable.html', 'Timetable')
+    return _portal_page(request, 'pages/features/timetable.html', 'Timetable')
 
 
 @login_required
 def page_worksheets(request):
-    return _placeholder(request, 'pages/features/worksheets.html', 'Worksheets & homework')
+    return _portal_page(request, 'pages/features/worksheets.html', 'Worksheets & homework')
 
 
 @login_required
 def page_analytics(request):
-    return _placeholder(request, 'pages/features/analytics.html', 'Analytics')
+    return _portal_page(request, 'pages/features/analytics.html', 'Analytics')

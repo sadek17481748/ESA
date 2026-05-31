@@ -1,13 +1,12 @@
 <p class="sidebar-title">School</p>
 <nav class="sidebar-nav">
-  <a href="{% url 'pages:dashboard_school_admin' %}">Overview</a>
-  <a href="{% url 'pages:analytics' %}">Analytics</a>
-  <a href="{% url 'pages:subscription' %}">Subscription</a>
-  <a href="{% url 'payments:fee_list' %}">Fees</a>
+  <a href="{% url 'pages:dashboard_school_admin' %}"{% if current_portal_url == 'dashboard_school_admin' %} aria-current="page"{% endif %}>Overview</a>
+  <a href="{% url 'pages:analytics' %}"{% if current_portal_url == 'analytics' %} aria-current="page"{% endif %}>Analytics</a>
+  <a href="{% url 'pages:subscription' %}"{% if current_portal_url == 'subscription' %} aria-current="page"{% endif %}>Subscription</a>
+  <a href="{% url 'payments:fee_list' %}"{% if current_portal_url == 'fee_list' %} aria-current="page"{% endif %}>Fees</a>
 </nav>
 <p class="sidebar-title">Setup</p>
 <nav class="sidebar-nav">
-  <a href="{% url 'pages:timetable' %}">Timetable</a>
-  <a href="{% url 'pages:attendance' %}">Attendance</a>
-  <a href="{% url 'admin:index' %}">Admin panel</a>
+  <a href="{% url 'pages:timetable' %}"{% if current_portal_url == 'timetable' %} aria-current="page"{% endif %}>Timetable</a>
+  <a href="{% url 'pages:attendance' %}"{% if current_portal_url == 'attendance' %} aria-current="page"{% endif %}>Attendance</a>
 </nav>

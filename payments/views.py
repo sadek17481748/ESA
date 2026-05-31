@@ -19,6 +19,8 @@ import stripe
 from .models import FeeItem, Payment
 from .services import create_fee_checkout_session, retrieve_checkout_session
 
+from pages.portal import build_portal_context
+
 
 @login_required
 def fee_list(request):
@@ -34,6 +36,7 @@ def fee_list(request):
         'outstanding': outstanding,
         'paid': paid,
         'publishable_key': settings.STRIPE_PUBLISHABLE_KEY,
+        **build_portal_context(request, 'School fees', 'Outstanding and paid invoices for your children.'),
     })
 
 

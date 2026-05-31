@@ -1,12 +1,10 @@
-{% extends "base/marketing.html" %}
-{% block title %}{{ page_title }} — ESA{% endblock %}
-{% block content %}
+{% extends "base/portal.html" %}
+{% block portal_content %}
 <section class="panel">
-  <h1>{{ page_title }}</h1>
   <div class="accent-bar"></div>
   <div class="grid-cards">
-    <article class="card"><h2>Standard</h2><p>£49 / month — placeholder</p></article>
-    <article class="card"><h2>Premium</h2><p>£99 / month — placeholder</p></article>
+    <article class="card"><h2>Standard</h2><p>£49 / month — upgrade from your current {{ school_tier|default:"Free" }} plan.</p></article>
+    <article class="card"><h2>Premium</h2><p>£99 / month — full payments, analytics, and messaging.</p></article>
   </div>
 </section>
 {% endblock %}

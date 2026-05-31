@@ -1,10 +1,10 @@
-{% extends "base/dashboard.html" %}
-{% block title %}Student — ESA{% endblock %}
-{% block brand_tag %}Student{% endblock %}
-{% block sidebar %}{% include "pages/includes/sidebar_student.html" %}{% endblock %}
-{% block page_title %}{{ page_title }}{% endblock %}
-{% block dashboard_content %}
+{% extends "base/portal.html" %}
+{% block portal_content %}
 <div class="grid-cards">
+  <article class="card">
+    <h2>Welcome, {{ user_display }}</h2>
+    <p>Student portal for <strong>{{ school_name }}</strong>.</p>
+  </article>
   <article class="card"><h2>Today’s timetable</h2><p>Next lesson placeholder</p></article>
   <article class="card"><h2>Homework due</h2><p>Assignments placeholder</p></article>
   <article class="card"><h2>Hifz progress</h2><p>Signed-off surahs placeholder</p></article>
