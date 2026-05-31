@@ -2,19 +2,26 @@
 pages/views.py
 Portal UI — login redirect, registration, dashboards, and placeholder feature pages.
 """
+import json
+
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from django.shortcuts import redirect, render
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
+from academics.models import ClassGroup
 from audit.models import AuditLog
 from audit.services import log_action
+from teachers.models import TeacherProfile
 
 from .decorators import role_required
-from .forms import EsaAuthenticationForm, RegisterForm, SchoolRegisterForm, active_schools
+from .forms import AddTeacherForm, EsaAuthenticationForm, RegisterForm, SchoolRegisterForm, active_schools
 from .portal import build_portal_context
 from .super_admin_stats import build_super_admin_dashboard_context
+from .timetable_service import PERIODS, WEEKDAYS, build_timetable_grid, ensure_school_subjects, save_timetable
 
 ROLE_DASHBOARD = {
     'super_admin': 'pages:dashboard_super_admin',
@@ -137,10 +144,133 @@ def dashboard_student(request):
 
 @login_required
 def dashboard_school_admin(request):
-    return _portal_page(
-        request, 'pages/dashboard/school_admin.html',
-        'School overview', 'Staff, classes, fees, and settings for your school.',
+    school = request.user.school
+    teachers = TeacherProfile.objects.filter(school=school).select_related('user') if school else []
+    ctx = build_portal_context(
+        request,
+        'School overview',
+        'Staff, classes, fees, and settings for your school.',
     )
+    ctx['teachers'] = teachers
+    ctx['teacher_count'] = teachers.count()
+    return render(request, 'pages/dashboard/school_admin.html', ctx)
+
+
+@role_required('school_admin')
+def school_admin_teachers(request):
+    school = request.user.school
+    ctx = build_portal_context(request, 'Teachers', 'Staff accounts at your school.')
+    ctx['teachers'] = TeacherProfile.objects.filter(school=school).select_related('user')
+    return render(request, 'pages/school_admin/teachers.html', ctx)
+
+
+@role_required('school_admin')
+def school_admin_add_teacher(request):
+    school = request.user.school
+    if request.method == 'POST':
+        form = AddTeacherForm(request.POST)
+        if form.is_valid():
+            user, profile = form.save(school)
+            log_action(
+                user=request.user,
+                action=AuditLog.ACTION_CREATE,
+                resource='TeacherProfile',
+                resource_id=profile.pk,
+                detail=f'Created teacher {user.username}',
+                request=request,
+            )
+            return redirect('pages:school_admin_teachers')
+    else:
+        form = AddTeacherForm()
+    ctx = build_portal_context(
+        request,
+        'Add teacher',
+        'Create login details — teachers can manage timetables, homework, registers, and Hifz/Alimiyah work.',
+    )
+    ctx['form'] = form
+    return render(request, 'pages/school_admin/add_teacher.html', ctx)
+
+
+def _teacher_profile_for_user(user):
+    if user.role != 'teacher':
+        return None
+    return TeacherProfile.objects.filter(user=user).first()
+
+
+@role_required('school_admin', 'teacher')
+def page_timetable(request):
+    school = request.user.school
+    ensure_school_subjects(school)
+    classes = ClassGroup.objects.filter(school=school).select_related(
+        'teacher', 'teacher__user', 'year_group',
+    )
+    class_id = request.GET.get('class')
+    if class_id:
+        class_group = get_object_or_404(ClassGroup, pk=class_id, school=school)
+    else:
+        class_group = classes.first()
+
+    teacher_profile = _teacher_profile_for_user(request.user)
+    if request.user.role == 'teacher' and teacher_profile:
+        if class_group and class_group.teacher_id != teacher_profile.pk:
+            owned = classes.filter(teacher=teacher_profile).first()
+            if owned:
+                class_group = owned
+
+    subjects = ensure_school_subjects(school)
+    grid = build_timetable_grid(class_group) if class_group else {}
+
+    periods = [
+        {'start': s.strftime('%H:%M'), 'end': e.strftime('%H:%M'), 'label': s.strftime('%H:%M')}
+        for s, e in PERIODS
+    ]
+    weekday_labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+    ctx = build_portal_context(
+        request,
+        'Timetable',
+        'Drag subjects onto the grid — saved for your school with class and teacher.',
+    )
+    ctx.update({
+        'classes': classes,
+        'class_group': class_group,
+        'subjects': subjects,
+        'periods': periods,
+        'weekdays': WEEKDAYS,
+        'weekday_labels': weekday_labels,
+        'grid_json': json.dumps({f'{w}-{t}': v for (w, t), v in grid.items()}) if class_group else '{}',
+        'can_edit': request.user.role == 'school_admin' or teacher_profile is not None,
+    })
+    return render(request, 'pages/features/timetable.html', ctx)
+
+
+@role_required('school_admin', 'teacher')
+@require_POST
+def timetable_save(request):
+    school = request.user.school
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    class_group = get_object_or_404(ClassGroup, pk=payload.get('class_group_id'), school=school)
+    teacher_profile = _teacher_profile_for_user(request.user)
+    if request.user.role == 'teacher' and class_group.teacher_id != teacher_profile.pk:
+        return JsonResponse({'error': 'Not allowed for this class'}, status=403)
+    if not teacher_profile and request.user.role == 'school_admin':
+        teacher_profile = class_group.teacher
+
+    slots = payload.get('slots', [])
+    save_timetable(class_group, teacher_profile, slots)
+    log_action(
+        user=request.user,
+        action=AuditLog.ACTION_UPDATE,
+        resource='TimetableSlot',
+        resource_id=class_group.pk,
+        detail=f'Saved timetable for {class_group.name}',
+        request=request,
+    )
+    return JsonResponse({'ok': True, 'count': len(slots)})
 
 
 @role_required('super_admin')
@@ -192,11 +322,6 @@ def page_quran(request):
 @login_required
 def page_subscription(request):
     return _portal_page(request, 'pages/features/subscription.html', 'Subscription plans')
-
-
-@login_required
-def page_timetable(request):
-    return _portal_page(request, 'pages/features/timetable.html', 'Timetable')
 
 
 @login_required
