@@ -11,10 +11,10 @@ from teachers.models import TeacherProfile
 
 
 class TimetableSlot(models.Model):
-    MON, TUE, WED, THU, FRI = 0, 1, 2, 3, 4
+    MON, TUE, WED, THU, FRI, SAT, SUN = 0, 1, 2, 3, 4, 5, 6
     WEEKDAY_CHOICES = [
         (MON, 'Monday'), (TUE, 'Tuesday'), (WED, 'Wednesday'),
-        (THU, 'Thursday'), (FRI, 'Friday'),
+        (THU, 'Thursday'), (FRI, 'Friday'), (SAT, 'Saturday'), (SUN, 'Sunday'),
     ]
 
     school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='timetable_slots')
