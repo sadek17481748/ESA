@@ -71,3 +71,6 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             'Demo logins — super / super1234 · schooladmin / admin1234 · parent_demo / demo1234'
         ))
+
+        from django.core.management import call_command
+        call_command('seed_alnoor_demo')
