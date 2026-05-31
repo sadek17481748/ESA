@@ -10,6 +10,7 @@ from django.db import transaction
 from parents.models import ParentProfile
 from schools.models import School
 from students.models import StudentProfile
+from academics.models import ClassGroup
 
 User = get_user_model()
 
@@ -280,3 +281,54 @@ class AddTeacherForm(forms.Form):
             subject=data.get('subject', ''),
         )
         return user, profile
+
+
+class CreateSubjectForm(forms.Form):
+    name = forms.CharField(
+        max_length=120,
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Tajweed'}),
+    )
+    track = forms.ChoiceField(
+        choices=[
+            ('general', 'General'),
+            ('hifz', 'Hifz'),
+            ('alimiyah', 'Alimiyah'),
+        ],
+        initial='general',
+        widget=forms.Select(attrs={'class': 'form-input'}),
+    )
+    code = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Optional short code'}),
+    )
+
+    def clean_name(self):
+        return self.cleaned_data['name'].strip()
+
+
+class TimetableForm(forms.Form):
+    name = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Year 7 — Spring term'}),
+    )
+    class_group = forms.ModelChoiceField(
+        label='Class (optional)',
+        queryset=ClassGroup.objects.none(),
+        required=False,
+        empty_label='Whole school / no class',
+        widget=forms.Select(attrs={'class': 'form-input'}),
+    )
+    notes = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-input', 'rows': 2, 'placeholder': 'Optional notes'}),
+    )
+
+    def __init__(self, school, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['class_group'].queryset = ClassGroup.objects.filter(
+            school=school,
+        ).order_by('name')
+
+    def clean_name(self):
+        return self.cleaned_data['name'].strip()

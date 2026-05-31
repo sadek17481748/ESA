@@ -38,17 +38,27 @@ class SchoolAdminTeacherTests(TestCase):
         admin = User.objects.get(username='schooladmin')
         self.client.force_login(admin)
         from subjects.models import Subject
+        from timetable.models import Timetable, TimetableSlot
         school = School.objects.get(name='Al-Noor Academy')
         subject = Subject.objects.filter(school=school).first()
         class_group = ClassGroup.objects.filter(school=school).first()
         self.assertIsNotNone(class_group)
+        timetable = Timetable.objects.filter(school=school, class_group=class_group).first()
+        if not timetable:
+            timetable = Timetable.objects.create(
+                school=school,
+                name=f'{class_group.name} timetable',
+                class_group=class_group,
+            )
         payload = json.dumps({
+            'timetable_id': timetable.pk,
             'class_group_id': class_group.pk,
             'slots': [{
                 'weekday': 0,
                 'start_time': '08:30',
                 'end_time': '09:15',
                 'subject_id': subject.pk,
+                'teacher_id': class_group.teacher_id,
             }],
         })
         response = self.client.post(
@@ -57,8 +67,34 @@ class SchoolAdminTeacherTests(TestCase):
             content_type='application/json',
         )
         self.assertEqual(response.status_code, 200)
-        from timetable.models import TimetableSlot
-        self.assertEqual(TimetableSlot.objects.filter(class_group=class_group).count(), 1)
+        self.assertEqual(TimetableSlot.objects.filter(timetable=timetable).count(), 1)
+
+    def test_create_timetable_and_subject(self):
+        admin = User.objects.get(username='schooladmin')
+        self.client.force_login(admin)
+        school = School.objects.get(name='Al-Noor Academy')
+        class_group = ClassGroup.objects.filter(school=school).first()
+        response = self.client.post(
+            reverse('pages:timetable_create'),
+            data=json.dumps({
+                'name': 'Ramadan schedule',
+                'class_group_id': class_group.pk,
+                'notes': 'Shortened days',
+            }),
+            content_type='application/json',
+        )
+        self.assertEqual(response.status_code, 200)
+        from timetable.models import Timetable
+        self.assertTrue(Timetable.objects.filter(school=school, name='Ramadan schedule').exists())
+
+        response = self.client.post(
+            reverse('pages:subject_create'),
+            data=json.dumps({'name': 'Tajweed', 'track': 'hifz', 'code': 'TAJ'}),
+            content_type='application/json',
+        )
+        self.assertEqual(response.status_code, 200)
+        from subjects.models import Subject
+        self.assertTrue(Subject.objects.filter(school=school, name='Tajweed').exists())
 
 
 class DemoSeedTests(TestCase):

@@ -26,6 +26,10 @@ urlpatterns = [
     path('school-admin/teachers/add/', views.school_admin_add_teacher, name='school_admin_add_teacher'),
     path('timetable/', views.page_timetable, name='timetable'),
     path('timetable/save/', views.timetable_save, name='timetable_save'),
+    path('timetable/create/', views.timetable_create, name='timetable_create'),
+    path('timetable/update/', views.timetable_update, name='timetable_update'),
+    path('timetable/delete/', views.timetable_delete, name='timetable_delete'),
+    path('timetable/subject/create/', views.subject_create, name='subject_create'),
     path('worksheets/', views.page_worksheets, name='worksheets'),
     path('analytics/', views.page_analytics, name='analytics'),
 ]

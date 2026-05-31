@@ -17,11 +17,34 @@ from audit.models import AuditLog
 from audit.services import log_action
 from teachers.models import TeacherProfile
 
+from timetable.models import Timetable
+
 from .decorators import role_required
-from .forms import AddTeacherForm, EsaAuthenticationForm, RegisterForm, SchoolRegisterForm, active_schools
+from .forms import (
+    AddTeacherForm,
+    CreateSubjectForm,
+    EsaAuthenticationForm,
+    RegisterForm,
+    SchoolRegisterForm,
+    TimetableForm,
+    active_schools,
+)
 from .portal import build_portal_context
 from .super_admin_stats import build_super_admin_dashboard_context
-from .timetable_service import PERIODS, WEEKDAYS, build_timetable_grid, ensure_school_subjects, save_timetable
+from .timetable_service import (
+    PERIODS,
+    WEEKDAYS,
+    build_timetable_grid,
+    create_subject,
+    create_timetable,
+    get_or_create_default_timetable,
+    list_school_subjects,
+    list_timetables,
+    rename_timetable,
+    save_timetable,
+    teachers_for_json,
+    user_can_edit_timetable,
+)
 
 ROLE_DASHBOARD = {
     'super_admin': 'pages:dashboard_super_admin',
@@ -200,7 +223,7 @@ def _teacher_profile_for_user(user):
 @role_required('school_admin', 'teacher')
 def page_timetable(request):
     school = request.user.school
-    ensure_school_subjects(school)
+    teacher_profile = _teacher_profile_for_user(request.user)
     classes = ClassGroup.objects.filter(school=school).select_related(
         'teacher', 'teacher__user', 'year_group',
     )
@@ -210,36 +233,59 @@ def page_timetable(request):
     else:
         class_group = classes.first()
 
-    teacher_profile = _teacher_profile_for_user(request.user)
-    if request.user.role == 'teacher' and teacher_profile:
-        if class_group and class_group.teacher_id != teacher_profile.pk:
+    if request.user.role == 'teacher' and teacher_profile and class_group:
+        if class_group.teacher_id != teacher_profile.pk:
             owned = classes.filter(teacher=teacher_profile).first()
             if owned:
                 class_group = owned
 
-    subjects = ensure_school_subjects(school)
-    grid = build_timetable_grid(class_group) if class_group else {}
+    timetables = list(list_timetables(school, class_group))
+    timetable_id = request.GET.get('timetable')
+    timetable = None
+    if timetable_id:
+        timetable = get_object_or_404(Timetable, pk=timetable_id, school=school)
+        if timetable.class_group_id and class_group and timetable.class_group_id != class_group.pk:
+            class_group = timetable.class_group
+    elif timetables:
+        timetable = timetables[0]
+    elif class_group:
+        timetable = get_or_create_default_timetable(school, class_group)
+        timetables = list(list_timetables(school, class_group))
+
+    if timetable and not class_group and timetable.class_group_id:
+        class_group = timetable.class_group
+
+    subjects = list_school_subjects(school)
+    teachers = teachers_for_json(school)
+    grid = build_timetable_grid(timetable) if timetable else {}
 
     periods = [
         {'start': s.strftime('%H:%M'), 'end': e.strftime('%H:%M'), 'label': s.strftime('%H:%M')}
         for s, e in PERIODS
     ]
     weekday_labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    can_edit = timetable and user_can_edit_timetable(request.user, timetable, teacher_profile)
 
     ctx = build_portal_context(
         request,
         'Timetable',
-        'Drag subjects onto the grid — saved for your school with class and teacher.',
+        'Create and edit multiple timetables — assign subjects and teachers to each slot.',
     )
     ctx.update({
         'classes': classes,
         'class_group': class_group,
+        'timetables': timetables,
+        'timetable': timetable,
         'subjects': subjects,
+        'teachers_json': json.dumps(teachers),
         'periods': periods,
         'weekdays': WEEKDAYS,
         'weekday_labels': weekday_labels,
-        'grid_json': json.dumps({f'{w}-{t}': v for (w, t), v in grid.items()}) if class_group else '{}',
-        'can_edit': request.user.role == 'school_admin' or teacher_profile is not None,
+        'grid_json': json.dumps({f'{w}-{t}': v for (w, t), v in grid.items()}) if timetable else '{}',
+        'can_edit': can_edit,
+        'can_manage_timetables': request.user.role == 'school_admin',
+        'timetable_form': TimetableForm(school),
+        'subject_form': CreateSubjectForm(),
     })
     return render(request, 'pages/features/timetable.html', ctx)
 
@@ -253,24 +299,167 @@ def timetable_save(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
-    class_group = get_object_or_404(ClassGroup, pk=payload.get('class_group_id'), school=school)
+    timetable = get_object_or_404(Timetable, pk=payload.get('timetable_id'), school=school)
     teacher_profile = _teacher_profile_for_user(request.user)
-    if request.user.role == 'teacher' and class_group.teacher_id != teacher_profile.pk:
-        return JsonResponse({'error': 'Not allowed for this class'}, status=403)
-    if not teacher_profile and request.user.role == 'school_admin':
-        teacher_profile = class_group.teacher
+    if not user_can_edit_timetable(request.user, timetable, teacher_profile):
+        return JsonResponse({'error': 'Not allowed for this timetable'}, status=403)
+
+    class_group = timetable.class_group
+    if not class_group:
+        class_group = get_object_or_404(
+            ClassGroup, pk=payload.get('class_group_id'), school=school,
+        )
 
     slots = payload.get('slots', [])
-    save_timetable(class_group, teacher_profile, slots)
+    save_timetable(timetable, class_group, slots)
     log_action(
         user=request.user,
         action=AuditLog.ACTION_UPDATE,
-        resource='TimetableSlot',
-        resource_id=class_group.pk,
-        detail=f'Saved timetable for {class_group.name}',
+        resource='Timetable',
+        resource_id=timetable.pk,
+        detail=f'Saved timetable {timetable.name}',
         request=request,
     )
     return JsonResponse({'ok': True, 'count': len(slots)})
+
+
+@role_required('school_admin', 'teacher')
+@require_POST
+def timetable_create(request):
+    school = request.user.school
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    name = (payload.get('name') or '').strip()
+    if not name:
+        return JsonResponse({'error': 'Name is required'}, status=400)
+
+    class_group = None
+    class_group_id = payload.get('class_group_id')
+    if class_group_id:
+        class_group = get_object_or_404(ClassGroup, pk=class_group_id, school=school)
+
+    if Timetable.objects.filter(school=school, name=name).exists():
+        return JsonResponse({'error': 'A timetable with that name already exists'}, status=400)
+
+    timetable = create_timetable(
+        school,
+        name=name,
+        class_group=class_group,
+        notes=payload.get('notes', ''),
+    )
+    log_action(
+        user=request.user,
+        action=AuditLog.ACTION_CREATE,
+        resource='Timetable',
+        resource_id=timetable.pk,
+        detail=f'Created timetable {timetable.name}',
+        request=request,
+    )
+    return JsonResponse({
+        'ok': True,
+        'timetable': {
+            'id': timetable.pk,
+            'name': timetable.name,
+            'class_group_id': timetable.class_group_id,
+        },
+    })
+
+
+@role_required('school_admin', 'teacher')
+@require_POST
+def timetable_update(request):
+    school = request.user.school
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    timetable = get_object_or_404(Timetable, pk=payload.get('timetable_id'), school=school)
+    teacher_profile = _teacher_profile_for_user(request.user)
+    if not user_can_edit_timetable(request.user, timetable, teacher_profile):
+        return JsonResponse({'error': 'Not allowed'}, status=403)
+
+    name = (payload.get('name') or '').strip()
+    if not name:
+        return JsonResponse({'error': 'Name is required'}, status=400)
+
+    if Timetable.objects.filter(school=school, name=name).exclude(pk=timetable.pk).exists():
+        return JsonResponse({'error': 'A timetable with that name already exists'}, status=400)
+
+    rename_timetable(timetable, name=name, notes=payload.get('notes'))
+    return JsonResponse({'ok': True, 'name': timetable.name})
+
+
+@role_required('school_admin')
+@require_POST
+def timetable_delete(request):
+    school = request.user.school
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    timetable = get_object_or_404(Timetable, pk=payload.get('timetable_id'), school=school)
+    name = timetable.name
+    timetable.is_active = False
+    timetable.save(update_fields=['is_active'])
+    log_action(
+        user=request.user,
+        action=AuditLog.ACTION_DELETE,
+        resource='Timetable',
+        resource_id=timetable.pk,
+        detail=f'Archived timetable {name}',
+        request=request,
+    )
+    return JsonResponse({'ok': True})
+
+
+@role_required('school_admin', 'teacher')
+@require_POST
+def subject_create(request):
+    school = request.user.school
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    name = (payload.get('name') or '').strip()
+    if not name:
+        return JsonResponse({'error': 'Subject name is required'}, status=400)
+
+    track = payload.get('track', 'general')
+    if track not in ('general', 'hifz', 'alimiyah'):
+        track = 'general'
+
+    try:
+        subject = create_subject(
+            school,
+            name=name,
+            track=track,
+            code=(payload.get('code') or '').strip(),
+        )
+    except ValueError as exc:
+        return JsonResponse({'error': str(exc)}, status=400)
+
+    log_action(
+        user=request.user,
+        action=AuditLog.ACTION_CREATE,
+        resource='Subject',
+        resource_id=subject.pk,
+        detail=f'Created subject {subject.name}',
+        request=request,
+    )
+    return JsonResponse({
+        'ok': True,
+        'subject': {
+            'id': subject.pk,
+            'name': subject.name,
+            'track': subject.track,
+        },
+    })
 
 
 @role_required('super_admin')

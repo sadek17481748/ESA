@@ -1,47 +1,120 @@
 {% extends "base/portal.html" %}
 {% block portal_content %}
 <section class="panel timetable-builder">
-  <div class="toolbar">
+  <div class="toolbar timetable-toolbar">
     <div>
       <h2 style="margin:0;font-size:1.1rem;">Timetable builder</h2>
-      {% if class_group %}
       <p class="lead" style="margin:0.35rem 0 0;">
-        <strong>{{ class_group.name }}</strong>
-        {% if class_group.teacher %}
-          — {{ class_group.teacher.user.get_full_name|default:class_group.teacher.user.username }}
-        {% endif %}
+        Create multiple timetables, assign subjects, and pick a teacher for each lesson.
       </p>
+    </div>
+    <div class="timetable-pickers">
+      {% if classes %}
+      <form method="get" class="timetable-class-picker">
+        <label for="class-select">Class</label>
+        <select id="class-select" name="class" class="form-input" onchange="this.form.submit()">
+          {% for c in classes %}
+          <option value="{{ c.pk }}"{% if class_group and c.pk == class_group.pk %} selected{% endif %}>
+            {{ c.name }}{% if c.teacher %} — {{ c.teacher.user.get_full_name|default:c.teacher.user.username }}{% endif %}
+          </option>
+          {% endfor %}
+        </select>
+        {% if timetable %}<input type="hidden" name="timetable" value="{{ timetable.pk }}">{% endif %}
+      </form>
+      {% endif %}
+      {% if timetables %}
+      <form method="get" class="timetable-class-picker">
+        <label for="timetable-select">Timetable</label>
+        <select id="timetable-select" name="timetable" class="form-input" onchange="this.form.submit()">
+          {% for tt in timetables %}
+          <option value="{{ tt.pk }}"{% if timetable and tt.pk == timetable.pk %} selected{% endif %}>
+            {{ tt.name }}{% if tt.class_group %} ({{ tt.class_group.name }}){% endif %}
+          </option>
+          {% endfor %}
+        </select>
+        {% if class_group %}<input type="hidden" name="class" value="{{ class_group.pk }}">{% endif %}
+      </form>
       {% endif %}
     </div>
-    {% if classes %}
-    <form method="get" class="timetable-class-picker">
-      <label for="class-select">Class</label>
-      <select id="class-select" name="class" class="form-input" onchange="this.form.submit()">
-        {% for c in classes %}
-        <option value="{{ c.pk }}"{% if class_group and c.pk == class_group.pk %} selected{% endif %}>
-          {{ c.name }}{% if c.teacher %} — {{ c.teacher.user.get_full_name|default:c.teacher.user.username }}{% endif %}
-        </option>
-        {% endfor %}
-      </select>
-    </form>
-    {% endif %}
   </div>
   <div class="accent-bar"></div>
 
-  {% if not class_group %}
+  {% if not class_group and not timetable %}
   <p class="lead">No classes set up yet. Run the Al-Noor demo seed or add a class via admin.</p>
   {% else %}
 
+  <div class="timetable-manage panel-inset">
+    <div class="timetable-manage-row">
+      <div>
+        <strong id="current-timetable-name">{% if timetable %}{{ timetable.name }}{% else %}No timetable selected{% endif %}</strong>
+        {% if timetable and timetable.notes %}
+        <p class="lead" style="margin:0.25rem 0 0;font-size:0.85rem;">{{ timetable.notes }}</p>
+        {% endif %}
+      </div>
+      <div class="timetable-manage-actions">
+        {% if can_edit and timetable %}
+        <button type="button" id="rename-timetable" class="btn-outline">Rename</button>
+        {% endif %}
+        {% if can_manage_timetables and timetable %}
+        <button type="button" id="archive-timetable" class="btn-outline">Archive</button>
+        {% endif %}
+        <button type="button" id="show-new-timetable" class="btn-primary">New timetable</button>
+      </div>
+    </div>
+    <form id="new-timetable-form" class="timetable-inline-form" hidden>
+      <div class="field">
+        <label for="new-timetable-name">Name</label>
+        <input id="new-timetable-name" class="form-input" type="text" placeholder="e.g. Year 7 — Exam week" required>
+      </div>
+      <div class="field">
+        <label for="new-timetable-notes">Notes (optional)</label>
+        <input id="new-timetable-notes" class="form-input" type="text" placeholder="Optional description">
+      </div>
+      <button type="submit" class="btn-primary">Create timetable</button>
+      <button type="button" id="cancel-new-timetable" class="btn-outline">Cancel</button>
+      <p id="new-timetable-status" class="lead" style="font-size:0.85rem;margin:0.5rem 0 0;"></p>
+    </form>
+  </div>
+
   <div class="timetable-layout">
     <aside class="timetable-palette">
-      <p class="sidebar-title">Drag a subject</p>
-      {% for subject in subjects %}
-      <div class="lesson-chip" draggable="true" data-subject-id="{{ subject.pk }}" data-subject-name="{{ subject.name }}">
-        {{ subject.name }}
+      <p class="sidebar-title">Subjects — drag onto grid</p>
+      <div id="subject-palette">
+        {% for subject in subjects %}
+        <div class="lesson-chip" draggable="true" data-subject-id="{{ subject.pk }}" data-subject-name="{{ subject.name }}">
+          {{ subject.name }}
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
-      <p class="lead" style="font-size:0.82rem;margin-top:1rem;">Drop onto a slot, drag between cells, or double-click a cell to clear.</p>
-      {% if can_edit %}
+
+      <details class="subject-create-panel">
+        <summary>Add a new subject</summary>
+        <form id="subject-create-form" class="form-stack" style="margin-top:0.75rem;">
+          <div class="field">
+            <label for="subject-name">Name</label>
+            <input id="subject-name" class="form-input" type="text" placeholder="e.g. Tajweed" required>
+          </div>
+          <div class="field">
+            <label for="subject-track">Track</label>
+            <select id="subject-track" class="form-input">
+              <option value="general">General</option>
+              <option value="hifz">Hifz</option>
+              <option value="alimiyah">Alimiyah</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="subject-code">Code (optional)</label>
+            <input id="subject-code" class="form-input" type="text" placeholder="e.g. TAJ">
+          </div>
+          <button type="submit" class="btn-outline btn-full">Add subject</button>
+          <p id="subject-create-status" class="lead" style="font-size:0.82rem;margin:0.35rem 0 0;"></p>
+        </form>
+      </details>
+
+      <p class="lead" style="font-size:0.82rem;margin-top:1rem;">
+        Drop a subject onto a slot, then pick the teacher. Double-click a cell to clear it.
+      </p>
+      {% if can_edit and timetable %}
       <button type="button" id="save-timetable" class="btn-primary btn-full" style="margin-top:1rem;">Save timetable</button>
       <p id="save-status" class="lead" style="font-size:0.85rem;margin-top:0.5rem;"></p>
       {% endif %}
@@ -75,19 +148,20 @@
   </div>
 
   <section class="panel" style="margin-top:1.5rem;">
-    <h3 style="margin-top:0;font-size:1rem;">School timetables</h3>
-    <p class="lead" style="margin:0;">Saved lessons appear here for {{ school_name }} — each slot stores class, subject, and teacher.</p>
+    <h3 style="margin-top:0;font-size:1rem;">Lessons in this timetable</h3>
     <ul id="saved-summary" class="timetable-summary"></ul>
   </section>
 
   {% endif %}
 </section>
 
-{% if class_group and can_edit %}
+{% if timetable and can_edit %}
 <script>
 (function() {
   const gridData = {{ grid_json|safe }};
-  const classGroupId = {{ class_group.pk }};
+  const teachers = {{ teachers_json|safe }};
+  const timetableId = {{ timetable.pk }};
+  const classGroupId = {{ class_group.pk|default:'null' }};
   const csrfToken = '{{ csrf_token }}';
   const cells = document.querySelectorAll('.timetable-cell');
 
@@ -95,19 +169,54 @@
     return cell.dataset.weekday + '-' + cell.dataset.start;
   }
 
+  function teacherOptions(selectedId) {
+    let html = '<option value="">— Teacher —</option>';
+    teachers.forEach(t => {
+      const sel = String(t.id) === String(selectedId) ? ' selected' : '';
+      html += `<option value="${t.id}"${sel}>${t.name}</option>`;
+    });
+    return html;
+  }
+
+  function bindChipDrag(chip, cell) {
+    chip.addEventListener('dragstart', ev => {
+      ev.dataTransfer.setData('subjectId', chip.dataset.subjectId);
+      ev.dataTransfer.setData('subjectName', chip.dataset.subjectName);
+      ev.dataTransfer.setData('fromCell', cell ? cellKey(cell) : '');
+    });
+  }
+
   function renderCell(cell, data) {
     cell.innerHTML = '';
     cell.classList.remove('has-lesson');
+    delete cell.dataset.subjectId;
+    delete cell.dataset.subjectName;
+    delete cell.dataset.teacherId;
     if (!data) return;
+
     cell.classList.add('has-lesson');
+    cell.dataset.subjectId = data.subject_id;
+    cell.dataset.subjectName = data.subject_name;
+    cell.dataset.teacherId = data.teacher_id || '';
+
     const chip = document.createElement('div');
     chip.className = 'lesson-chip placed';
     chip.draggable = true;
     chip.dataset.subjectId = data.subject_id;
     chip.dataset.subjectName = data.subject_name;
     chip.textContent = data.subject_name;
+
+    const teacherSelect = document.createElement('select');
+    teacherSelect.className = 'timetable-teacher-select form-input';
+    teacherSelect.innerHTML = teacherOptions(data.teacher_id);
+    teacherSelect.addEventListener('change', () => {
+      cell.dataset.teacherId = teacherSelect.value;
+      updateSummary();
+    });
+
     cell.appendChild(chip);
-    cell.dataset.subjectId = data.subject_id;
+    cell.appendChild(teacherSelect);
+    bindChipDrag(chip, cell);
   }
 
   cells.forEach(cell => {
@@ -115,26 +224,23 @@
     if (gridData[key]) renderCell(cell, gridData[key]);
   });
 
+  document.querySelectorAll('#subject-palette .lesson-chip').forEach(chip => bindChipDrag(chip, null));
+
   function updateSummary() {
     const list = document.getElementById('saved-summary');
     list.innerHTML = '';
+    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
     cells.forEach(cell => {
       if (!cell.dataset.subjectId) return;
       const li = document.createElement('li');
-      const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-      li.textContent = days[cell.dataset.weekday] + ' ' + cell.dataset.start + ' — ' + cell.dataset.subjectName;
+      const teacherId = cell.dataset.teacherId;
+      const teacher = teachers.find(t => String(t.id) === String(teacherId));
+      const teacherLabel = teacher ? teacher.name : 'No teacher';
+      li.textContent = `${days[cell.dataset.weekday]} ${cell.dataset.start} — ${cell.dataset.subjectName} (${teacherLabel})`;
       list.appendChild(li);
     });
   }
   updateSummary();
-
-  document.querySelectorAll('.lesson-chip[draggable="true"]').forEach(chip => {
-    chip.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('subjectId', chip.dataset.subjectId);
-      e.dataTransfer.setData('subjectName', chip.dataset.subjectName);
-      e.dataTransfer.setData('fromCell', chip.closest('.timetable-cell') ? cellKey(chip.closest('.timetable-cell')) : '');
-    });
-  });
 
   cells.forEach(cell => {
     cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
@@ -147,27 +253,33 @@
       const fromKey = e.dataTransfer.getData('fromCell');
       if (fromKey) {
         const fromCell = [...cells].find(c => cellKey(c) === fromKey);
-        if (fromCell) { delete fromCell.dataset.subjectId; delete fromCell.dataset.subjectName; fromCell.innerHTML = ''; fromCell.classList.remove('has-lesson'); }
+        if (fromCell && fromCell !== cell) {
+          renderCell(fromCell, null);
+        }
       }
-      renderCell(cell, { subject_id: subjectId, subject_name: subjectName });
-      cell.dataset.subjectId = subjectId;
-      cell.dataset.subjectName = subjectName;
-      const placed = cell.querySelector('.lesson-chip');
-      placed.addEventListener('dragstart', ev => {
-        ev.dataTransfer.setData('subjectId', subjectId);
-        ev.dataTransfer.setData('subjectName', subjectName);
-        ev.dataTransfer.setData('fromCell', cellKey(cell));
+      const existingTeacher = cell.dataset.teacherId || '';
+      renderCell(cell, {
+        subject_id: subjectId,
+        subject_name: subjectName,
+        teacher_id: existingTeacher,
       });
       updateSummary();
     });
     cell.addEventListener('dblclick', () => {
-      cell.innerHTML = '';
-      cell.classList.remove('has-lesson');
-      delete cell.dataset.subjectId;
-      delete cell.dataset.subjectName;
+      renderCell(cell, null);
       updateSummary();
     });
   });
+
+  async function postJson(url, body) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, data };
+  }
 
   document.getElementById('save-timetable').addEventListener('click', async () => {
     const slots = [];
@@ -178,20 +290,95 @@
         start_time: cell.dataset.start,
         end_time: cell.dataset.end,
         subject_id: parseInt(cell.dataset.subjectId, 10),
+        teacher_id: cell.dataset.teacherId ? parseInt(cell.dataset.teacherId, 10) : null,
       });
     });
     const status = document.getElementById('save-status');
     status.textContent = 'Saving…';
-    const res = await fetch('{% url "pages:timetable_save" %}', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
-      body: JSON.stringify({ class_group_id: classGroupId, slots }),
+    const { ok } = await postJson('{% url "pages:timetable_save" %}', {
+      timetable_id: timetableId,
+      class_group_id: classGroupId,
+      slots,
     });
-    if (res.ok) {
-      status.textContent = 'Timetable saved for {{ class_group.name }}.';
+    status.textContent = ok ? 'Timetable saved.' : 'Could not save — try again.';
+  });
+
+  const newForm = document.getElementById('new-timetable-form');
+  document.getElementById('show-new-timetable').addEventListener('click', () => {
+    newForm.hidden = false;
+  });
+  document.getElementById('cancel-new-timetable').addEventListener('click', () => {
+    newForm.hidden = true;
+  });
+  newForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const status = document.getElementById('new-timetable-status');
+    status.textContent = 'Creating…';
+    const { ok, data } = await postJson('{% url "pages:timetable_create" %}', {
+      name: document.getElementById('new-timetable-name').value,
+      notes: document.getElementById('new-timetable-notes').value,
+      class_group_id: classGroupId,
+    });
+    if (ok) {
+      const params = new URLSearchParams(window.location.search);
+      params.set('timetable', data.timetable.id);
+      window.location.search = params.toString();
     } else {
-      status.textContent = 'Could not save — try again.';
+      status.textContent = data.error || 'Could not create timetable.';
     }
+  });
+
+  const renameBtn = document.getElementById('rename-timetable');
+  if (renameBtn) {
+    renameBtn.addEventListener('click', async () => {
+      const current = document.getElementById('current-timetable-name').textContent.trim();
+      const name = window.prompt('Rename timetable', current);
+      if (!name || name.trim() === current) return;
+      const { ok, data } = await postJson('{% url "pages:timetable_update" %}', {
+        timetable_id: timetableId,
+        name: name.trim(),
+      });
+      if (ok) {
+        document.getElementById('current-timetable-name').textContent = data.name;
+        const opt = document.querySelector(`#timetable-select option[value="${timetableId}"]`);
+        if (opt) opt.textContent = data.name;
+      }
+    });
+  }
+
+  const archiveBtn = document.getElementById('archive-timetable');
+  if (archiveBtn) {
+    archiveBtn.addEventListener('click', async () => {
+      if (!window.confirm('Archive this timetable? It will be hidden from the list.')) return;
+      const { ok } = await postJson('{% url "pages:timetable_delete" %}', { timetable_id: timetableId });
+      if (ok) window.location.href = '{% url "pages:timetable" %}{% if class_group %}?class={{ class_group.pk }}{% endif %}';
+    });
+  }
+
+  document.getElementById('subject-create-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const status = document.getElementById('subject-create-status');
+    status.textContent = 'Adding…';
+    const { ok, data } = await postJson('{% url "pages:subject_create" %}', {
+      name: document.getElementById('subject-name').value,
+      track: document.getElementById('subject-track').value,
+      code: document.getElementById('subject-code').value,
+    });
+    if (!ok) {
+      status.textContent = data.error || 'Could not add subject.';
+      return;
+    }
+    status.textContent = `Added ${data.subject.name}.`;
+    const chip = document.createElement('div');
+    chip.className = 'lesson-chip';
+    chip.draggable = true;
+    chip.dataset.subjectId = data.subject.id;
+    chip.dataset.subjectName = data.subject.name;
+    chip.textContent = data.subject.name;
+    bindChipDrag(chip, null);
+    document.getElementById('subject-palette').appendChild(chip);
+    document.getElementById('subject-name').value = '';
+    document.getElementById('subject-code').value = '';
   });
 })();
 </script>

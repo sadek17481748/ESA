@@ -14,7 +14,7 @@ from schools.models import School
 from students.models import StudentProfile
 from teachers.models import TeacherProfile
 
-from pages.timetable_service import ensure_school_subjects
+from pages.timetable_service import ensure_school_subjects, get_or_create_default_timetable
 
 User = get_user_model()
 
@@ -63,6 +63,8 @@ class Command(BaseCommand):
         class_7a.year_group = y7
         class_7a.teacher = teacher_profile
         class_7a.save()
+
+        get_or_create_default_timetable(school, class_7a)
 
         for i in range(1, 31):
             uname = f'parent_alnoor_{i:02d}'
