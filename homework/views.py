@@ -58,9 +58,11 @@ class SubmissionViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
             qs = qs.filter(assignment__teacher=user.teacher_profile)
         return qs
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated, IsTeacher])
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated, IsStudent])
     def submit(self, request, pk=None):
         submission = self.get_object()
+        if submission.student.user_id != request.user.id:
+            return Response({'detail': 'Not your submission.'}, status=status.HTTP_403_FORBIDDEN)
         submission.body = request.data.get('body', submission.body)
         submission.status = Submission.STATUS_SUBMITTED
         submission.submitted_at = timezone.now()
@@ -87,3 +89,14 @@ class SubmissionViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
             resource_id=submission.pk, request=request,
         )
         return Response(SubmissionSerializer(submission).data)
+
+
+# ---------------------------------------------------------------------------
+# BUGGY CODE (commented out) — submit action used IsTeacher so students got 403
+# ---------------------------------------------------------------------------
+# @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated, IsTeacher])
+# def submit(self, request, pk=None):
+#     submission = self.get_object()
+#     submission.status = Submission.STATUS_SUBMITTED
+#     submission.save()
+#     return Response(SubmissionSerializer(submission).data)
