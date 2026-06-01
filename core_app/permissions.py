@@ -2,7 +2,7 @@
 core_app/permissions.py
 DRF permission classes — one per ESA role or staff group.
 """
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
 class RoleRequired(BasePermission):
@@ -52,6 +52,17 @@ class IsSchoolAdminOrReadOnlyStaff(BasePermission):
 class IsTeacher(RoleRequired):
     def has_permission(self, request, view):
         return super().has_permission(request, view) and request.user.role == 'teacher'
+
+
+class IsStudent(BasePermission):
+    """Student portal actions — submit homework, view own timetable, etc."""
+
+    def has_permission(self, request, view):
+        return (
+            request.user
+            and request.user.is_authenticated
+            and request.user.role == 'student'
+        )
 
 
 class IsParent(RoleRequired):
