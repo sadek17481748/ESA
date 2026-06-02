@@ -41,6 +41,21 @@ class AssignmentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
                 school=self.request.user.school,
                 teacher=serializer.validated_data['teacher'],
             )
+        # Tell enrolled students about new work (in-app for now)
+        for enr in ClassEnrollment.objects.filter(class_group=assignment.class_group).select_related('student__user'):
+            if enr.student.user_id:
+                notify_user(
+                    user=enr.student.user,
+                    school=assignment.school,
+                    notification_type='assignment',
+                    title=f'New {assignment.get_assignment_type_display()}',
+                    message=assignment.title,
+                    link_path=f'/homework/assignments/{assignment.pk}/',
+                )
+        log_action(
+            user=self.request.user, action='create', resource='Assignment',
+            resource_id=assignment.pk, request=self.request,
+        )
 
 
 class SubmissionViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
