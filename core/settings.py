@@ -50,6 +50,12 @@ INSTALLED_APPS = [
     'academics',
     'payments',
     'audit',
+    'parents',
+    'subjects',
+    'timetable',
+    'attendance',
+    'homework',
+    'notifications',
 ]
 
 # ---------------------------------------------------------------------------
