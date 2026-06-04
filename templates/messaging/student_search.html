@@ -1,0 +1,45 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <p><a href="{% url 'messaging:inbox' %}">← Messages</a></p>
+  <h2 style="margin-top:0.5rem;">Find student</h2>
+  <p class="lead">Search all students at your school by first name, last name, or admission number.</p>
+  <div class="accent-bar"></div>
+
+  <form method="get" class="msg-search-form" action="{% url 'messaging:student_search' %}">
+    <label for="q" class="sr-only">Student name</label>
+    <input type="search" id="q" name="q" value="{{ query }}" class="form-input" placeholder="e.g. Amina or Hassan" autofocus>
+    <button type="submit" class="btn-primary">Search</button>
+  </form>
+
+  {% if query %}
+  <h3 class="section-label" style="margin-top:1.25rem;">Results for “{{ query }}”</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Class</th>
+          <th>Admission no.</th>
+          <th>Parent(s)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in results %}
+        <tr>
+          <td><strong>{{ row.student.full_name }}</strong></td>
+          <td>{{ row.class_name }}</td>
+          <td>{{ row.student.admission_number|default:"—" }}</td>
+          <td>{{ row.parent_label }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="placeholder-row">No students match that name.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="lead" style="margin-top:1rem;">Enter a name above to search your student roll.</p>
+  {% endif %}
+</section>
+{% endblock %}

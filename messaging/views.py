@@ -17,9 +17,13 @@ from .forms import (
     TeacherReportForm,
 )
 from .models import SchoolConversation, SchoolMessage, SupportCase, SupportMessage, TeacherReport
+from .unread import mark_conversation_read
 from .services import (
     conversations_for_user,
+    enrich_conversations_for_admin,
     generate_case_number,
+    participant_label,
+    search_students_by_name,
     support_cases_for_user,
     user_can_view_conversation,
 )
@@ -39,7 +43,17 @@ def messages_inbox(request):
         'support_cases': support,
         'conversations': school,
         'can_support': request.user.role != 'super_admin',
+        'is_school_admin': request.user.role == 'school_admin',
     })
+    if request.user.role == 'school_admin' and request.user.school_id:
+        ctx['conversation_rows'], _ = enrich_conversations_for_admin(school, request.user.school)
+    if request.method == 'POST' and request.POST.get('action') == 'email_pref':
+        notify = request.POST.get('notify_on_messages') == 'on'
+        request.user.notify_on_messages = notify
+        request.user.save(update_fields=['notify_on_messages'])
+        messages.success(request, 'Email notification preference saved.')
+        return redirect('messaging:inbox')
+    ctx['notify_on_messages'] = request.user.notify_on_messages
     return render(request, 'messaging/inbox.html', ctx)
 
 
@@ -164,9 +178,12 @@ def school_detail(request, conv_id):
             )
             conv.updated_at = timezone.now()
             conv.save(update_fields=['updated_at'])
+            mark_conversation_read(request.user, conv)
             return redirect('messaging:school_detail', conv_id=conv.pk)
     else:
         form = SchoolReplyForm()
+
+    mark_conversation_read(request.user, conv)
 
     ctx = _message_ctx(request, conv.subject, 'School conversation.')
     ctx.update({
@@ -174,7 +191,30 @@ def school_detail(request, conv_id):
         'thread': conv.messages.select_related('sender'),
         'form': form,
     })
+    if request.user.role == 'school_admin' and request.user.school_id:
+        _, msg_ctx = enrich_conversations_for_admin([conv], request.user.school)
+        ctx['participant_ctx'] = msg_ctx
+        ctx['creator_label'] = participant_label(conv.created_by, msg_ctx)
+        ctx['recipient_label'] = (
+            participant_label(conv.recipient_user, msg_ctx)
+            if conv.recipient_user
+            else ('School office' if conv.recipient_type == SchoolConversation.RECIPIENT_SCHOOL else '')
+        )
+        for msg in ctx['thread']:
+            msg.participant_label = participant_label(msg.sender, msg_ctx)
     return render(request, 'messaging/school_detail.html', ctx)
+
+
+@role_required('school_admin')
+def school_student_search(request):
+    """Search all students by name for school admin."""
+    school = request.user.school
+    query = request.GET.get('q', '').strip()
+    results = search_students_by_name(school, query) if query else []
+
+    ctx = _message_ctx(request, 'Find student', 'Search students by name or admission number.')
+    ctx.update({'query': query, 'results': results})
+    return render(request, 'messaging/student_search.html', ctx)
 
 
 @role_required('teacher')
