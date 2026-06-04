@@ -19,6 +19,12 @@ urlpatterns = [
     path('api/students/', include('students.urls')),
     path('api/teachers/', include('teachers.urls')),
     path('api/classes/', include('academics.urls')),
+    path('api/parents/', include('parents.urls')),
+    path('api/subjects/', include('subjects.urls')),
+    path('api/timetable/', include('timetable.urls')),
+    path('api/attendance/', include('attendance.urls')),
+    path('api/homework/', include('homework.urls')),
+    path('api/notifications/', include('notifications.urls')),
     # parent fee pages (session login)
     path('payments/', include('payments.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
