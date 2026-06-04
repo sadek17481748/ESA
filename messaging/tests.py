@@ -75,3 +75,17 @@ class MessagingPortalTests(TestCase):
         self.assertEqual(report.subject_line, 'Spring progress')
         link = StudentParentLink.objects.filter(student=student).select_related('parent__user').first()
         self.assertEqual(report.parent, link.parent.user)
+
+    def test_school_admin_inbox_shows_parent_with_child_name(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('messaging:inbox'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Participants')
+        self.assertContains(response, 'Hassan')
+
+    def test_school_admin_student_search(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('messaging:student_search'), {'q': 'Amina'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Amina Hassan')
+        self.assertContains(response, 'Year 7')
