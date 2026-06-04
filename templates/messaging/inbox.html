@@ -11,6 +11,9 @@
       {% if user.role == 'parent' or user.role == 'teacher' or user.role == 'school_admin' %}
       <a class="btn-primary" href="{% url 'messaging:school_new' %}">New school message</a>
       {% endif %}
+      {% if is_school_admin %}
+      <a class="btn-outline" href="{% url 'messaging:student_search' %}">Find student</a>
+      {% endif %}
     </div>
   </div>
   <div class="accent-bar"></div>
@@ -36,11 +39,42 @@
   </ul>
 
   <h3 class="section-label" style="margin-top:1.5rem;">School messages</h3>
+  {% if is_school_admin and conversation_rows %}
+  <div class="table-wrap msg-mobile-table">
+    <table class="data-table">
+      <thead><tr><th>Subject</th><th>Participants</th><th>Updated</th></tr></thead>
+      <tbody>
+        {% for row in conversation_rows %}
+        <tr>
+          <td data-label="Subject"><a href="{% url 'messaging:school_detail' row.conversation.pk %}"><strong>{{ row.conversation.subject }}</strong></a></td>
+          <td data-label="Participants" class="msg-participant-cell">{{ row.participant_line }}</td>
+          <td data-label="Updated">{{ row.conversation.updated_at|date:"d M Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="placeholder-row">No conversations yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
   <ul class="msg-list">
     {% for conv in conversations %}
     <li><a href="{% url 'messaging:school_detail' conv.pk %}"><strong>{{ conv.subject }}</strong> <span class="msg-meta">{{ conv.updated_at|date:"d M Y" }}</span></a></li>
     {% empty %}<li class="lead">No conversations yet.</li>{% endfor %}
   </ul>
+  {% endif %}
+  {% endif %}
+
+  {% if user.role != 'super_admin' %}
+  <form method="post" class="msg-email-pref" style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="email_pref">
+    <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.9rem;">
+      <input type="checkbox" name="notify_on_messages"{% if notify_on_messages %} checked{% endif %}>
+      Email me when I receive a new school message reply
+    </label>
+    <button type="submit" class="btn-outline" style="margin-top:0.5rem;">Save preference</button>
+  </form>
   {% endif %}
 </section>
 {% endblock %}

@@ -3,11 +3,28 @@
 <section class="panel">
   <p><a href="{% url 'messaging:inbox' %}">← Messages</a></p>
   <h2 style="margin-top:0.5rem;">{{ conversation.subject }}</h2>
+  {% if user.role == 'school_admin' %}
+  <div class="msg-participant-panel">
+    <p><span class="msg-participant-label">From</span> {{ creator_label }}</p>
+    {% if recipient_label %}
+    <p><span class="msg-participant-label">With</span> {{ recipient_label }}</p>
+    {% endif %}
+  </div>
+  {% endif %}
   <div class="accent-bar"></div>
   <div class="msg-thread">
     {% for msg in thread %}
     <article class="msg-bubble">
-      <header><strong>{{ msg.sender.get_full_name|default:msg.sender.username }}</strong> · {{ msg.created_at|date:"d M Y H:i" }}</header>
+      <header>
+        <strong>
+          {% if user.role == 'school_admin' and msg.participant_label %}
+            {{ msg.participant_label }}
+          {% else %}
+            {{ msg.sender.get_full_name|default:msg.sender.username }}
+          {% endif %}
+        </strong>
+        · {{ msg.created_at|date:"d M Y H:i" }}
+      </header>
       <p>{{ msg.body|linebreaksbr }}</p>
     </article>
     {% endfor %}
