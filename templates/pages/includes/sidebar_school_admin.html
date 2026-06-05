@@ -15,5 +15,6 @@
   <a href="{% url 'pages:timetable' %}"{% if current_portal_url == 'timetable' %} aria-current="page"{% endif %}>Timetable</a>
   <a href="{% url 'pages:attendance' %}"{% if current_portal_url == 'attendance' %} aria-current="page"{% endif %}>Attendance</a>
   <a href="{% url 'lms:hub' %}"{% if current_portal_url == 'hub' %} aria-current="page"{% endif %}>LMS</a>
-  <a href="{% url 'messaging:inbox' %}"{% if current_portal_url == 'inbox' %} aria-current="page"{% endif %}>Messages</a>
+  {% include "pages/includes/sidebar_messages_link.html" %}
+  <a href="{% url 'messaging:student_search' %}"{% if current_portal_url == 'student_search' %} aria-current="page"{% endif %}>Find student</a>
 </nav>

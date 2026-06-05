@@ -7,7 +7,7 @@
   <a href="{% url 'pages:hifz' %}"{% if current_portal_url == 'hifz' %} aria-current="page"{% endif %}>Hifz</a>
   <a href="{% url 'pages:quran' %}"{% if current_portal_url == 'quran' %} aria-current="page"{% endif %}>Qur’an</a>
   <a href="{% url 'pages:behaviour' %}"{% if current_portal_url == 'behaviour' %} aria-current="page"{% endif %}>Behaviour</a>
-  <a href="{% url 'messaging:inbox' %}"{% if current_portal_url == 'inbox' %} aria-current="page"{% endif %}>Messages</a>
+  {% include "pages/includes/sidebar_messages_link.html" %}
 </nav>
 <p class="sidebar-title">Reports</p>
 <nav class="sidebar-nav">
