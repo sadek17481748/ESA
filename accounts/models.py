@@ -45,6 +45,11 @@ class User(AbstractUser):
     def __str__(self):
         return f'{self.username} ({self.get_role_display()})'
 
+    notify_on_messages = models.BooleanField(
+        default=True,
+        help_text='Send email when a new school message reply arrives.',
+    )
+
 # ---------------------------------------------------------------------------
 # BUGGY CODE (commented out) — super_admin could not save if school FK was still set
 # ---------------------------------------------------------------------------
