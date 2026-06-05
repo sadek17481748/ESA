@@ -1,12 +1,6 @@
 {% extends "base/portal.html" %}
 {% block portal_content %}
-<section class="panel" style="margin-bottom:1.25rem;">
-  <h2 style="margin-top:0;font-size:1.1rem;">Welcome, {{ user_display }}</h2>
-  <div class="accent-bar"></div>
-  <p class="lead" style="margin:0;">Family portal for <strong>{{ school_name }}</strong>.</p>
-</section>
-
-<section class="panel" style="margin-bottom:1.25rem;">
+<section class="panel">
   <h2 style="margin-top:0;font-size:1.1rem;">Your children</h2>
   <div class="accent-bar"></div>
   {% if children %}
@@ -21,24 +15,29 @@
           {% if child.today_mark.status == 'present' %}Present{% elif child.today_mark.status == 'late' %}Late{% else %}Absent{% endif %}
         {% else %}—{% endif %}
       </p>
+      <p style="font-size:0.88rem;color:var(--muted);">
+        This week: {{ child.week_present }}/{{ child.week_total }} sessions present
+      </p>
+      <div style="margin-top:0.65rem;">
+        <p style="font-size:0.82rem;margin:0 0 0.25rem;">Homework progress</p>
+        <div class="progress-bar"><span style="width:{{ child.lms_percent }}%;"></span></div>
+        <p style="font-size:0.78rem;color:var(--muted);margin:0.25rem 0 0;">{{ child.lms_completed }}/{{ child.lms_total }} assignments complete</p>
+      </div>
     </article>
     {% endfor %}
   </div>
   {% else %}
-  <p class="lead">When your child registers as a student and selects their class, they will appear here once linked to your account.</p>
+  <p class="lead">When your child registers and links to your account, their summary will appear here.</p>
   {% endif %}
 </section>
 
 <div class="split">
   <section class="panel">
-    <h2 style="margin-top:0;font-size:1.1rem;">Attendance</h2>
+    <h2 style="margin-top:0;font-size:1.1rem;">Quick links</h2>
     <div class="accent-bar"></div>
-    <p class="lead" style="margin:0;"><a href="{% url 'pages:attendance' %}">View full attendance history</a></p>
-  </section>
-  <section class="panel">
-    <h2 style="margin-top:0;font-size:1.1rem;">Payments</h2>
-    <div class="accent-bar"></div>
-    <p class="lead" style="margin:0;"><a href="{% url 'payments:fee_list' %}">Pending &amp; history</a></p>
+    <p class="lead" style="margin:0;"><a href="{% url 'pages:attendance' %}">Attendance history</a></p>
+    <p class="lead" style="margin:0.5rem 0 0;"><a href="{% url 'pages:worksheets' %}">Homework</a></p>
+    <p class="lead" style="margin:0.5rem 0 0;"><a href="{% url 'payments:fee_list' %}">Fees</a></p>
   </section>
 </div>
 {% endblock %}
