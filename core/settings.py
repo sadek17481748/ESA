@@ -113,6 +113,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'pages.context_processors.portal_nav',
+                'pages.context_processors.messaging_nav',
             ],
         },
     },
@@ -199,6 +200,51 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# S3 media (Heroku) — set AWS_STORAGE_BUCKET_NAME in env to enable
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default='')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default='')
+AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='')
+AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='eu-west-2')
+AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN', default='')
+AWS_DEFAULT_ACL = None
+AWS_QUERYSTRING_AUTH = True
+AWS_S3_FILE_OVERWRITE = False
+USE_S3_MEDIA = bool(AWS_STORAGE_BUCKET_NAME)
+
+if USE_S3_MEDIA:
+    STORAGES = {
+        'default': {
+            'BACKEND': 'storages.backends.s3.S3Storage',
+            'OPTIONS': {
+                'bucket_name': AWS_STORAGE_BUCKET_NAME,
+                'region_name': AWS_S3_REGION_NAME,
+                'custom_domain': AWS_S3_CUSTOM_DOMAIN or None,
+                'default_acl': AWS_DEFAULT_ACL,
+                'file_overwrite': AWS_S3_FILE_OVERWRITE,
+            },
+        },
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
+    if AWS_S3_CUSTOM_DOMAIN:
+        MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+    else:
+        MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
+
+# Email — console in dev; SMTP when configured
+EMAIL_BACKEND = env(
+    'EMAIL_BACKEND',
+    default='django.core.mail.backends.console.EmailBackend',
+)
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='ESA Platform <noreply@esa.demo>')
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+EMAIL_HOST = env('EMAIL_HOST', default='')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
 
 
 # ---------------------------------------------------------------------------
