@@ -131,3 +131,22 @@ class TeacherReport(models.Model):
 
     def __str__(self):
         return f'{self.subject_line} — {self.student.full_name}'
+
+
+class ConversationReadState(models.Model):
+    """Tracks when a user last read a school conversation (unread badge)."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='conversation_read_states',
+    )
+    conversation = models.ForeignKey(
+        SchoolConversation,
+        on_delete=models.CASCADE,
+        related_name='read_states',
+    )
+    last_read_at = models.DateTimeField()
+
+    class Meta:
+        unique_together = [('user', 'conversation')]
