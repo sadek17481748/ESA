@@ -3,7 +3,7 @@ from django import forms
 
 from academics.models import ClassGroup
 
-from .models import CourseMaterial, CourseSubject, CourseTrack
+from .models import CourseMaterial, CourseSubject, CourseTrack, MaterialSubmission
 
 
 class CourseSubjectForm(forms.ModelForm):
@@ -57,3 +57,13 @@ class AssignTrackForm(forms.Form):
         self.fields['track'].queryset = CourseTrack.objects.filter(
             subject__school=school,
         ).select_related('subject').order_by('subject__name', 'sort_order')
+
+
+class MaterialSubmissionForm(forms.ModelForm):
+    class Meta:
+        model = MaterialSubmission
+        fields = ['file', 'notes']
+        widgets = {
+            'file': forms.ClearableFileInput(attrs={'class': 'form-input'}),
+            'notes': forms.Textarea(attrs={'class': 'form-input', 'rows': 2, 'placeholder': 'Optional note for your teacher'}),
+        }

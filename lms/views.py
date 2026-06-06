@@ -1,5 +1,6 @@
 """lms/views.py — school LMS portal."""
 from django.contrib import messages
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -8,8 +9,15 @@ from pages.decorators import role_required
 from pages.enrollment_service import student_class_group, student_profile_for_user
 from pages.portal import build_portal_context
 
-from .forms import AssignTrackForm, CourseMaterialForm, CourseSubjectForm, CourseTrackForm
-from .models import ClassTrackAssignment, CourseMaterial, CourseSubject, CourseTrack, StudentMaterialProgress
+from .forms import AssignTrackForm, CourseMaterialForm, CourseSubjectForm, CourseTrackForm, MaterialSubmissionForm
+from .models import (
+    ClassTrackAssignment,
+    CourseMaterial,
+    CourseSubject,
+    CourseTrack,
+    MaterialSubmission,
+    StudentMaterialProgress,
+)
 from .services import mark_material_progress, materials_for_student, student_track_summaries, tracks_for_class
 
 
@@ -118,8 +126,16 @@ def lms_student_worksheets(request):
             p.material_id: p.progress_percent
             for p in StudentMaterialProgress.objects.filter(student=profile)
         }
+        submission_map = {
+            s.material_id: s
+            for s in MaterialSubmission.objects.filter(student=profile)
+        }
         materials_with_progress = [
-            {'material': m, 'progress': progress_map.get(m.pk, 0)}
+            {
+                'material': m,
+                'progress': progress_map.get(m.pk, 0),
+                'submission': submission_map.get(m.pk),
+            }
             for m in materials
         ]
         ctx = _ctx(request, 'My learning', 'Subjects and assignments for your class.')
@@ -135,10 +151,15 @@ def lms_student_worksheets(request):
         from academics.models import ClassGroup
         profile = TeacherProfile.objects.filter(user=request.user).first()
         classes = ClassGroup.objects.filter(school=request.user.school, teacher=profile) if profile else []
+        pending = MaterialSubmission.objects.filter(
+            material__track__subject__school=request.user.school,
+            status=MaterialSubmission.STATUS_PENDING,
+        ).select_related('student', 'material', 'material__track')
         ctx = _ctx(request, 'Class content', 'View and assign LMS materials to your classes.')
         ctx.update({
             'classes': classes,
             'assign_url': 'lms:assign',
+            'pending_submissions': pending,
         })
         return render(request, 'lms/teacher_worksheets.html', ctx)
 
@@ -157,4 +178,60 @@ def lms_mark_complete(request, material_id):
     material = get_object_or_404(CourseMaterial, pk=material_id)
     mark_material_progress(profile, material, status=StudentMaterialProgress.STATUS_COMPLETED, progress_percent=100)
     messages.success(request, f'Marked {material.title} as complete.')
+    return redirect('pages:worksheets')
+
+
+@login_required
+@require_POST
+def lms_submit_material(request, material_id):
+    if request.user.role != 'student':
+        return redirect('pages:worksheets')
+    profile = student_profile_for_user(request.user)
+    material = get_object_or_404(CourseMaterial, pk=material_id)
+    form = MaterialSubmissionForm(request.POST, request.FILES)
+    if form.is_valid():
+        submission, _ = MaterialSubmission.objects.get_or_create(
+            student=profile,
+            material=material,
+        )
+        submission.file = form.cleaned_data['file']
+        submission.notes = form.cleaned_data.get('notes', '')
+        submission.status = MaterialSubmission.STATUS_PENDING
+        submission.save()
+        mark_material_progress(
+            profile, material,
+            status=StudentMaterialProgress.STATUS_IN_PROGRESS,
+            progress_percent=50,
+        )
+        messages.success(request, f'Submitted {material.title} for review.')
+    else:
+        messages.error(request, 'Please choose a file to upload.')
+    return redirect('pages:worksheets')
+
+
+@role_required('teacher')
+@require_POST
+def lms_review_submission(request, submission_id):
+    submission = get_object_or_404(
+        MaterialSubmission,
+        pk=submission_id,
+        material__track__subject__school=request.user.school,
+    )
+    action = request.POST.get('action')
+    feedback = request.POST.get('feedback', '')
+    if action == 'approve':
+        submission.status = MaterialSubmission.STATUS_APPROVED
+        mark_material_progress(
+            submission.student,
+            submission.material,
+            status=StudentMaterialProgress.STATUS_COMPLETED,
+            progress_percent=100,
+        )
+    elif action == 'reject':
+        submission.status = MaterialSubmission.STATUS_REJECTED
+    submission.teacher_feedback = feedback
+    submission.reviewed_by = request.user
+    submission.reviewed_at = timezone.now()
+    submission.save()
+    messages.success(request, 'Submission reviewed.')
     return redirect('pages:worksheets')

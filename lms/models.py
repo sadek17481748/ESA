@@ -120,3 +120,43 @@ class StudentMaterialProgress(models.Model):
 
     def __str__(self):
         return f'{self.student} — {self.material.title} ({self.progress_percent}%)'
+
+
+class MaterialSubmission(models.Model):
+    """Student hand-in for an LMS assignment."""
+
+    STATUS_PENDING = 'pending'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending review'),
+        (STATUS_APPROVED, 'Approved'),
+        (STATUS_REJECTED, 'Needs revision'),
+    ]
+
+    student = models.ForeignKey(
+        StudentProfile, on_delete=models.CASCADE, related_name='material_submissions',
+    )
+    material = models.ForeignKey(
+        CourseMaterial, on_delete=models.CASCADE, related_name='submissions',
+    )
+    file = models.FileField(upload_to='lms/submissions/')
+    notes = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    teacher_feedback = models.TextField(blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='material_reviews',
+    )
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-submitted_at']
+        unique_together = [('student', 'material')]
+
+    def __str__(self):
+        return f'{self.student} — {self.material.title}'

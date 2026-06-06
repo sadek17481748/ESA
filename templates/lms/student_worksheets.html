@@ -18,18 +18,23 @@
 
   {% if materials_with_progress %}
   <h3 style="margin-top:1.5rem;font-size:1rem;">Assignments &amp; worksheets</h3>
-  <div class="table-wrap">
+  <div class="table-wrap msg-mobile-table">
     <table class="data-table">
-      <thead><tr><th>Title</th><th>Subject</th><th>Progress</th><th></th></tr></thead>
+      <thead><tr><th>Title</th><th>Subject</th><th>Progress</th><th>Actions</th></tr></thead>
       <tbody>
         {% for row in materials_with_progress %}
-        {% with m=row.material %}
+        {% with m=row.material sub=row.submission %}
         <tr>
-          <td><strong>{{ m.title }}</strong></td>
-          <td>{{ m.track.subject.name }} / {{ m.track.name }}</td>
-          <td>{{ row.progress }}%</td>
-          <td>
+          <td data-label="Title"><strong>{{ m.title }}</strong></td>
+          <td data-label="Subject">{{ m.track.subject.name }} / {{ m.track.name }}</td>
+          <td data-label="Progress">{{ row.progress }}%{% if sub %} · {{ sub.get_status_display }}{% endif %}</td>
+          <td data-label="Actions" class="msg-actions-cell">
             {% if m.file %}<a href="{{ m.file.url }}" target="_blank" rel="noopener">Open</a>{% elif m.external_url %}<a href="{{ m.external_url }}" target="_blank" rel="noopener">Open</a>{% endif %}
+            <form method="post" action="{% url 'lms:submit_material' m.pk %}" enctype="multipart/form-data" class="lms-submit-inline">
+              {% csrf_token %}
+              <input type="file" name="file" required class="form-input" style="max-width:10rem;font-size:0.78rem;">
+              <button type="submit" class="btn-outline" style="padding:0.2rem 0.5rem;font-size:0.78rem;">Hand in</button>
+            </form>
             <form method="post" action="{% url 'lms:mark_complete' m.pk %}" style="display:inline;">{% csrf_token %}<button type="submit" class="btn-outline" style="padding:0.2rem 0.5rem;font-size:0.78rem;">Mark done</button></form>
           </td>
         </tr>

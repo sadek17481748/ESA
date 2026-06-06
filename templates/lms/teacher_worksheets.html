@@ -3,12 +3,40 @@
 <section class="panel">
   <h2 style="margin-top:0;">Class content</h2>
   <div class="accent-bar"></div>
-  <p class="lead">Assign the correct subject level (e.g. Maths Foundation) to each class.</p>
   <p><a class="btn-primary" href="{% url 'lms:assign' %}">Assign LMS content to class</a></p>
-  <p style="margin-top:1rem;"><a href="{% url 'lms:assign' %}">Assign content to your classes</a></p>
   {% if classes %}
   <h3 style="margin-top:1.25rem;font-size:1rem;">Your classes</h3>
   <ul>{% for c in classes %}<li>{{ c.name }}</li>{% endfor %}</ul>
   {% endif %}
 </section>
+
+{% if pending_submissions %}
+<section class="panel" id="pending">
+  <h2 style="margin-top:0;font-size:1.1rem;">Pending submissions</h2>
+  <div class="accent-bar"></div>
+  <div class="table-wrap msg-mobile-table">
+    <table class="data-table">
+      <thead><tr><th>Student</th><th>Assignment</th><th>Submitted</th><th>Review</th></tr></thead>
+      <tbody>
+        {% for sub in pending_submissions %}
+        <tr>
+          <td data-label="Student">{{ sub.student.full_name }}</td>
+          <td data-label="Assignment">{{ sub.material.title }}</td>
+          <td data-label="Submitted">{{ sub.submitted_at|date:"d M Y H:i" }}</td>
+          <td data-label="Review">
+            {% if sub.file %}<a href="{{ sub.file.url }}" target="_blank" rel="noopener">View file</a>{% endif %}
+            <form method="post" action="{% url 'lms:review_submission' sub.pk %}" class="review-form">
+              {% csrf_token %}
+              <textarea name="feedback" rows="2" class="form-input" placeholder="Feedback (optional)"></textarea>
+              <button type="submit" name="action" value="approve" class="btn-primary" style="padding:0.25rem 0.5rem;font-size:0.78rem;">Approve</button>
+              <button type="submit" name="action" value="reject" class="btn-outline" style="padding:0.25rem 0.5rem;font-size:0.78rem;">Needs revision</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
 {% endblock %}
