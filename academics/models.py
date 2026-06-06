@@ -61,3 +61,32 @@ class ClassEnrollment(models.Model):
 
     def __str__(self):
         return f'{self.student} in {self.class_group.name}'
+
+
+class BehaviourRecord(models.Model):
+    """Teacher-logged commendation or incident for a student."""
+
+    TYPE_COMMENDATION = 'commendation'
+    TYPE_INCIDENT = 'incident'
+    TYPE_CHOICES = [
+        (TYPE_COMMENDATION, 'Commendation'),
+        (TYPE_INCIDENT, 'Incident'),
+    ]
+
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='behaviour_records')
+    student = models.ForeignKey(
+        'students.StudentProfile', on_delete=models.CASCADE, related_name='behaviour_records',
+    )
+    teacher = models.ForeignKey(
+        'accounts.User', on_delete=models.CASCADE, related_name='behaviour_records_logged',
+    )
+    record_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    title = models.CharField(max_length=200)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.get_record_type_display()} — {self.student.full_name}'

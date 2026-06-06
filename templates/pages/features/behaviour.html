@@ -1,7 +1,38 @@
 {% extends "base/portal.html" %}
 {% block portal_content %}
 <section class="panel">
+  <h2 style="margin-top:0;">Behaviour</h2>
   <div class="accent-bar"></div>
-  <p class="lead">Behaviour incidents and commendations — placeholder list.</p>
+
+  {% if form %}
+  <h3 class="section-label">Log record</h3>
+  <form method="post" class="form-stack" style="max-width:560px;margin-bottom:1.5rem;">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="field"><label>{{ field.label }}</label>{{ field }}</div>
+    {% endfor %}
+    <button type="submit" class="btn-primary">Save record</button>
+  </form>
+  {% endif %}
+
+  <h3 class="section-label">{% if user.role == 'parent' %}Your children's records{% else %}Recent records{% endif %}</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Student</th><th>Type</th><th>Title</th><th>Notes</th></tr></thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ r.created_at|date:"d M Y" }}</td>
+          <td>{{ r.student.full_name }}</td>
+          <td>{{ r.get_record_type_display }}</td>
+          <td><strong>{{ r.title }}</strong></td>
+          <td>{{ r.notes|truncatewords:12 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="placeholder-row">No behaviour records yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </section>
 {% endblock %}

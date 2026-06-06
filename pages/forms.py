@@ -422,3 +422,24 @@ class PickClassForm(forms.Form):
         self.fields['class_group'].queryset = ClassGroup.objects.filter(
             school=school,
         ).order_by('name')
+
+
+class BehaviourLogForm(forms.Form):
+    student = forms.ModelChoiceField(
+        queryset=StudentProfile.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-input'}),
+    )
+    record_type = forms.ChoiceField(
+        choices=[
+            ('commendation', 'Commendation'),
+            ('incident', 'Incident'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-input'}),
+    )
+    title = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'class': 'form-input'}))
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-input', 'rows': 3}))
+
+    def __init__(self, school, teacher_user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from pages.behaviour_service import students_for_teacher
+        self.fields['student'].queryset = students_for_teacher(school, teacher_user)
