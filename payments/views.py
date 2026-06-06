@@ -29,6 +29,7 @@ from .services import (
     stripe_is_configured,
 )
 from .subscription_plans import PLANS, plan_for_tier
+from .subscription_sync import apply_subscription_from_session
 from schools.models import School
 
 
@@ -275,33 +276,12 @@ def _complete_fee_from_session(session, user):
 
 
 def _complete_subscription_from_session(session, user):
-    session_id = session.get('id')
-    if SubscriptionPayment.objects.filter(stripe_session_id=session_id).exists():
-        return SubscriptionPayment.objects.get(stripe_session_id=session_id)
-
-    school_id = session.metadata.get('school_id')
-    tier = session.metadata.get('tier')
-    if not school_id or not tier:
-        return None
-
-    school = get_object_or_404(School, pk=school_id)
-    if user.role == 'school_admin' and user.school_id != school.pk:
-        return None
-
-    subscription_payment = SubscriptionPayment.objects.create(
-        school=school,
-        admin=user,
-        tier=tier,
-        amount_pence=session.amount_total or 0,
-        stripe_session_id=session_id,
-        stripe_payment_intent=session.payment_intent or '',
-        status=SubscriptionPayment.STATUS_COMPLETE,
-        receipt_reference=uuid.uuid4().hex[:12].upper(),
-        paid_at=timezone.now(),
-    )
-    school.subscription_tier = tier
-    school.save(update_fields=['subscription_tier'])
-    return subscription_payment
+    if user.role == 'school_admin':
+        school_id = session.metadata.get('school_id')
+        if school_id and str(user.school_id) != str(school_id):
+            return None
+    payment = apply_subscription_from_session(session)
+    return payment
 
 
 @login_required
@@ -376,42 +356,9 @@ def _mark_fee_paid_from_session(session):
 
 
 def _mark_subscription_paid_from_session(session):
-    session_id = session.get('id')
-    if not session_id or SubscriptionPayment.objects.filter(stripe_session_id=session_id).exists():
+    if session.get('payment_status') and session.get('payment_status') != 'paid':
         return
-
-    school_id = session.get('metadata', {}).get('school_id')
-    tier = session.get('metadata', {}).get('tier')
-    admin_id = session.get('metadata', {}).get('admin_user_id')
-    if not school_id or not tier:
-        return
-
-    try:
-        school = School.objects.get(pk=school_id)
-    except School.DoesNotExist:
-        return
-
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-    admin = User.objects.filter(pk=admin_id).first() if admin_id else None
-    if not admin:
-        admin = User.objects.filter(school=school, role='school_admin').first()
-    if not admin:
-        return
-
-    SubscriptionPayment.objects.create(
-        school=school,
-        admin=admin,
-        tier=tier,
-        amount_pence=session.get('amount_total') or 0,
-        stripe_session_id=session_id,
-        stripe_payment_intent=session.get('payment_intent') or '',
-        status=SubscriptionPayment.STATUS_COMPLETE,
-        receipt_reference=uuid.uuid4().hex[:12].upper(),
-        paid_at=timezone.now(),
-    )
-    school.subscription_tier = tier
-    school.save(update_fields=['subscription_tier'])
+    apply_subscription_from_session(session)
 
 
 # ---------------------------------------------------------------------------

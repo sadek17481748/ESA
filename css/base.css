@@ -1527,6 +1527,48 @@ button.btn-primary:disabled,
   margin-bottom: 0.35rem;
 }
 
+.msg-participant-panel {
+  margin: 0.5rem 0 0;
+  padding: 0.65rem 0.85rem;
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+
+.msg-participant-panel p {
+  margin: 0.2rem 0;
+}
+
+.msg-participant-label {
+  display: inline-block;
+  min-width: 2.75rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.msg-participant-cell {
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.msg-search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  max-width: 480px;
+  margin-top: 0.5rem;
+}
+
+.msg-search-form .form-input {
+  flex: 1;
+  min-width: 12rem;
+}
+
 .report-dl dt {
   font-weight: 600;
   margin-top: 0.75rem;
@@ -1649,4 +1691,84 @@ button.btn-primary:disabled,
   .split {
     grid-template-columns: 1fr;
   }
+
+  .msg-head {
+    flex-direction: column;
+  }
+
+  .msg-actions {
+    width: 100%;
+  }
+
+  .msg-mobile-table .data-table thead {
+    display: none;
+  }
+
+  .msg-mobile-table .data-table tr {
+    display: block;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.5rem 0.65rem;
+  }
+
+  .msg-mobile-table .data-table td {
+    display: block;
+    padding: 0.25rem 0;
+    border: none;
+  }
+
+  .msg-mobile-table .data-table td::before {
+    content: attr(data-label);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    font-weight: 600;
+  }
+
+  .msg-actions-cell {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  .lms-submit-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+  }
+}
+
+.nav-badge {
+  display: inline-block;
+  min-width: 1.1rem;
+  padding: 0.05rem 0.35rem;
+  margin-left: 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  color: #1a1208;
+  background: var(--gold);
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+.analytics-grid {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+
+.review-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+  max-width: 280px;
+}
+
+.review-form textarea {
+  width: 100%;
 }

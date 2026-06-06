@@ -39,6 +39,7 @@ from .enrollment_service import (
 )
 from .forms import (
     AddTeacherForm,
+    BehaviourLogForm,
     CreateSubjectForm,
     EsaAuthenticationForm,
     PickClassForm,
@@ -48,6 +49,14 @@ from .forms import (
     active_schools,
 )
 from .portal import build_portal_context
+from .parent_dashboard_service import parent_children_summary
+from .analytics_service import school_analytics
+from .behaviour_service import (
+    behaviour_for_parent,
+    behaviour_for_school_admin,
+    behaviour_for_teacher,
+)
+from academics.models import BehaviourRecord
 from .super_admin_stats import build_super_admin_dashboard_context
 from .timetable_service import (
     PERIODS,
@@ -198,7 +207,7 @@ def pick_class(request):
 @login_required
 def dashboard_parent(request):
     session_date = session_date_or_today(request.GET.get('date'))
-    children = parent_children_attendance(request.user, session_date)
+    children = parent_children_summary(request.user, session_date)
     ctx = build_portal_context(
         request,
         'Parent overview',
@@ -687,7 +696,36 @@ def _parse_date_param(value):
 
 @login_required
 def page_behaviour(request):
-    return _portal_page(request, 'pages/features/behaviour.html', 'Behaviour')
+    user = request.user
+    school = user.school
+    form = None
+    records = []
+
+    if user.role == 'teacher' and school:
+        if request.method == 'POST':
+            form = BehaviourLogForm(school, user, request.POST)
+            if form.is_valid():
+                BehaviourRecord.objects.create(
+                    school=school,
+                    student=form.cleaned_data['student'],
+                    teacher=user,
+                    record_type=form.cleaned_data['record_type'],
+                    title=form.cleaned_data['title'],
+                    notes=form.cleaned_data.get('notes', ''),
+                )
+                messages.success(request, 'Behaviour record saved.')
+                return redirect('pages:behaviour')
+        else:
+            form = BehaviourLogForm(school, user)
+        records = behaviour_for_teacher(user)
+    elif user.role == 'parent':
+        records = behaviour_for_parent(user)
+    elif user.role == 'school_admin' and school:
+        records = behaviour_for_school_admin(school)
+
+    ctx = build_portal_context(request, 'Behaviour', 'Commendations and incidents.')
+    ctx.update({'records': records, 'form': form})
+    return render(request, 'pages/features/behaviour.html', ctx)
 
 
 @login_required
@@ -729,5 +767,10 @@ def page_worksheets(request):
 
 
 @login_required
+@role_required('school_admin')
 def page_analytics(request):
-    return _portal_page(request, 'pages/features/analytics.html', 'Analytics')
+    school = request.user.school
+    stats = school_analytics(school) if school else {}
+    ctx = build_portal_context(request, 'Analytics', 'School KPIs and overview.')
+    ctx['stats'] = stats
+    return render(request, 'pages/features/analytics.html', ctx)

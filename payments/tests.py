@@ -105,3 +105,51 @@ class SchoolAdminFeesTests(TestCase):
         self.assertRedirects(response, reverse('payments:school_fees'))
         fee.refresh_from_db()
         self.assertEqual(fee.status, FeeItem.STATUS_PAID)
+
+
+class SubscriptionSyncTests(TestCase):
+    def setUp(self):
+        self.school = School.objects.create(name='Sub School', subscription_tier=School.TIER_FREE)
+        self.admin = User.objects.create_user(
+            username='sub_admin', password='pass', role='school_admin', school=self.school,
+        )
+
+    def test_apply_subscription_updates_tier(self):
+        from payments.subscription_sync import apply_subscription_from_session
+
+        session = {
+            'id': 'cs_test_sub_1',
+            'amount_total': 4900,
+            'payment_intent': 'pi_test',
+            'metadata': {
+                'payment_type': 'subscription',
+                'school_id': str(self.school.pk),
+                'tier': 'standard',
+                'admin_user_id': str(self.admin.pk),
+            },
+        }
+        payment = apply_subscription_from_session(session)
+        self.assertIsNotNone(payment)
+        self.school.refresh_from_db()
+        self.assertEqual(self.school.subscription_tier, School.TIER_STANDARD)
+
+    def test_apply_subscription_idempotent(self):
+        from payments.subscription_sync import apply_subscription_from_session
+
+        session = {
+            'id': 'cs_test_sub_2',
+            'amount_total': 9900,
+            'payment_intent': 'pi_test2',
+            'metadata': {
+                'payment_type': 'subscription',
+                'school_id': str(self.school.pk),
+                'tier': 'premium',
+                'admin_user_id': str(self.admin.pk),
+            },
+        }
+        apply_subscription_from_session(session)
+        apply_subscription_from_session(session)
+        from payments.models import SubscriptionPayment
+        self.assertEqual(SubscriptionPayment.objects.filter(stripe_session_id='cs_test_sub_2').count(), 1)
+        self.school.refresh_from_db()
+        self.assertEqual(self.school.subscription_tier, School.TIER_PREMIUM)
