@@ -1,7 +1,29 @@
 {% extends "base/portal.html" %}
 {% block portal_content %}
 <section class="panel">
+  <h2 style="margin-top:0;">Analytics</h2>
+  <p class="lead">{{ school_name }} — {{ stats.subscription_tier }} plan</p>
   <div class="accent-bar"></div>
-  <p class="lead">Charts and KPIs — placeholder analytics dashboard.</p>
+
+  <div class="grid-cards analytics-grid">
+    <article class="card"><h2>{{ stats.student_count }}</h2><p>Active students</p></article>
+    <article class="card"><h2>{{ stats.enrolled_count }}</h2><p>Enrolled in classes</p></article>
+    <article class="card"><h2>{{ stats.teacher_count }}</h2><p>Teachers</p></article>
+    <article class="card"><h2>{{ stats.class_count }}</h2><p>Classes</p></article>
+  </div>
+
+  <h3 class="section-label" style="margin-top:1.5rem;">Fees</h3>
+  <div class="grid-cards analytics-grid">
+    <article class="card"><h2>{{ stats.fee_totals.outstanding_count }}</h2><p>Outstanding invoices</p></article>
+    <article class="card"><h2>{{ stats.fee_totals.paid_count }}</h2><p>Paid invoices</p></article>
+    <article class="card"><h2>{{ stats.fee_totals.outstanding_display }}</h2><p>Outstanding fees</p></article>
+  </div>
+
+  <h3 class="section-label" style="margin-top:1.5rem;">Attendance ({{ stats.session_date|date:"d M Y" }})</h3>
+  {% if stats.attendance_rate != None %}
+  <p class="lead">Present/late rate today: <strong>{{ stats.attendance_rate }}%</strong> — {{ stats.attendance_present }} present, {{ stats.attendance_late }} late, {{ stats.attendance_absent }} absent</p>
+  {% else %}
+  <p class="lead">No attendance marks recorded for today yet.</p>
+  {% endif %}
 </section>
 {% endblock %}
