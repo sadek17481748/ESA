@@ -65,4 +65,41 @@ class Command(BaseCommand):
             },
         )
 
+        parent_user = User.objects.get(username='parent_demo')
+        from parents.models import ParentProfile, StudentParentLink
+        parent_profile, _ = ParentProfile.objects.get_or_create(
+            user=parent_user,
+            defaults={'school': school, 'phone': '07700900000'},
+        )
+        student = StudentProfile.objects.get(admission_number='ESA001', school=school)
+        StudentParentLink.objects.get_or_create(
+            parent=parent_profile,
+            student=student,
+            defaults={'relationship': 'father'},
+        )
+
+        from academics.models import ClassEnrollment, ClassGroup, YearGroup
+        y7, _ = YearGroup.objects.get_or_create(
+            school=school, name='Year 7', defaults={'sort_order': 7},
+        )
+        class_7a, _ = ClassGroup.objects.get_or_create(
+            school=school, name='7A',
+            defaults={'year_group': y7, 'teacher': TeacherProfile.objects.get(user=teacher_user)},
+        )
+        ClassEnrollment.objects.get_or_create(class_group=class_7a, student=student)
+
+        from subjects.models import Subject
+        Subject.objects.get_or_create(
+            school=school, name='Quran — Hifz',
+            defaults={
+                'track': 'hifz',
+                'code': 'HIFZ-1',
+                'lead_teacher': TeacherProfile.objects.get(user=teacher_user),
+            },
+        )
+        Subject.objects.get_or_create(
+            school=school, name='Islamic Studies',
+            defaults={'track': 'general', 'code': 'IS-1'},
+        )
+
         self.stdout.write(self.style.SUCCESS('RBAC seed complete — see README for passwords'))
