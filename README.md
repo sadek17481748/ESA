@@ -553,7 +553,13 @@ Then open http://127.0.0.1:8080/ in a browser.
 
 ### Data model and ERD (entity relationships)
 
-The ERD describes the planned relational structure for the ESA database. The diagram will be produced using dbdiagram.io or Lucidchart and added to `docs/erd.png`.
+The ERD describes the relational structure for the ESA database.
+
+**Live diagram (Lucidchart):** [ESA ERD — Lucidchart](https://lucid.app/lucidchart/62056323-bc35-429d-9476-90fb23a6d72b/edit?viewport_loc=-4270%2C-6278%2C9116%2C6296%2C0_0&invitationId=inv_17fdce9f-7187-414c-abc1-64e8fe297051)
+
+![ESA entity-relationship diagram](docs/erd.png)
+
+*Exported snapshot — open the Lucidchart link above for the editable source.*
 
 #### Design principles
 
@@ -583,7 +589,7 @@ The ERD describes the planned relational structure for the ESA database. The dia
 | User | 1 → many | Message | Messages link a sender and recipient |
 | User | 1 → many | AuditLog | Every audited action records the acting user |
 
-The full ERD diagram image will be added to `docs/erd.png` and linked here once generated.
+The diagram above and the [Lucidchart source](https://lucid.app/lucidchart/62056323-bc35-429d-9476-90fb23a6d72b/edit?viewport_loc=-4270%2C-6278%2C9116%2C6296%2C0_0&invitationId=inv_17fdce9f-7187-414c-abc1-64e8fe297051) are the canonical ERD references.
 
 ### Visual language
 
@@ -1047,7 +1053,8 @@ To be added as implementation progresses (docs, tutorials, UI references).
 
 ### ERD and schema design references
 
-https://esa-project-2a7a33dfe3fc.herokuapp.com/
+- [ESA ERD — Lucidchart (editable)](https://lucid.app/lucidchart/62056323-bc35-429d-9476-90fb23a6d72b/edit?viewport_loc=-4270%2C-6278%2C9116%2C6296%2C0_0&invitationId=inv_17fdce9f-7187-414c-abc1-64e8fe297051)
+- Exported image: [`docs/erd.png`](docs/erd.png)
 
 ### Feature resources
 
