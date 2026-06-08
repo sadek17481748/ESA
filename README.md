@@ -55,7 +55,7 @@ Assessor-facing links and evidence paths:
 | **Source repository** | https://github.com/sadek17481748/ESA |
 | **Live deployment** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
 | **Bug tracker (GitHub Project board)** | https://github.com/users/sadek17481748/projects/8/views/1 |
-| **Wireframes (README anchor)** | [Wireframes](#wireframes) |
+| **Wireframes (README anchor)** | [Wireframes](#wireframes) · [PDF pack](docs/ESA-wireframes.pdf) |
 | **ERD / data model** | [Data model and ERD](#data-model-and-erd-entity-relationships) |
 | **Test credentials** | `schooladmin` / `admin1234`, `parent_demo` / `demo1234`, `teacher_demo` / `teacher1234` — run `seed_rbac_users` on Heroku |
 | **Manual test evidence (screenshots)** | `docs/images/manual-testing/` |
@@ -515,7 +515,13 @@ The wireframes are built as static HTML/CSS pages at the repository root and are
 integrated into Django templates under `templates/pages/` for the Heroku deployment.
 Each page represents a key screen and uses the shared stylesheet (`css/base.css`).
 
-To preview the wireframes locally:
+**Full wireframe pack (PDF):** [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf)
+
+**Site map / user flow:**
+
+![ESA wireframe site map — homepage through role portals to messaging](docs/wireframe-site-map.png)
+
+To preview the static HTML wireframes locally:
 
 ```bash
 python3 -m http.server 8080
