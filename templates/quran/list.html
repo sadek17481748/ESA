@@ -1,0 +1,32 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <h2 style="margin-top:0;">Qur’an sessions</h2>
+  <div class="accent-bar"></div>
+  <p class="page-meta">{{ page_meta }}</p>
+  {% if can_create %}
+  <p><a class="btn-primary" href="{% url 'quran:create' %}">New session</a></p>
+  {% endif %}
+  <div class="table-wrap" style="margin-top:1rem;">
+    <table class="data-table">
+      <thead>
+        <tr><th>Student</th><th>Surah</th><th>Ayah range</th><th>Status</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for s in sessions %}
+        <tr>
+          <td>{{ s.student.full_name }}</td>
+          <td>{{ s.surah_name }}</td>
+          <td>{{ s.ayah_start }}–{{ s.ayah_end }}</td>
+          <td><span class="pill">{{ s.get_status_display }}</span></td>
+          <td>{{ s.created_at|date:"d M Y" }}</td>
+          <td><a href="{% url 'quran:session_detail' s.pk %}">Open</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="placeholder-row">No recitation sessions yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
