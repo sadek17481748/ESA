@@ -1,0 +1,142 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<h1 class="page-title">{{ exam.title }}</h1>
+<p class="page-meta">{{ exam.class_group.name }} · {{ exam.subject.name }} · {{ exam.exam_date|date:"d M Y" }}</p>
+
+{% if show_build %}
+<section id="build" class="panel" style="margin-bottom:1.25rem;">
+  <h2 style="margin-top:0;font-size:1.1rem;">Exam builder</h2>
+  <div class="accent-bar"></div>
+  <div class="split">
+    <div class="card">
+      <h2>Questions ({{ questions|length }})</h2>
+      <ul style="margin:0;padding-left:1.2rem;font-size:0.9rem;">
+        {% for q in questions %}
+        <li>{{ q.get_question_type_display }} — {{ q.prompt|truncatewords:12 }} ({{ q.max_marks }} marks)</li>
+        {% empty %}
+        <li>No questions yet.</li>
+        {% endfor %}
+      </ul>
+      {% if question_form %}
+      <form method="post" action="{% url 'exams:add_question' exam.pk %}" class="form-stack" style="margin-top:1rem;">
+        {% csrf_token %}
+        {% for field in question_form %}
+        <div class="field"><label>{{ field.label }}</label>{{ field }}</div>
+        {% endfor %}
+        <button type="submit" class="btn-primary">Add question</button>
+      </form>
+      {% endif %}
+    </div>
+    <div class="card">
+      <h2>Publish</h2>
+      <p>Status: <strong>{{ exam.get_status_display }}</strong></p>
+      {% if exam.status == 'draft' %}
+      <form method="post" action="{% url 'exams:publish' exam.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn-primary">Publish to class</button>
+      </form>
+      {% else %}
+      <p class="lead">Published — students can submit answers.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if student_form and student_result.status != 'finalised' %}
+<section class="panel" style="margin-bottom:1.25rem;">
+  <h2 style="margin-top:0;font-size:1.1rem;">Sit exam</h2>
+  <div class="accent-bar"></div>
+  <form method="post" class="form-stack">
+    {% csrf_token %}
+    {% for field in student_form %}
+    <div class="field"><label>{{ field.label }}</label>{{ field }}</div>
+    {% endfor %}
+    <button type="submit" class="btn-primary">Submit answers</button>
+  </form>
+</section>
+{% elif student_result and student_result.is_official %}
+<section class="panel" style="margin-bottom:1.25rem;">
+  <h2 style="margin-top:0;">Your result</h2>
+  <div class="accent-bar"></div>
+  <p><strong>Final score:</strong> {{ student_result.final_score }} / {{ exam.total_marks }}</p>
+  {% if student_result.teacher_comment %}<p>{{ student_result.teacher_comment }}</p>{% endif %}
+</section>
+{% elif student_result and student_result.submitted_at %}
+<section class="panel" style="margin-bottom:1.25rem;">
+  <p class="lead">Submitted — awaiting teacher finalisation.</p>
+  {% if student_result.auto_score is not None %}<p>Auto score (MCQ): {{ student_result.auto_score }}</p>{% endif %}
+</section>
+{% endif %}
+
+<section id="finalise" class="panel">
+  <h2 style="margin-top:0;font-size:1.1rem;">Results</h2>
+  <div class="accent-bar"></div>
+  {% if user.role == 'parent' or user.role == 'student' %}
+  {% if not results %}
+  <p class="lead">No finalised results yet — only verified scores appear here.</p>
+  {% endif %}
+  {% endif %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Auto score</th>
+          <th>Manual score</th>
+          <th>Final score</th>
+          <th>Finalised</th>
+          {% if show_finalise %}<th>Actions</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td>{{ r.student.full_name }}</td>
+          <td>{{ r.auto_score|default:"—" }}</td>
+          <td>{{ r.manual_score|default:"—" }}</td>
+          <td><strong>{{ r.final_score|default:"—" }}</strong></td>
+          <td>
+            {% if r.is_official %}
+            <span class="pill">Yes — {{ r.signed_off_at|date:"d M Y" }}</span>
+            {% else %}
+            <span class="pill">Pending</span>
+            {% endif %}
+          </td>
+          {% if show_finalise %}
+          <td>
+            {% if not r.is_official and r.submitted_at %}
+            <form method="post" action="{% url 'exams:mark_written' exam.pk %}" style="margin-bottom:0.5rem;">
+              {% csrf_token %}
+              <input type="hidden" name="result_id" value="{{ r.pk }}">
+              {% for q in questions %}
+              {% if q.question_type == 'written' %}
+              <label style="font-size:0.8rem;">{{ q.prompt|truncatewords:6 }} (max {{ q.max_marks }})</label>
+              <input type="number" name="marks_{{ q.pk }}" step="0.5" min="0" max="{{ q.max_marks }}" style="width:4rem;">
+              {% endif %}
+              {% endfor %}
+              <button type="submit" class="btn-outline" style="margin-top:0.25rem;">Save written marks</button>
+            </form>
+            <form method="post" action="{% url 'exams:finalise' exam.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="result_id" value="{{ r.pk }}">
+              <input type="text" name="comment" placeholder="Comment" style="width:8rem;">
+              <button type="submit" class="btn-primary">Finalise</button>
+            </form>
+            {% elif r.is_official %}
+            {{ r.teacher_comment|default:"—" }}
+            {% else %}
+            Awaiting submission
+            {% endif %}
+          </td>
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr><td colspan="{% if show_finalise %}6{% else %}5{% endif %}" class="placeholder-row">No results to show.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+<p style="margin-top:1rem;"><a href="{% url 'exams:list' %}">← All exams</a></p>
+{% endblock %}
