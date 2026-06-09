@@ -233,18 +233,34 @@ if USE_S3_MEDIA:
     else:
         MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
 
-# Email — console in dev; SMTP when configured
-EMAIL_BACKEND = env(
-    'EMAIL_BACKEND',
-    default='django.core.mail.backends.console.EmailBackend',
+# Email — Gmail SMTP when credentials set; console backend otherwise
+ESA_PLATFORM_EMAIL = env(
+    'ESA_PLATFORM_EMAIL',
+    default='educationandschoolapplications@gmail.com',
 )
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='ESA Platform <noreply@esa.demo>')
-SERVER_EMAIL = DEFAULT_FROM_EMAIL
-EMAIL_HOST = env('EMAIL_HOST', default='')
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT = env.int('EMAIL_PORT', default=587)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+_default_from = env('DEFAULT_FROM_EMAIL', default='')
+if _default_from:
+    DEFAULT_FROM_EMAIL = _default_from
+elif EMAIL_HOST_USER:
+    DEFAULT_FROM_EMAIL = f'ESA Platform <{EMAIL_HOST_USER}>'
+else:
+    DEFAULT_FROM_EMAIL = f'ESA Platform <{ESA_PLATFORM_EMAIL}>'
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = env(
+        'EMAIL_BACKEND',
+        default='django.core.mail.backends.smtp.EmailBackend',
+    )
+else:
+    EMAIL_BACKEND = env(
+        'EMAIL_BACKEND',
+        default='django.core.mail.backends.console.EmailBackend',
+    )
 
 
 # ---------------------------------------------------------------------------

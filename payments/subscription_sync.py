@@ -66,6 +66,8 @@ def apply_subscription_from_session(session):
         paid_at=timezone.now(),
     )
     _ensure_school_tier(school, tier)
+    from .notifications import notify_platform_subscription_payment
+    notify_platform_subscription_payment(payment)
     return payment
 
 

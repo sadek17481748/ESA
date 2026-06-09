@@ -272,6 +272,8 @@ def _complete_fee_from_session(session, user):
     )
     fee.status = FeeItem.STATUS_PAID
     fee.save(update_fields=['status'])
+    from .notifications import notify_platform_fee_payment
+    notify_platform_fee_payment(payment)
     return payment
 
 
@@ -340,7 +342,7 @@ def _mark_fee_paid_from_session(session):
     except FeeItem.DoesNotExist:
         return
 
-    Payment.objects.create(
+    payment = Payment.objects.create(
         fee_item=fee,
         parent=fee.parent,
         stripe_session_id=session_id,
@@ -353,6 +355,8 @@ def _mark_fee_paid_from_session(session):
     )
     fee.status = FeeItem.STATUS_PAID
     fee.save(update_fields=['status'])
+    from .notifications import notify_platform_fee_payment
+    notify_platform_fee_payment(payment)
 
 
 def _mark_subscription_paid_from_session(session):

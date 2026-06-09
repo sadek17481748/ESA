@@ -142,6 +142,8 @@ def register_school(request):
                 detail=f'Web school registration: {school.name}',
                 request=request,
             )
+            from messaging.notifications import notify_platform_school_registration
+            notify_platform_school_registration(school, user)
             login(request, user)
             return redirect('pages:dashboard')
     else:
