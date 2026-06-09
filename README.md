@@ -69,6 +69,16 @@ Assessor-facing links and evidence paths:
 | **Validation evidence** | `docs/images/validation/` |
 | **Sprint checklist** | Follow the delivery timeline under [Planning notes](#planning-notes-written-at-project-start) |
 
+### Demo walkthrough
+
+A short assessor path on the live site:
+
+1. Open the [live deployment](https://esa-project-2a7a33dfe3fc.herokuapp.com/) and browse the home carousel.
+2. Log in as `schooladmin` / `admin1234` — confirm the School Admin dashboard and sidebar links load.
+3. Log out, then log in as `parent_demo` / `demo1234` — open **Payments** and confirm only that parent's fees appear.
+4. Log in as `teacher_demo` / `teacher1234` — open **Attendance** or **Homework** and confirm teacher-only actions are visible.
+5. Log in as `super` / `super1234` — confirm the Super Admin schools overview is reachable.
+
 ---
 
 ## Overview
