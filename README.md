@@ -2,7 +2,8 @@
 
 **ESA (Education and Schooling Applications)** is a full-stack multi-tenant SaaS platform for Islamic schools. It helps staff manage admissions, learning, attendance, academic progress, teacher-verified sign-offs, messaging, and payments (including Stripe Connect payouts to schools) in one place.
 
-> **Current tree:** Static HTML/CSS wireframes live at the repository root (`*.html`, `css/base.css`). Preview with `python3 -m http.server 8080` then open http://127.0.0.1:8080/ . The Django and API sections below describe the planned implementation and are unchanged from the module specification.
+> **Live app:** https://esa-project-2a7a33dfe3fc.herokuapp.com/ · **Source:** https://github.com/sadek17481748/ESA  
+> Static wireframe HTML at the repo root (`*.html`, `css/base.css`) can still be previewed with `python3 -m http.server 8080` — the production UI is implemented as Django templates.
 
 ## Table of Contents
 
@@ -27,10 +28,14 @@
 - [Technologies Used](#technologies-used)
 - [File Structure](#file-structure)
 - [Development](#development)
+  - [Project setup from scratch (Django)](#project-setup-from-scratch-django)
+  - [GitHub setup and version control](#github-setup-and-version-control)
   - [Local setup](#local-setup)
   - [Environment variables](#environment-variables)
   - [Run locally](#run-locally)
 - [Deployment](#deployment)
+  - [GitHub and Heroku integration](#github-and-heroku-integration)
+  - [Deployment steps](#deployment-steps)
   - [Connecting Gmail for platform email notifications](#connecting-gmail-for-platform-email-notifications)
 - [Testing and Bugs](#testing-and-bugs)
   - [Testing strategy and plan](#testing-strategy-and-plan)
@@ -665,7 +670,7 @@ CSS variables and component tokens are defined in `css/base.css`; contrast targe
 
 ### Payments
 
-- **Stripe Connect** (planned)
+- **Stripe Checkout** (test mode) — parent fees and school subscriptions
 
 ### Tools
 
@@ -706,6 +711,166 @@ CSS variables and component tokens are defined in `css/base.css`; contrast targe
 ---
 
 ## Development
+
+This section documents the **full setup path** used for ESA: creating the Django project locally, connecting it to **GitHub** over HTTPS, pushing commits to `main`, and later linking that repository to **Heroku** for production deploys. If you clone the repo today, start at [Local setup](#local-setup); the subsections below are written for assessors who want to see how the project was bootstrapped from an empty folder.
+
+### Project setup from scratch (Django)
+
+ESA follows the standard **Django MVT** layout. The project was created in May 2025 during the foundation sprint ([delivery timeline](#delivery-timeline-may-10--july-1)).
+
+#### 1. Prerequisites
+
+- **Python 3.11+** (3.13 used locally; Heroku currently builds with Python 3.14).
+- **Git** installed (`git --version`).
+- A code editor (**VS Code** or **Cursor**).
+- Optional for production parity: **PostgreSQL** locally (`brew install postgresql` on macOS). Without `DATABASE_URL`, Django falls back to **SQLite** for local dev.
+
+#### 2. Create the virtual environment
+
+From an empty working folder (e.g. `Desktop/ESA`):
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install --upgrade pip
+pip install django djangorestframework djangorestframework-simplejwt \
+  django-environ dj-database-url psycopg2-binary gunicorn whitenoise \
+  django-cors-headers stripe django-storages boto3
+pip freeze > requirements.txt
+```
+
+Dependencies are pinned in `requirements.txt` so Heroku installs the same versions on every deploy.
+
+#### 3. Start the Django project and apps
+
+Django was initialised with the project package named `core` (settings, URLs, WSGI):
+
+```bash
+django-admin startproject core .
+```
+
+Reusable feature areas were added as **separate Django apps** (one app per domain — assessor criterion 1.1 / 1.5):
+
+```bash
+python manage.py startapp accounts
+python manage.py startapp schools
+python manage.py startapp students
+python manage.py startapp teachers
+python manage.py startapp academics
+python manage.py startapp payments
+# … further apps added incrementally: pages, messaging, lms, attendance, etc.
+```
+
+Each app was registered in `core/settings.py` under `INSTALLED_APPS`, given its own `models.py`, `views.py`, `urls.py`, and (where needed) `forms.py`, `services.py`, and `tests.py`.
+
+#### 4. Core configuration (first commits)
+
+Early foundation work included:
+
+| Task | Where |
+|------|--------|
+| Environment-based settings | `core/settings.py` via `django-environ` + `.env` |
+| Custom `User` model with `role` field | `accounts/models.py` — must be set before first migrate |
+| PostgreSQL / SQLite switch | `DATABASE_URL` in `.env`; `dj-database-url` parser |
+| Root URL routing | `core/urls.py` includes per-app URLconfs |
+| Static + media folders | `static/`, `media/`, `css/base.css` wireframe stylesheet |
+| `.gitignore` | Ignores `.env`, `.venv`, `db.sqlite3`, `staticfiles/`, `media/` |
+| `.env.example` | Documents variables without secrets |
+
+First migrations:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser   # optional local admin
+```
+
+#### 5. Wireframes → Django templates
+
+Static HTML wireframes (`*.html` at repo root) were designed first for layout approval. They are previewed with `python3 -m http.server 8080`. Portal screens were then rebuilt as Django templates under `templates/` and `pages/` views, sharing `css/base.css` for a consistent theme on Heroku.
+
+---
+
+### GitHub setup and version control
+
+ESA uses **Git** for every change and **GitHub** as the remote source of truth: https://github.com/sadek17481748/ESA
+
+#### 1. Initialise Git locally
+
+After the first working Django tree existed:
+
+```bash
+cd /path/to/ESA
+git init
+git add .
+git commit -m "Initial Django project scaffold with accounts and schools apps."
+```
+
+`.env` and `.venv/` are **never** committed — they are listed in `.gitignore`.
+
+#### 2. Create the GitHub repository
+
+On [GitHub](https://github.com/new):
+
+1. Click **New repository**.
+2. Name: **ESA** (owner: `sadek17481748`).
+3. Visibility: **Public** (required for assessor access).
+4. **Do not** tick “Add a README” if you already have local commits — avoid unrelated merge histories.
+5. Click **Create repository**.
+
+GitHub shows an empty-repo page with setup commands.
+
+#### 3. Connect the remote over HTTPS and push to `main`
+
+HTTPS was chosen so the remote works without SSH key setup on every machine:
+
+```bash
+git remote add origin https://github.com/sadek17481748/ESA.git
+git branch -M main
+git push -u origin main
+```
+
+When prompted for credentials:
+
+- **Username:** your GitHub username (`sadek17481748`).
+- **Password:** a **GitHub Personal Access Token** (classic or fine-grained with `repo` scope) — GitHub no longer accepts account passwords for Git over HTTPS.
+
+macOS may store the token in Keychain after the first successful push. Verify the remote:
+
+```bash
+git remote -v
+# origin  https://github.com/sadek17481748/ESA.git (fetch)
+# origin  https://github.com/sadek17481748/ESA.git (push)
+```
+
+#### 4. Day-to-day Git workflow (used throughout the project)
+
+Each feature was committed in **small, reviewable steps** (foundation → RBAC → payments → messaging, etc.):
+
+```bash
+git pull origin main              # sync before starting work
+# … edit files, run tests …
+git status
+git add path/to/changed/files
+git commit -m "Add parent fee list with Stripe checkout redirect."
+git push origin main
+```
+
+Commit messages describe **why** the change was made, not only which files moved. The full history is visible on GitHub → **Commits**.
+
+#### 5. Clone on another machine (assessor or second laptop)
+
+```bash
+git clone https://github.com/sadek17481748/ESA.git
+cd ESA
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env              # then fill in local secrets
+python manage.py migrate
+python manage.py runserver
+```
+
+---
 
 ### Local setup
 
@@ -820,6 +985,120 @@ ESA is deployed on **Heroku** with a managed **PostgreSQL** database. The live a
 **https://esa-project-2a7a33dfe3fc.herokuapp.com/**
 
 Source code is hosted on GitHub and connected to Heroku for automatic deploys when `main` is pushed. You can also deploy manually with the Heroku CLI.
+
+### GitHub and Heroku integration
+
+Production hosting uses **Heroku app `esa-project`**:
+
+| Resource | URL |
+|----------|-----|
+| **Live site** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| **GitHub repo** | https://github.com/sadek17481748/ESA |
+| **Heroku Git remote** | `https://git.heroku.com/esa-project.git` |
+| **Bug tracker** | https://github.com/users/sadek17481748/projects/8/views/1 |
+
+#### How the two remotes fit together
+
+After local development, the same `main` branch feeds **two** remotes:
+
+```
+Local folder  ──git push──►  origin (GitHub)  ──auto-deploy──►  Heroku (esa-project)
+                ──git push──►  heroku (optional direct deploy)
+```
+
+**`origin`** — GitHub. Every `git push origin main` updates the public repository assessors can browse.
+
+**`heroku`** — Heroku’s Git endpoint. Optional direct deploy with `git push heroku main` (requires `heroku login` in the terminal).
+
+#### Step A — Create the Heroku app
+
+1. Sign up / log in at [heroku.com](https://www.heroku.com/).
+2. Install the CLI: `brew install heroku` (macOS) → `heroku login` (opens browser).
+3. Create the app and attach PostgreSQL:
+
+   ```bash
+   heroku create esa-project
+   heroku addons:create heroku-postgresql:essential-0 -a esa-project
+   ```
+
+4. Add the Heroku Git remote to your local clone:
+
+   ```bash
+   heroku git:remote -a esa-project
+   git remote -v
+   # heroku  https://git.heroku.com/esa-project.git
+   # origin  https://github.com/sadek17481748/ESA.git
+   ```
+
+#### Step B — Connect GitHub for automatic deploys (recommended)
+
+In the [Heroku Dashboard](https://dashboard.heroku.com/) → **esa-project** → **Deploy**:
+
+1. **Deployment method:** choose **GitHub** (not Heroku Git alone).
+2. Click **Connect to GitHub** and authorise Heroku.
+3. Search for repository **`sadek17481748/ESA`** and click **Connect**.
+4. Under **Automatic deploys**, select branch **`main`** and enable **Wait for CI to pass** only if you add GitHub Actions later (optional).
+5. Click **Enable Automatic Deploys**.
+
+From this point, every `git push origin main` triggers a Heroku build without running `git push heroku main` manually. Build logs appear under the **Activity** tab.
+
+#### Step C — First production deploy
+
+Either push to GitHub (auto-deploy) or push directly:
+
+```bash
+# Option 1 — via GitHub (after automatic deploys enabled)
+git push origin main
+
+# Option 2 — direct Heroku Git (if HTTPS auth fails, use a token — see below)
+git push heroku main
+
+# Option 3 — token-based push when terminal asks for credentials
+git push https://heroku:$(heroku auth:token)@git.heroku.com/esa-project.git main
+```
+
+After the slug builds, run one-off setup on the dyno:
+
+```bash
+heroku run python manage.py migrate -a esa-project
+heroku run python manage.py ensure_platform_seed -a esa-project
+heroku run python manage.py verify_deploy -a esa-project
+```
+
+#### Step D — Set Heroku config vars (secrets stay off GitHub)
+
+Secrets are stored as **Config Vars** in the Heroku Dashboard → **Settings**, or via CLI:
+
+```bash
+heroku config:set SECRET_KEY="…" DEBUG=False -a esa-project
+heroku config:set STRIPE_PUBLISHABLE_KEY="pk_test_…" STRIPE_SECRET_KEY="sk_test_…" -a esa-project
+bash scripts/sync_stripe_to_heroku.sh    # from local .env
+bash scripts/sync_email_to_heroku.sh     # Gmail SMTP vars
+```
+
+`DATABASE_URL` is injected automatically by the Heroku Postgres add-on. Never commit `.env` — `.gitignore` blocks it.
+
+#### Step E — Procfile and runtime
+
+`Procfile` tells Heroku how to boot the web dyno:
+
+```
+web: python manage.py migrate --noinput && python manage.py ensure_platform_seed && gunicorn core.wsgi --bind 0.0.0.0:$PORT
+```
+
+**Gunicorn** serves the WSGI app; **WhiteNoise** serves collected static files after `collectstatic` at build time. Migrations and demo seed run on each dyno restart so fresh deploys always have schema and test accounts.
+
+#### Troubleshooting deploys
+
+| Problem | Fix |
+|---------|-----|
+| `git push heroku` → Invalid credentials | Run `heroku login`, or use `git push https://heroku:$(heroku auth:token)@git.heroku.com/esa-project.git main` |
+| GitHub push works but Heroku unchanged | Check **Deploy → Automatic deploys** is enabled for `main` |
+| Config change stuck on “release executing” | Ensure `Procfile` has no hanging `release:` hook; redeploy latest `main` |
+| Stripe / email not working on live site | Run `bash scripts/sync_stripe_to_heroku.sh` and `bash scripts/sync_email_to_heroku.sh` after `heroku login` |
+| View live logs | `heroku logs --tail -a esa-project` |
+
+---
 
 ### Deployment steps
 
