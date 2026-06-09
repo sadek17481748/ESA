@@ -679,7 +679,7 @@ CSS variables and component tokens are defined in `css/base.css`; contrast targe
 | **Git** | Version control |
 | **GitHub** | Repository hosting, Issues, Projects |
 | **PostgreSQL / psql** | Database, ad-hoc SQL checks |
-| **VS Code / Cursor** | Editing and integrated terminal |
+| **VS Code** | Editing and integrated terminal |
 | **Chrome DevTools** | Network tab, responsive mode, Lighthouse |
 
 ---
@@ -722,7 +722,7 @@ ESA follows the standard **Django MVT** layout. The project was created in May 2
 
 - **Python 3.11+** (3.13 used locally; Heroku currently builds with Python 3.14).
 - **Git** installed (`git --version`).
-- A code editor (**VS Code** or **Cursor**).
+- A code editor (**VS Code**).
 - Optional for production parity: **PostgreSQL** locally (`brew install postgresql` on macOS). Without `DATABASE_URL`, Django falls back to **SQLite** for local dev.
 
 #### 2. Create the virtual environment
