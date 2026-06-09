@@ -80,6 +80,8 @@ INSTALLED_APPS = [
     'notifications',
     'messaging',
     'lms',
+    'quran',
+    'exams',
     'pages',
 ]
 
@@ -96,6 +98,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'core_app.middleware.TenantMiddleware',
+    'core_app.middleware_email_verify.EmailVerificationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
