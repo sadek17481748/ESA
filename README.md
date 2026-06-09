@@ -643,6 +643,16 @@ CSS variables and component tokens are defined in `css/base.css`; contrast targe
 - Accessible form labels and validation feedback.
 - Skip link to main content for keyboard users.
 
+### Platform glossary
+
+| Term | Meaning |
+|------|---------|
+| **Tenant** | A single school; all data is scoped to one `School` record |
+| **Sign-off** | Teacher verification that makes Hifz, homework, or exam data official |
+| **Hifz** | Qur'an memorisation tracking per surah or juz |
+| **RBAC** | Role-based access control across five user types |
+| **Stripe Connect** | OAuth flow so fee payments route to each school's Stripe account |
+
 ---
 
 ## Technologies Used
