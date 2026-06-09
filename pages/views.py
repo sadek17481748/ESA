@@ -118,9 +118,20 @@ def register(request):
                 request=request,
             )
             login(request, user)
+            from accounts.verification import create_and_send_verification_code, user_needs_email_verification
+            if user_needs_email_verification(user):
+                create_and_send_verification_code(user, request=request)
+                messages.info(request, f'We sent a verification code to {user.email}.')
+                return redirect('verify_email')
             return redirect('pages:dashboard')
     else:
-        form = RegisterForm()
+        initial = {}
+        if request.GET.get('code'):
+            initial['link_code'] = request.GET.get('code').strip().upper()
+            initial['role'] = 'parent'
+        if request.GET.get('school'):
+            initial['school'] = request.GET.get('school')
+        form = RegisterForm(initial=initial)
     return render(request, 'registration/register.html', {
         'form': form,
         'has_schools': has_schools,
@@ -145,6 +156,11 @@ def register_school(request):
             from messaging.notifications import notify_platform_school_registration
             notify_platform_school_registration(school, user)
             login(request, user)
+            from accounts.verification import create_and_send_verification_code, user_needs_email_verification
+            if user_needs_email_verification(user):
+                create_and_send_verification_code(user, request=request)
+                messages.info(request, f'We sent a verification code to {user.email}.')
+                return redirect('verify_email')
             return redirect('pages:dashboard')
     else:
         form = SchoolRegisterForm()
@@ -169,6 +185,13 @@ class EsaLoginView(LoginView):
             detail='Session login',
             request=self.request,
         )
+        from accounts.verification import user_needs_email_verification
+        if user_needs_email_verification(self.request.user):
+            from django.contrib import messages
+            messages.info(self.request, 'Please verify your email to continue.')
+            from django.shortcuts import redirect
+            from django.urls import reverse
+            return redirect(reverse('verify_email'))
         return response
 
 
@@ -732,7 +755,8 @@ def page_behaviour(request):
 
 @login_required
 def page_exams(request):
-    return _portal_page(request, 'pages/features/exams.html', 'Exams')
+    from exams.views import exams_list
+    return exams_list(request)
 
 
 @login_required
@@ -747,7 +771,8 @@ def page_payments_info(request):
 
 @login_required
 def page_quran(request):
-    return _portal_page(request, 'pages/features/quran_annotation.html', 'Qur’an annotation')
+    from quran.views import quran_list
+    return quran_list(request)
 
 
 @login_required
@@ -776,3 +801,99 @@ def page_analytics(request):
     ctx = build_portal_context(request, 'Analytics', 'School KPIs and overview.')
     ctx['stats'] = stats
     return render(request, 'pages/features/analytics.html', ctx)
+
+
+@role_required('school_admin')
+def school_admin_students(request):
+    from students.link_service import build_parent_link_url, get_or_create_active_code
+    from students.models import StudentProfile
+
+    school = request.user.school
+    students = StudentProfile.objects.filter(school=school, is_active=True).order_by(
+        'last_name', 'first_name',
+    )
+    rows = []
+    for student in students:
+        code_row = get_or_create_active_code(student=student, created_by=request.user)
+        rows.append({
+            'student': student,
+            'code': code_row,
+            'link_url': build_parent_link_url(request, code_row.code),
+        })
+    ctx = build_portal_context(
+        request,
+        'Students & parent links',
+        'Issue a unique code so parents can link to each student.',
+    )
+    ctx['rows'] = rows
+    return render(request, 'pages/school_admin/students.html', ctx)
+
+
+@role_required('school_admin')
+@require_POST
+def school_admin_regenerate_link_code(request, student_id):
+    from students.link_service import regenerate_link_code
+    from students.models import StudentProfile
+
+    student = get_object_or_404(StudentProfile, pk=student_id, school=request.user.school)
+    regenerate_link_code(student=student, created_by=request.user)
+    messages.success(request, f'New link code issued for {student.full_name}.')
+    return redirect('pages:school_admin_students')
+
+
+@login_required
+def parent_link_child(request):
+    from accounts.forms_portal import ParentLinkCodeForm
+    from students.link_service import link_parent_to_student
+
+    if request.user.role != 'parent':
+        return redirect('pages:dashboard')
+
+    initial = {}
+    if request.GET.get('code'):
+        initial['code'] = request.GET.get('code').strip().upper()
+
+    if request.method == 'POST':
+        form = ParentLinkCodeForm(request.POST)
+        if form.is_valid():
+            try:
+                _, created, student = link_parent_to_student(
+                    parent_user=request.user,
+                    code=form.cleaned_data['code'],
+                    relationship=form.cleaned_data['relationship'],
+                )
+                if created:
+                    messages.success(request, f'Linked to {student.full_name}.')
+                else:
+                    messages.info(request, f'Already linked to {student.full_name}.')
+                return redirect('pages:dashboard_parent')
+            except (PermissionError, ValueError) as exc:
+                messages.error(request, str(exc))
+    else:
+        form = ParentLinkCodeForm(initial=initial)
+
+    ctx = build_portal_context(
+        request,
+        'Link your child',
+        'Enter the code your school gave you to connect your parent account.',
+    )
+    ctx['form'] = form
+    return render(request, 'registration/parent_link_child.html', ctx)
+
+
+def public_student_link(request, code):
+    """Short link schools can share — sends parents to register or link flow."""
+    from students.link_service import resolve_link_code
+
+    row = resolve_link_code(code)
+    if not row:
+        messages.error(request, 'This link code is invalid or has expired.')
+        return redirect('pages:register')
+
+    if request.user.is_authenticated:
+        if request.user.role == 'parent':
+            return redirect(f'{reverse("pages:parent_link_child")}?code={row.code}')
+        messages.warning(request, 'Log in as a parent account to use this link.')
+        return redirect('pages:dashboard')
+
+    return redirect(f'{reverse("pages:register")}?code={row.code}&school={row.school_id}')
