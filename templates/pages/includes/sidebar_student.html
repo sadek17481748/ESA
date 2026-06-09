@@ -3,6 +3,7 @@
   <a href="{% url 'pages:dashboard_student' %}"{% if current_portal_url == 'dashboard_student' %} aria-current="page"{% endif %}>Overview</a>
   <a href="{% url 'pages:timetable' %}"{% if current_portal_url == 'timetable' %} aria-current="page"{% endif %}>Timetable</a>
   <a href="{% url 'pages:worksheets' %}"{% if current_portal_url == 'worksheets' %} aria-current="page"{% endif %}>Homework</a>
+  <a href="{% url 'pages:quran' %}"{% if current_portal_url == 'quran' %} aria-current="page"{% endif %}>Qur’an</a>
   <a href="{% url 'pages:exams' %}"{% if current_portal_url == 'exams' %} aria-current="page"{% endif %}>Exams</a>
   <a href="{% url 'pages:hifz' %}"{% if current_portal_url == 'hifz' %} aria-current="page"{% endif %}>Hifz</a>
   <a href="{% url 'pages:attendance' %}"{% if current_portal_url == 'attendance' %} aria-current="page"{% endif %}>Attendance</a>
