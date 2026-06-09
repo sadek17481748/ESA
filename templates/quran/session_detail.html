@@ -1,0 +1,89 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<h1 class="page-title">{{ session.surah_name }}</h1>
+<p class="page-meta">Ayah {{ session.ayah_start }}–{{ session.ayah_end }} · {{ session.get_status_display }}</p>
+
+<div class="split" style="margin-bottom:1.25rem;">
+  <section class="panel">
+    <h2 style="margin-top:0;font-size:1.1rem;">Text panel</h2>
+    <div class="accent-bar"></div>
+    <div class="card quran-text-panel" style="min-height:220px;direction:rtl;text-align:right;font-size:1.25rem;line-height:2;">
+      {{ session.ayah_text|linebreaksbr }}
+    </div>
+  </section>
+
+  <section class="panel" id="annotations">
+    <h2 style="margin-top:0;font-size:1.1rem;">Mistake list</h2>
+    <div class="accent-bar"></div>
+    {% if annotation_form %}
+    <form method="post" action="{% url 'quran:add_annotation' session.pk %}" class="form-stack" style="margin-bottom:1rem;">
+      {% csrf_token %}
+      <div class="field"><label>Ayah</label>{{ annotation_form.ayah_number }}</div>
+      <div class="field"><label>Tag</label>{{ annotation_form.tag }}</div>
+      <div class="field"><label>Time (seconds)</label>{{ annotation_form.timestamp_seconds }}</div>
+      <div class="field"><label>Note</label>{{ annotation_form.comment }}</div>
+      <button type="submit" class="btn-primary">Add annotation</button>
+    </form>
+    {% endif %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Ayah</th><th>Tag</th><th>Time</th><th>Note</th></tr></thead>
+        <tbody>
+          {% for a in annotations %}
+          <tr>
+            <td>{{ a.ayah_number }}</td>
+            <td><span class="pill">{{ a.get_tag_display }}</span></td>
+            <td>{{ a.timestamp_seconds }}s</td>
+            <td>{{ a.comment|default:"—" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="placeholder-row">No annotations yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<section id="audio" class="panel">
+  <h2 style="margin-top:0;font-size:1.1rem;">Audio</h2>
+  <div class="accent-bar"></div>
+  <div class="split" style="margin:0;">
+    <div class="card">
+      <h2>Student recitation</h2>
+      {% if session.student_audio %}
+      <audio controls src="{{ session.student_audio.url }}" style="width:100%;margin-top:0.5rem;"></audio>
+      {% else %}
+      <p class="lead">No upload yet.</p>
+      {% endif %}
+      {% if audio_form %}
+      <form method="post" action="{% url 'quran:upload_audio' session.pk %}" enctype="multipart/form-data" style="margin-top:0.75rem;">
+        {% csrf_token %}
+        {{ audio_form.student_audio }}
+        <button type="submit" class="btn-primary" style="margin-top:0.5rem;">Upload recitation</button>
+      </form>
+      {% endif %}
+    </div>
+    <div class="card">
+      <h2>Teacher feedback</h2>
+      {% if session.teacher_feedback_audio %}
+      <audio controls src="{{ session.teacher_feedback_audio.url }}" style="width:100%;margin-top:0.5rem;"></audio>
+      {% endif %}
+      {% if session.teacher_notes %}
+      <p style="margin-top:0.5rem;font-size:0.9rem;">{{ session.teacher_notes }}</p>
+      {% endif %}
+      {% if feedback_form %}
+      <form method="post" action="{% url 'quran:upload_feedback' session.pk %}" enctype="multipart/form-data" style="margin-top:0.75rem;">
+        {% csrf_token %}
+        <div class="field"><label>Audio feedback</label>{{ feedback_form.teacher_feedback_audio }}</div>
+        <div class="field"><label>Written notes</label>{{ feedback_form.teacher_notes }}</div>
+        <button type="submit" class="btn-primary">Save feedback &amp; mark reviewed</button>
+      </form>
+      {% elif not session.teacher_feedback_audio and not session.teacher_notes %}
+      <p class="lead">Awaiting teacher feedback.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+<p style="margin-top:1rem;"><a href="{% url 'quran:list' %}">← All sessions</a></p>
+{% endblock %}
