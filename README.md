@@ -562,6 +562,10 @@ Then open http://127.0.0.1:8080/ in a browser.
 | Behaviour log | `behaviour.html` | Incident log table with filters and log-incident form. |
 | Staff messaging | `messages.html` | Messaging interface with conversation list and compose area. |
 
+### Wireframe design overview
+
+The wireframe pack follows a **public → auth → role portal → feature module** hierarchy. Marketing pages (`index.html`, `subscription.html`) use a single-column layout with top navigation. Signed-in screens share a **left sidebar** and main workspace so each role sees only relevant modules. Feature pages (timetable, attendance, payments, messaging) reuse the same shell as their role dashboard for consistent navigation. Status pills, KPI cards, and data tables are structural placeholders — they map directly to Django templates under `templates/pages/` on the live Heroku deployment.
+
 ---
 
 ## Design
