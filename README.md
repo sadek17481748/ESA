@@ -1122,6 +1122,17 @@ web: python manage.py migrate --noinput && python manage.py ensure_platform_seed
 | Stripe / email not working on live site | Run `bash scripts/sync_stripe_to_heroku.sh` and `bash scripts/sync_email_to_heroku.sh` after `heroku login` |
 | View live logs | `heroku logs --tail -a esa-project` |
 
+### Deployment FAQ
+
+**Why does the site show a generic error after deploy?**  
+Run `heroku run python manage.py migrate -a esa-project` and check `heroku logs --tail` for missing config vars (`SECRET_KEY`, `DATABASE_URL`).
+
+**How do I reset demo users on Heroku?**  
+`heroku run python manage.py seed_rbac_users -a esa-project`
+
+**Where are uploaded files stored in production?**  
+User uploads use Django's default file storage on the dyno filesystem unless S3 is configured; re-deploys may clear ephemeral files — use cloud storage for production media.
+
 ---
 
 ### Deployment steps
