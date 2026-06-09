@@ -1599,11 +1599,14 @@ https://esa-project-2a7a33dfe3fc.herokuapp.com/
 
 ### Django and DRF
 
-https://esa-project-2a7a33dfe3fc.herokuapp.com/
+- [Django documentation](https://docs.djangoproject.com/)
+- [Django REST framework](https://www.django-rest-framework.org/)
+- [SimpleJWT](https://django-rest-framework-simplejwt.readthedocs.io/)
 
 ### PostgreSQL
 
-https://esa-project-2a7a33dfe3fc.herokuapp.com/
+- [PostgreSQL documentation](https://www.postgresql.org/docs/)
+- [Heroku Postgres](https://devcenter.heroku.com/articles/heroku-postgresql)
 
 ### Images used in this project
 
