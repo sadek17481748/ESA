@@ -1,0 +1,30 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <h2 style="margin-top:0;">Exams</h2>
+  <div class="accent-bar"></div>
+  <p class="page-meta">{{ page_meta }}</p>
+  {% if can_create %}
+  <p><a class="btn-primary" href="{% url 'exams:create' %}">Build exam</a></p>
+  {% endif %}
+  <div class="table-wrap" style="margin-top:1rem;">
+    <table class="data-table">
+      <thead><tr><th>Title</th><th>Class</th><th>Subject</th><th>Date</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for e in exams %}
+        <tr>
+          <td><strong>{{ e.title }}</strong></td>
+          <td>{{ e.class_group.name }}</td>
+          <td>{{ e.subject.name }}</td>
+          <td>{{ e.exam_date|date:"d M Y" }}</td>
+          <td><span class="pill">{{ e.get_status_display }}</span></td>
+          <td><a href="{% url 'exams:detail' e.pk %}">Open</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="placeholder-row">No exams yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
