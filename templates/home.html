@@ -1,4 +1,5 @@
 {% extends "base/marketing.html" %}
+{% load static %}
 
 {% block title %}ESA — Education &amp; Schooling Applications{% endblock %}
 
@@ -69,28 +70,36 @@
     <input type="radio" name="esa-carousel" id="carousel-4">
     <div class="carousel-viewport">
       <figure class="carousel-slide slide-attendance">
-        <div class="carousel-visual" aria-hidden="true"></div>
+        <div class="carousel-visual">
+          <img src="{% static 'images/carousel/carousel-london-islamic-school.jpg' %}" alt="Students learning at London Islamic School" width="1200" height="800" loading="lazy" decoding="async">
+        </div>
         <figcaption>
           <h3>Attendance &amp; behaviour</h3>
           <p>Mark registers in seconds and keep a clear record for every class.</p>
         </figcaption>
       </figure>
       <figure class="carousel-slide slide-hifz">
-        <div class="carousel-visual" aria-hidden="true"></div>
+        <div class="carousel-visual">
+          <img src="{% static 'images/carousel/carousel-islamic-horizons.jpg' %}" alt="Islamic school classroom — Islamic Horizons" width="1024" height="681" loading="lazy" decoding="async">
+        </div>
         <figcaption>
           <h3>Hifz &amp; Qur’an progress</h3>
           <p>Track surah, juz, and revision — visible to teachers and parents.</p>
         </figcaption>
       </figure>
       <figure class="carousel-slide slide-parents">
-        <div class="carousel-visual" aria-hidden="true"></div>
+        <div class="carousel-visual">
+          <img src="{% static 'images/carousel/carousel-the-humanist.jpg' %}" alt="Islamic education discussion — The Humanist" width="800" height="530" loading="lazy" decoding="async">
+        </div>
         <figcaption>
           <h3>Parent portal</h3>
           <p>Families see homework, messages, and pay school fees securely online.</p>
         </figcaption>
       </figure>
       <figure class="carousel-slide slide-admin">
-        <div class="carousel-visual" aria-hidden="true"></div>
+        <div class="carousel-visual">
+          <img src="{% static 'images/carousel/carousel-alhuda-global.jpg' %}" alt="Online Islamic school learning — Al-Huda Global School" width="1270" height="500" loading="lazy" decoding="async">
+        </div>
         <figcaption>
           <h3>School admin dashboard</h3>
           <p>Manage staff, classes, subscriptions, and school settings in one place.</p>

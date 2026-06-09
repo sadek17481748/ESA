@@ -55,7 +55,7 @@ Assessor-facing links and evidence paths:
 | **Source repository** | https://github.com/sadek17481748/ESA |
 | **Live deployment** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
 | **Bug tracker (GitHub Project board)** | https://github.com/users/sadek17481748/projects/8/views/1 |
-| **Wireframes (README anchor)** | [Wireframes](#wireframes) · [PDF pack](docs/ESA-wireframes.pdf) |
+| **Wireframes (README anchor)** | [Wireframes](#wireframes) · [PDF pack](docs/ESA-wireframes.pdf) · [Balsamiq](https://balsamiq.cloud/so6babk/pveanf2) |
 | **ERD / data model** | [Data model and ERD](#data-model-and-erd-entity-relationships) |
 | **Test credentials** | `schooladmin` / `admin1234`, `parent_demo` / `demo1234`, `teacher_demo` / `teacher1234` — run `seed_rbac_users` on Heroku |
 | **Manual test evidence (screenshots)** | `docs/images/manual-testing/` |
@@ -516,6 +516,8 @@ integrated into Django templates under `templates/pages/` for the Heroku deploym
 Each page represents a key screen and uses the shared stylesheet (`css/base.css`).
 
 **Full wireframe pack (PDF):** [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf)
+
+**Interactive wireframes (Balsamiq):** [ESA wireframes — Balsamiq Cloud](https://balsamiq.cloud/so6babk/pveanf2)
 
 **Site map / user flow:**
 
@@ -1076,7 +1078,14 @@ https://esa-project-2a7a33dfe3fc.herokuapp.com/
 
 ### Images used in this project
 
-https://esa-project-2a7a33dfe3fc.herokuapp.com/
+Home page carousel (`static/images/carousel/`):
+
+| Image file | Used on | Source |
+|------------|---------|--------|
+| `carousel-london-islamic-school.jpg` | Carousel slide 1 — Attendance &amp; behaviour | [London Islamic School](http://www.londonislamicschool.com/) |
+| `carousel-islamic-horizons.jpg` | Carousel slide 2 — Hifz &amp; Qur’an progress | [Islamic Horizons — In Search of the Best Islamic School](https://islamichorizons.net/in-search-of-the-best-islamic-school/) |
+| `carousel-the-humanist.jpg` | Carousel slide 3 — Parent portal | [The Humanist — Islamic Education around the World](https://thehumanist.com/commentary/studying-whats-taught-islamic-education-around-the-world/) |
+| `carousel-alhuda-global.jpg` | Carousel slide 4 — School admin dashboard | [Al-Huda Global School — Online Islamic School](https://www.alhudaglobalschool.org/online-islamic-school/) |
 
 ---
 
