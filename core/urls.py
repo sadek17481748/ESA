@@ -9,6 +9,13 @@ from django.urls import include, path
 from django.views.static import serve
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from accounts.portal_views import (
+    EsaPasswordResetCompleteView,
+    EsaPasswordResetConfirmView,
+    EsaPasswordResetDoneView,
+    EsaPasswordResetView,
+    verify_email,
+)
 from core_app.views import home
 from pages.views import EsaLoginView, logout_view
 
@@ -18,6 +25,19 @@ urlpatterns = [
     # session auth — login / logout for portal and payments
     path('accounts/login/', EsaLoginView.as_view(), name='login'),
     path('accounts/logout/', logout_view, name='logout'),
+    path('accounts/password-reset/', EsaPasswordResetView.as_view(), name='password_reset'),
+    path('accounts/password-reset/done/', EsaPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path(
+        'accounts/password-reset/confirm/<uidb64>/<token>/',
+        EsaPasswordResetConfirmView.as_view(),
+        name='password_reset_confirm',
+    ),
+    path(
+        'accounts/password-reset/complete/',
+        EsaPasswordResetCompleteView.as_view(),
+        name='password_reset_complete',
+    ),
+    path('accounts/verify-email/', verify_email, name='verify_email'),
     path('', include('pages.urls')),
     # JWT — used by API clients and Postman
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -37,6 +57,8 @@ urlpatterns = [
     path('payments/', include('payments.urls')),
     path('messages/', include('messaging.urls')),
     path('lms/', include('lms.urls')),
+    path('quran/', include('quran.urls')),
+    path('exams/', include('exams.urls')),
     # shared wireframe stylesheet (login, payments, home)
     path('css/<path:path>', serve, {'document_root': settings.BASE_DIR / 'css'}),
 ]
