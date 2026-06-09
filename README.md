@@ -31,6 +31,7 @@
   - [Environment variables](#environment-variables)
   - [Run locally](#run-locally)
 - [Deployment](#deployment)
+  - [Connecting Gmail for platform email notifications](#connecting-gmail-for-platform-email-notifications)
 - [Testing and Bugs](#testing-and-bugs)
   - [Testing strategy and plan](#testing-strategy-and-plan)
   - [Assessment test matrix](#assessment-test-matrix)
@@ -740,8 +741,14 @@ Defined in `.env` (see `.env.example`). Single source of truth is `core/settings
 | `DEBUG` | `True`/`False` |
 | `ALLOWED_HOSTS` | Comma-separated hostnames |
 | `DATABASE_URL` | PostgreSQL URL; if omitted, SQLite is used for local dev |
-| `STRIPE_SECRET_KEY` | (payments phase) |
-| `STRIPE_WEBHOOK_SECRET` | (payments phase) |
+| `STRIPE_PUBLISHABLE_KEY` | Stripe Checkout (test mode) |
+| `STRIPE_SECRET_KEY` | Stripe secret key |
+| `STRIPE_WEBHOOK_SECRET` | Optional Stripe webhook signing secret |
+| `ESA_PLATFORM_EMAIL` | Platform inbox for alerts (default: `educationandschoolapplications@gmail.com`) |
+| `EMAIL_HOST` | SMTP host (Gmail: `smtp.gmail.com`) |
+| `EMAIL_HOST_USER` | Gmail address used to send mail |
+| `EMAIL_HOST_PASSWORD` | Gmail **App Password** (not your normal Gmail password) |
+| `DEFAULT_FROM_EMAIL` | From header, e.g. `ESA Platform <educationandschoolapplications@gmail.com>` |
 
 ### Run locally
 
@@ -808,48 +815,139 @@ Parent school fees use Stripe Checkout in test mode (same API keys as my `stripe
 
 ## Deployment
 
-Deployment will use Heroku (or Render) with a managed PostgreSQL database.
+ESA is deployed on **Heroku** with a managed **PostgreSQL** database. The live application is available at:
 
-### Deployment steps (planned)
+**https://esa-project-2a7a33dfe3fc.herokuapp.com/**
 
-1. Install Heroku CLI and login:
+Source code is hosted on GitHub and connected to Heroku for automatic deploys when `main` is pushed. You can also deploy manually with the Heroku CLI.
+
+### Deployment steps
+
+1. Install the Heroku CLI and log in:
 
    ```bash
    brew tap heroku/brew && brew install heroku
    heroku login
    ```
 
-2. Create the app and add PostgreSQL:
+2. Clone or pull the repository and add the Heroku remote (if not already present):
 
    ```bash
-   heroku create esa-app
-   heroku addons:create heroku-postgresql:essential-0 -a esa-app
+   git clone https://github.com/sadek17481748/ESA.git
+   cd ESA
+   heroku git:remote -a esa-project
    ```
 
-3. Set config vars:
+3. Set required config vars on Heroku (secrets are **never** committed to Git):
 
    ```bash
-   heroku config:set SECRET_KEY="a-long-random-string" -a esa-app
-   heroku config:set DEBUG=False -a esa-app
-   heroku config:set ALLOWED_HOSTS="esa-app.herokuapp.com" -a esa-app
+   heroku config:set SECRET_KEY="a-long-random-string" DEBUG=False -a esa-project
+   heroku config:set STRIPE_PUBLISHABLE_KEY="pk_test_..." STRIPE_SECRET_KEY="sk_test_..." -a esa-project
    ```
 
 4. Deploy and initialise:
 
    ```bash
    git push heroku main
-   heroku run python manage.py migrate -a esa-app
-   heroku run python manage.py createsuperuser -a esa-app
-   heroku open -a esa-app
+   # or push to GitHub main and wait for the Heroku GitHub integration to build
+   heroku run python manage.py migrate -a esa-project
+   heroku run python manage.py ensure_platform_seed -a esa-project
+   heroku run python manage.py verify_deploy -a esa-project
    ```
 
 **Production notes:**
-- `Procfile` runs the app with **Gunicorn**.
-- Heroku provides `DATABASE_URL` automatically.
-- WhiteNoise serves static files in production.
-- Use `heroku logs --tail` to diagnose startup issues.
+- `Procfile` runs **Gunicorn** and applies migrations plus demo seed data on dyno boot.
+- Heroku provides `DATABASE_URL` automatically when PostgreSQL is attached.
+- **WhiteNoise** serves static files in production.
+- Use `heroku logs --tail -a esa-project` to diagnose startup issues.
 
-**Live site URL:** (to be added after deployment)
+### Connecting Gmail for platform email notifications
+
+ESA sends email through **Gmail SMTP** so the platform inbox (`educationandschoolapplications@gmail.com`) receives alerts when important events happen: new school registrations, subscription payments, parent fee payments, school messages, and support tickets. Replies from that inbox can go back to the user who triggered the event (via `Reply-To` headers).
+
+Gmail does **not** allow normal account passwords for SMTP in third-party apps. You must use a **Google App Password** with **2-Step Verification** enabled on the Google account.
+
+#### Step 1 — Prepare the Google account
+
+1. Sign in to [Google Account](https://myaccount.google.com/) as `educationandschoolapplications@gmail.com`.
+2. Open **Security** and turn on **2-Step Verification** (required before App Passwords appear).
+3. Go to **Security → App passwords** (or search “App passwords” in account settings).
+4. Create a new app password:
+   - App: **Mail**
+   - Device: **Other** → name it `ESA Heroku` or `ESA local`
+5. Google shows a **16-character password** (often displayed in four groups). Copy it — you will not see it again.
+
+#### Step 2 — Configure local development (`.env`)
+
+Copy `.env.example` to `.env` and set:
+
+```env
+ESA_PLATFORM_EMAIL=educationandschoolapplications@gmail.com
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=educationandschoolapplications@gmail.com
+EMAIL_HOST_PASSWORD=your-16-char-app-password-no-spaces
+DEFAULT_FROM_EMAIL=ESA Platform <educationandschoolapplications@gmail.com>
+```
+
+When `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` are set, Django automatically switches from the console email backend to **SMTP** (`core/settings.py`).
+
+Test locally:
+
+```bash
+python manage.py send_test_email
+```
+
+You should receive `[ESA] Test email` in the platform Gmail inbox. If SMTP is not configured, the same command prints instructions and emails are written to the terminal instead.
+
+#### Step 3 — Configure Heroku (production)
+
+After `heroku login`, push the same values from your local `.env` to Heroku config vars:
+
+```bash
+bash scripts/sync_email_to_heroku.sh
+```
+
+Then verify on the live dyno:
+
+```bash
+heroku run python manage.py send_test_email -a esa-project
+```
+
+Alternatively, set each variable manually in the Heroku Dashboard → **esa-project** → **Settings** → **Config Vars**:
+
+| Config var | Example value |
+|------------|-----------------|
+| `ESA_PLATFORM_EMAIL` | `educationandschoolapplications@gmail.com` |
+| `EMAIL_HOST` | `smtp.gmail.com` |
+| `EMAIL_PORT` | `587` |
+| `EMAIL_USE_TLS` | `True` |
+| `EMAIL_HOST_USER` | `educationandschoolapplications@gmail.com` |
+| `EMAIL_HOST_PASSWORD` | *(16-character App Password)* |
+| `DEFAULT_FROM_EMAIL` | `ESA Platform <educationandschoolapplications@gmail.com>` |
+| `EMAIL_BACKEND` | `django.core.mail.backends.smtp.EmailBackend` |
+
+Restart dynos after changing config: `heroku restart -a esa-project`.
+
+#### What triggers platform emails
+
+| Event | Recipient | Module |
+|-------|-----------|--------|
+| New school registration | Platform inbox | `messaging/notifications.py` |
+| New subscription payment (Stripe) | Platform inbox | `payments/notifications.py` |
+| Parent fee payment completed | Platform inbox | `payments/notifications.py` |
+| New school message in a thread | Platform inbox + conversation participants | `messaging/notifications.py` |
+| Support ticket message | Platform inbox | `messaging/signals.py` |
+
+Participants can still opt in or out of personal message alerts via the checkbox on the messaging inbox page (`User.notify_on_messages`).
+
+#### Troubleshooting Gmail on Heroku
+
+- **“Email not configured”** — `EMAIL_HOST_USER` or `EMAIL_HOST_PASSWORD` is missing on the dyno. Re-run `bash scripts/sync_email_to_heroku.sh`.
+- **Authentication failed** — App Password is wrong or 2-Step Verification is off. Generate a new App Password and update config vars.
+- **Emails in spam** — Check the Spam folder for `[ESA]` subjects; mark as “Not spam” once.
+- **Never rotate App Passwords in Git** — only in `.env` (gitignored) and Heroku Config Vars.
 
 ---
 
