@@ -32,6 +32,7 @@
   - [Run locally](#run-locally)
 - [Deployment](#deployment)
 - [Testing and Bugs](#testing-and-bugs)
+  - [Testing strategy and plan](#testing-strategy-and-plan)
   - [Assessment test matrix](#assessment-test-matrix)
   - [Manual testing](#manual-testing)
   - [Automated testing](#automated-testing)
@@ -853,6 +854,122 @@ Deployment will use Heroku (or Render) with a managed PostgreSQL database.
 ---
 
 ## Testing and Bugs
+
+### Testing strategy and plan
+
+This section explains **how ESA is tested**, **why both automated and manual methods are used**, and **what changed compared to my previous project [bookly](https://github.com/sadek17481748/bookly)**. ESA is a larger, multi-tenant Django application with five roles, JWT and session authentication, Stripe payments, messaging, and LMS features — so the testing approach had to scale beyond a single-user Flask shop.
+
+#### What I learned from bookly (previous project)
+
+On [bookly](https://github.com/sadek17481748/bookly), I built a Flask bookstore with PostgreSQL, pytest, and a focused user journey (browse → auth → reviews → cart → checkout → orders). Testing was **documented thoroughly** in the bookly README: a **51-row manual checklist**, a **23-test pytest suite**, Lighthouse and W3C validation evidence, and a clear assessment matrix for functionality, usability, responsiveness, and data management.
+
+However, my own reflection in that project was honest: although some tests were written alongside features, the **heaviest testing work was compressed into a final pass on 25 April** — a dedicated day to run pytest, complete manual walkthroughs on PostgreSQL, and fix edge cases in checkout and ownership rules. Personal delays meant I had less uninterrupted time than planned, which increased the risk of late surprises. I recorded **40 bugs** in the bookly README, many discovered only when I exercised cross-table writes (checkout) and role enforcement (reviews, admin) under time pressure.
+
+For ESA, I deliberately changed that pattern.
+
+#### Continuous testing throughout ESA (not only at the end)
+
+ESA’s [delivery timeline](#planning-notes-written-at-project-start) (May → July) schedules **testing in every sprint**, not as a single block before submission:
+
+| Phase | Dates (approx.) | Testing focus |
+|-------|-----------------|---------------|
+| Foundation | May 10–14 | Local migrate, settings, URL smoke tests |
+| RBAC + tenant isolation | May 15–21 | Permission tests, cross-school access blocked |
+| Student / class APIs | May 22–28 | Enrollment, CSV import, API tenant scope |
+| Attendance + timetable | May 29 – Jun 4 | Form validation, slot conflicts, register saves |
+| Payments (Stripe) | Jun 5–11 | Checkout redirect, test card, webhook idempotency |
+| Messaging + LMS | Jun 12–18 | Inbox flows, participant labels, material upload |
+| Deploy + polish | Jun 19 – Jul 1 | Heroku `verify_deploy`, Lighthouse, manual evidence |
+
+After each feature lands, I run **`python manage.py test`** for the affected app (`pages`, `payments`, `messaging`, `lms`, `accounts`, etc.) and perform a **short manual smoke test** in the browser (login as the relevant role, complete one happy path, try one forbidden path). Bugs are logged immediately in the [bugs table](#bugs-encountered-during-development) below rather than deferred — the Stripe pence/pounds bug, parent fee scoping bug, and duplicate payment-on-refresh bug were all caught and fixed during the payments sprint, not in a final panic week.
+
+This **“test as you build”** approach spreads evidence collection across the project: screenshots go into `docs/images/manual-testing/` as each area is verified, instead of requiring fifty browser sessions in the last few days.
+
+#### Benefits of automated testing (Django test suite)
+
+Automated tests are **repeatable**, **fast**, and **honest about regressions**. Once a tenant-isolation or Stripe idempotency test exists, every future commit can re-run it in seconds.
+
+**What automated tests are good for on ESA:**
+
+- **RBAC and tenant boundaries** — e.g. a parent must not `GET /api/students/`; a school admin must see only their own school in `GET /api/schools/`.
+- **Form and API validation** — registration without a school rejected; timetable end-before-start rejected; Hifz subject without lead teacher returns 400.
+- **Payment logic** — subscription sync is idempotent; fee `amount_display` formats pence correctly; duplicate `stripe_session_id` does not create a second row.
+- **Portal routes** — register creates user + profile; school admin redirected from parent fee list; timetable save creates slots.
+- **Email plumbing** — `send_platform_email` delivers to `ESA_PLATFORM_EMAIL` when SMTP is configured (locmem backend in tests).
+
+**How to run:**
+
+```bash
+python manage.py test
+# or target one app:
+python manage.py test payments messaging pages lms core_app
+```
+
+Tests use Django’s test database (SQLite by default) so they do not require PostgreSQL on the machine running CI. Heroku production still uses PostgreSQL; manual checks confirm parity for migrations and seed commands.
+
+**Limits of automation (what pytest/Django tests do not replace):**
+
+- Stripe’s hosted Checkout UI (card fields, 3-D Secure) — exercised manually with test card `4242 4242 4242 4242`.
+- Real Gmail SMTP deliverability — verified with `python manage.py send_test_email` on Heroku.
+- Visual layout, colour contrast, and hamburger/sidebar behaviour on phones — manual + Lighthouse.
+- “Does this feel clear to a parent or teacher?” — usability judgement only a human can make.
+
+#### Benefits of manual testing (browser checklist)
+
+Manual testing proves the **full stack as a user experiences it**: session cookies, CSRF tokens, flash messages, Stripe redirects, sidebar navigation, and multi-step flows across roles.
+
+**What manual testing is good for on ESA:**
+
+- **End-to-end journeys** — school admin registers → adds teacher → teacher takes attendance → parent pays fee → message appears in inbox.
+- **Usability** — inline validation on register; role-aware dashboard redirect; unread message badge; Stripe test-mode banner on `/payments/`.
+- **Responsiveness** — Chrome DevTools device toolbar at phone (~375px), tablet (~768px), laptop (~1280px); messaging layout on narrow screens.
+- **Production verification** — `heroku run python manage.py verify_deploy` plus live login as `parent_demo`, `schooladmin`, `teacher_demo`.
+
+Evidence is captured in **`docs/images/manual-testing/`** (feature screenshots) and **`docs/images/validation/`** (Lighthouse, W3C, responsiveness tools), with rows in the [manual testing table](#manual-testing) filled as each test passes.
+
+#### Automated vs manual — when to use which
+
+| Concern | Automated | Manual |
+|---------|-----------|--------|
+| Same result every run | ✅ Best | ❌ Human variation |
+| Speed (hundreds of checks) | ✅ Seconds | ❌ Hours |
+| Catches UI/layout issues | ❌ Limited | ✅ Best |
+| Stripe / Gmail external services | ❌ Mocked or skipped | ✅ Real test mode |
+| Tenant / security rules | ✅ Best | ✅ Spot-check |
+| Assessor evidence (screenshots) | Terminal output | ✅ Browser captures |
+| Regression after a fix | ✅ Re-run suite | ❌ Re-do all steps |
+
+**Combined approach:** automate everything that is **rule-based and security-critical**; manually verify everything that is **visual, third-party, or role-journey**. This mirrors bookly’s matrix (functionality / usability / responsiveness / data management) but with a **larger checklist (44+ rows)** and **tests distributed across apps** rather than one `tests/` folder at the end.
+
+#### Comparison: bookly vs ESA testing
+
+| Aspect | bookly (Flask) | ESA (Django) |
+|--------|----------------|--------------|
+| Framework | pytest + Flask test client | Django `TestCase` + `Client` |
+| Test location | `tests/` (4 files, 23 tests) | Per-app `tests.py` + growing suite |
+| Database in tests | SQLite in-memory via conftest | Django test DB (SQLite) |
+| Manual checklist | 51 rows, mostly filled at end | 44+ rows, filled throughout sprints |
+| Payments | No gateway (order stored only) | Stripe Checkout + webhooks |
+| Email | Not implemented | Gmail SMTP + platform inbox |
+| Multi-tenancy | Single store | Per-school isolation (critical test area) |
+| Roles | User + admin | Super admin, school admin, teacher, parent, student |
+| Deploy smoke test | Manual browse on Heroku | `verify_deploy` management command |
+| Bug log | Documented in README | 40+ entries, updated as found |
+
+#### Planned testing before submission (July buffer)
+
+The project targets a stable deploy by **1 July**, with **1–7 July** reserved for final polish:
+
+1. Complete remaining manual table rows (messaging, LMS, analytics, Lighthouse scores).
+2. Full responsive pass on parent and teacher portals.
+3. Run entire `python manage.py test` on a clean checkout; fix any failures.
+4. Heroku: `verify_deploy`, Stripe test payment, `send_test_email`, click-through all sidebar links per role.
+5. W3C HTML/CSS validation on key templates; store results in `docs/images/validation/`.
+6. Fill [AI assistance log](#use-of-ai-assistance-log) for assessor transparency.
+
+The goal is to arrive at submission week with **most evidence already captured**, avoiding the heavy tail-end workload that bookly required when testing was front-loaded into the final days.
+
+---
 
 ### Assessment test matrix
 
