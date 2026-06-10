@@ -44,6 +44,7 @@ class Command(BaseCommand):
             user.school = school
             user.set_password(password)
             user.is_active = True
+            user.email_verified = True
             user.save()
             action = 'Created' if created else 'Updated'
             self.stdout.write(f'{action} {username} ({role})')
@@ -65,6 +66,7 @@ class Command(BaseCommand):
         super_user.school = None
         super_user.set_password('super1234')
         super_user.is_active = True
+        super_user.email_verified = True
         super_user.save()
         self.stdout.write(f"{'Created' if super_created else 'Updated'} super (super_admin)")
 

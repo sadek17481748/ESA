@@ -40,9 +40,10 @@ class Command(BaseCommand):
                     'school': user_school,
                 },
             )
+            user.email_verified = True
             if created:
                 user.set_password(password)
-                user.save()
+            user.save()
                 self.stdout.write(f'Created {username} ({role})')
             else:
                 self.stdout.write(f'Exists {username}')
