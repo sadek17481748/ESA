@@ -1,0 +1,22 @@
+{% extends "base/marketing.html" %}
+{% block title %}Verify email — ESA{% endblock %}
+{% block content %}
+<section class="panel">
+  <h1>Verify your email</h1>
+  <div class="accent-bar"></div>
+  <p class="lead">We sent a 6-digit code to <strong>{{ email }}</strong>. Enter it below to activate your account.</p>
+  {% if dev_code %}
+  <p class="lead" style="color:var(--gold);font-size:0.9rem;">Dev mode — your code: <strong>{{ dev_code }}</strong></p>
+  {% endif %}
+  <form method="post" class="form-stack">
+    {% csrf_token %}
+    <div class="field"><label>{{ form.code.label }}</label>{{ form.code }}</div>
+    <button type="submit" class="btn-primary">Verify</button>
+  </form>
+  <form method="post" style="margin-top:1rem;">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="resend">
+    <button type="submit" class="btn-outline">Resend code</button>
+  </form>
+</section>
+{% endblock %}
