@@ -1,6 +1,7 @@
 """Parent dashboard — children summary with attendance and LMS progress."""
 from datetime import timedelta
 
+from exams.models import ExamResult
 from lms.services import student_track_summaries
 from pages.attendance_service import parent_children_attendance, session_date_or_today
 
@@ -28,5 +29,15 @@ def parent_children_summary(parent_user, session_date=None):
         present = sum(1 for m in week_marks if m.status == 'present')
         child_row['week_present'] = present
         child_row['week_total'] = len(week_marks)
+
+        finalised = ExamResult.objects.filter(
+            student=student,
+            status=ExamResult.STATUS_FINALISED,
+        ).select_related('exam').order_by('-signed_off_at')[:3]
+        child_row['finalised_exams'] = finalised
+        child_row['finalised_exam_count'] = ExamResult.objects.filter(
+            student=student,
+            status=ExamResult.STATUS_FINALISED,
+        ).count()
 
     return children

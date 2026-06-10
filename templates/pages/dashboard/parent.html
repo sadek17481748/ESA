@@ -23,6 +23,9 @@
         <div class="progress-bar"><span style="width:{{ child.lms_percent }}%;"></span></div>
         <p style="font-size:0.78rem;color:var(--muted);margin:0.25rem 0 0;">{{ child.lms_completed }}/{{ child.lms_total }} assignments complete</p>
       </div>
+      {% if child.finalised_exam_count %}
+      <p style="font-size:0.82rem;margin:0.65rem 0 0;">Finalised exams: {{ child.finalised_exam_count }}</p>
+      {% endif %}
     </article>
     {% endfor %}
   </div>
