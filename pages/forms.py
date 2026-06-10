@@ -7,8 +7,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.db import transaction
 
+from accounts.verification import is_reserved_demo_email
 from parents.models import ParentProfile
 from schools.models import School
+from students.link_service import link_parent_to_student
 from students.models import StudentProfile
 from academics.models import ClassGroup
 from teachers.models import TeacherProfile
@@ -93,6 +95,16 @@ class RegisterForm(forms.Form):
         empty_label='Select your class',
         widget=forms.Select(attrs={'class': 'form-input', 'id': 'id_class_group'}),
     )
+    link_code = forms.CharField(
+        label='Student link code (parents only)',
+        required=False,
+        max_length=12,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Optional — from your school',
+            'autocomplete': 'off',
+        }),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -102,6 +114,16 @@ class RegisterForm(forms.Form):
             self.fields['class_group'].queryset = ClassGroup.objects.filter(
                 school_id=school_id,
             ).order_by('name')
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].strip().lower()
+        if is_reserved_demo_email(email):
+            raise forms.ValidationError(
+                'Use a real email address. Demo addresses are reserved for test accounts.',
+            )
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('An account with this email already exists.')
+        return email
 
     def clean_username(self):
         username = self.cleaned_data['username'].strip()
@@ -131,6 +153,16 @@ class RegisterForm(forms.Form):
             self.add_error('class_group', 'Students must select a class.')
         if role == 'student' and class_group and school and class_group.school_id != school.pk:
             self.add_error('class_group', 'That class does not belong to the selected school.')
+        link_code = cleaned.get('link_code')
+        if role == 'student' and link_code:
+            self.add_error('link_code', 'Link codes are for parent accounts only.')
+        if role == 'parent' and link_code:
+            from students.link_service import resolve_link_code
+            row = resolve_link_code(link_code)
+            if not row:
+                self.add_error('link_code', 'Invalid or expired link code.')
+            elif school and row.school_id != school.pk:
+                self.add_error('link_code', 'This code belongs to a different school.')
         return cleaned
 
     @transaction.atomic
@@ -150,6 +182,13 @@ class RegisterForm(forms.Form):
 
         if user.role == 'parent':
             ParentProfile.objects.create(user=user, school=school)
+            link_code = data.get('link_code')
+            if link_code:
+                link_parent_to_student(
+                    parent_user=user,
+                    code=link_code,
+                    relationship='guardian',
+                )
         else:
             profile = StudentProfile.objects.create(
                 user=user,
@@ -204,6 +243,16 @@ class SchoolRegisterForm(forms.Form):
         widget=forms.PasswordInput(attrs={'autocomplete': 'new-password', 'class': 'form-input'}),
     )
 
+    def clean_email(self):
+        email = self.cleaned_data['email'].strip().lower()
+        if is_reserved_demo_email(email):
+            raise forms.ValidationError(
+                'Use a real email address. Demo addresses are reserved for test accounts.',
+            )
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('An account with this email already exists.')
+        return email
+
     def clean_school_name(self):
         name = self.cleaned_data['school_name'].strip()
         if not name:
@@ -240,6 +289,7 @@ class SchoolRegisterForm(forms.Form):
             last_name=data['last_name'],
             role='school_admin',
             school=school,
+            email_verified=False,
         )
         return school, user
 
