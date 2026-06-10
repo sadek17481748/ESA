@@ -3,6 +3,7 @@
   <a href="{% url 'pages:dashboard_parent' %}"{% if current_portal_url == 'dashboard_parent' %} aria-current="page"{% endif %}>Overview</a>
   <a href="{% url 'pages:attendance' %}"{% if current_portal_url == 'attendance' %} aria-current="page"{% endif %}>Attendance</a>
   <a href="{% url 'pages:behaviour' %}"{% if current_portal_url == 'behaviour' %} aria-current="page"{% endif %}>Behaviour</a>
+  <a href="{% url 'pages:parent_link_child' %}"{% if current_portal_url == 'parent_link_child' %} aria-current="page"{% endif %}>Link child</a>
   <a href="{% url 'payments:fee_list' %}"{% if current_portal_url == 'fee_list' %} aria-current="page"{% endif %}>Fees</a>
   {% include "pages/includes/sidebar_messages_link.html" %}
 </nav>
