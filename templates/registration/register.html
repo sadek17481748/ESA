@@ -34,6 +34,16 @@
           <span style="color:#e57373;font-size:0.9rem;">{{ form.role.errors.0 }}</span>
         {% endif %}
       </div>
+      <div class="field" id="link-code-field" style="display:none;">
+        <label for="id_link_code">Student link code</label>
+        {{ form.link_code }}
+        {% if form.link_code.errors %}
+          <span style="color:#e57373;font-size:0.9rem;">{{ form.link_code.errors.0 }}</span>
+        {% endif %}
+        <span style="color:var(--muted);font-size:0.85rem;display:block;margin-top:0.35rem;">
+          Optional — your school gives you this code to connect to your child.
+        </span>
+      </div>
       <div class="field" id="class-field" style="display:none;">
         <label for="id_class_group">Class</label>
         {{ form.class_group }}
@@ -123,10 +133,14 @@
     });
   }
 
+  const linkCodeField = document.getElementById('link-code-field');
+
   function toggleClassField() {
     const isStudent = roleSelect.value === 'student';
+    const isParent = roleSelect.value === 'parent';
     classField.style.display = isStudent ? 'block' : 'none';
     classSelect.required = isStudent;
+    linkCodeField.style.display = isParent ? 'block' : 'none';
   }
 
   schoolSelect.addEventListener('change', loadClasses);
