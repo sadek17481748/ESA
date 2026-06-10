@@ -49,6 +49,26 @@ class User(AbstractUser):
         default=True,
         help_text='Send email when a new school message reply arrives.',
     )
+    email_verified = models.BooleanField(
+        default=False,
+        help_text='True after the user confirms their email with a verification code.',
+    )
+
+
+class EmailVerificationCode(models.Model):
+    user = models.ForeignKey(
+        'accounts.User', on_delete=models.CASCADE, related_name='email_codes',
+    )
+    code = models.CharField(max_length=6)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user.username} — {self.code}'
 
 # ---------------------------------------------------------------------------
 # BUGGY CODE (commented out) — super_admin could not save if school FK was still set
