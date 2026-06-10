@@ -1,0 +1,15 @@
+{% extends "base/portal.html" %}
+{% block portal_content %}
+<section class="panel">
+  <h2 style="margin-top:0;">Link your child</h2>
+  <div class="accent-bar"></div>
+  <p class="lead">{{ page_meta }}</p>
+  <form method="post" class="form-stack" style="max-width:480px;">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="field"><label>{{ field.label }}</label>{{ field }}</div>
+    {% endfor %}
+    <button type="submit" class="btn-primary">Link child</button>
+  </form>
+</section>
+{% endblock %}
