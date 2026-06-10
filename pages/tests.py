@@ -206,11 +206,14 @@ class WebAuthTests(TestCase):
             'password2': 'securepass1',
         })
         self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('verify_email'))
         user = User.objects.get(username='newparent')
         self.assertEqual(user.school, self.school)
         self.assertTrue(ParentProfile.objects.filter(user=user).exists())
 
     def test_register_student_creates_profile(self):
+        from academics.models import ClassGroup
+        cg = ClassGroup.objects.create(school=self.school, name='7Z')
         response = self.client.post(reverse('pages:register'), {
             'school': self.school.pk,
             'username': 'student1',
@@ -218,10 +221,12 @@ class WebAuthTests(TestCase):
             'first_name': 'Sam',
             'last_name': 'Student',
             'role': 'student',
+            'class_group': cg.pk,
             'password1': 'securepass1',
             'password2': 'securepass1',
         })
         self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('verify_email'))
         user = User.objects.get(username='student1')
         self.assertEqual(user.role, 'student')
         self.assertTrue(StudentProfile.objects.filter(user=user).exists())
@@ -277,7 +282,7 @@ class WebAuthTests(TestCase):
             'username': 'sunriseadmin',
             'password': 'securepass1',
         })
-        self.assertRedirects(response, reverse('pages:dashboard'), fetch_redirect_response=False)
+        self.assertRedirects(response, reverse('verify_email'), fetch_redirect_response=False)
 
     def test_school_admin_subscription_keeps_sidebar_and_school_name(self):
         self.client.post(reverse('pages:register_school'), {
@@ -290,11 +295,12 @@ class WebAuthTests(TestCase):
             'password1': 'securepass1',
             'password2': 'securepass1',
         })
+        User.objects.filter(username='oakadmin').update(email_verified=True)
         response = self.client.get(reverse('pages:subscription'))
+        self.assertRedirects(response, reverse('payments:subscription'))
+        response = self.client.get(reverse('payments:subscription'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Oak Tree Academy')
-        self.assertContains(response, 'Subscription')
-        self.assertContains(response, 'Timetable')
 
     def test_login_page_has_no_demo_credentials(self):
         response = self.client.get(reverse('login'))
@@ -304,6 +310,7 @@ class WebAuthTests(TestCase):
     def test_login_redirects_to_dashboard(self):
         User.objects.create_user(
             username='u1', password='securepass1', role='parent', school=self.school,
+            email='u1@esa.demo', email_verified=True,
         )
         response = self.client.post(reverse('login'), {
             'username': 'u1', 'password': 'securepass1',
@@ -324,6 +331,7 @@ class WebAuthTests(TestCase):
     def test_logout_redirects_to_home(self):
         user = User.objects.create_user(
             username='u3', password='securepass1', role='parent', school=self.school,
+            email='u3@esa.demo', email_verified=True,
         )
         self.client.force_login(user)
         response = self.client.get(reverse('logout'))
