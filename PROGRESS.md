@@ -139,3 +139,4 @@
 - ExamResult auto_score from MCQ answers.
 - ExamResult manual_score for written sections.
 - Teacher finalise sets signed_off_by and signed_off_at.
+- Parents see only STATUS_FINALISED exam results.
