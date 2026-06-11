@@ -148,3 +148,4 @@
 - Parent dashboard finalised_exam_count per child.
 - User.email_verified boolean on accounts.User.
 - Six-digit EmailVerificationCode with 15-minute expiry.
+- Demo emails @esa.demo and @alnoor.example skip verification.
