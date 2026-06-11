@@ -133,3 +133,4 @@
 - Parent read access via StudentParentLink on quran sessions.
 - Sample Al-Fatiha ayah text in quran services.
 - Quran reviewed status notifies student in-app.
+- Exam model with class, subject, and teacher FKs.
