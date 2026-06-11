@@ -132,3 +132,4 @@
 - Teacher-only annotation POST endpoint.
 - Parent read access via StudentParentLink on quran sessions.
 - Sample Al-Fatiha ayah text in quran services.
+- Quran reviewed status notifies student in-app.
