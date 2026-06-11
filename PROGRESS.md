@@ -129,3 +129,4 @@
 - Student recitation audio upload on QuranSession.
 - Teacher feedback audio and written notes on sessions.
 - Quran portal list view for teachers, students, and parents.
+- Teacher-only annotation POST endpoint.
