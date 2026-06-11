@@ -126,3 +126,4 @@
 - QuranSession model scoped per student and teacher.
 - Tajweed, memorisation, and fluency mistake tags on annotations.
 - Timestamp and comment fields on QuranAnnotation rows.
+- Student recitation audio upload on QuranSession.
