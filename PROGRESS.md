@@ -137,3 +137,4 @@
 - MCQ questions with auto-mark on submit.
 - Written questions with manual teacher marking.
 - ExamResult auto_score from MCQ answers.
+- ExamResult manual_score for written sections.
