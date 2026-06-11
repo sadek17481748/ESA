@@ -135,3 +135,4 @@
 - Quran reviewed status notifies student in-app.
 - Exam model with class, subject, and teacher FKs.
 - MCQ questions with auto-mark on submit.
+- Written questions with manual teacher marking.
