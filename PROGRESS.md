@@ -124,3 +124,4 @@
 - Parent onboarding flow: register, verify email, enter link code.
 - Sprint complete: quran, exams, password recovery, parent linking.
 - QuranSession model scoped per student and teacher.
+- Tajweed, memorisation, and fluency mistake tags on annotations.
