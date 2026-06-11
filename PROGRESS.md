@@ -146,3 +146,4 @@
 - Student sit-exam form on published exams.
 - Finalised exam notification to student.
 - Parent dashboard finalised_exam_count per child.
+- User.email_verified boolean on accounts.User.
