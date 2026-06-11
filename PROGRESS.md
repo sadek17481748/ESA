@@ -130,3 +130,4 @@
 - Teacher feedback audio and written notes on sessions.
 - Quran portal list view for teachers, students, and parents.
 - Teacher-only annotation POST endpoint.
+- Parent read access via StudentParentLink on quran sessions.
