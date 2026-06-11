@@ -138,3 +138,4 @@
 - Written questions with manual teacher marking.
 - ExamResult auto_score from MCQ answers.
 - ExamResult manual_score for written sections.
+- Teacher finalise sets signed_off_by and signed_off_at.
