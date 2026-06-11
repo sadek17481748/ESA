@@ -147,3 +147,4 @@
 - Finalised exam notification to student.
 - Parent dashboard finalised_exam_count per child.
 - User.email_verified boolean on accounts.User.
+- Six-digit EmailVerificationCode with 15-minute expiry.
