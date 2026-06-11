@@ -6,6 +6,10 @@
     <p>Managing <strong>{{ school_name }}</strong> on the {{ school_tier|default:"Free" }} plan.</p>
   </article>
   <article class="card">
+    <h2>Students &amp; parent links</h2>
+    <p><a href="{% url 'pages:school_admin_students' %}">Issue link codes</a> so parents can connect to their children.</p>
+  </article>
+  <article class="card">
     <h2>Teachers ({{ teacher_count }})</h2>
     <p><a href="{% url 'pages:school_admin_add_teacher' %}">Add a new teacher</a> with login details.</p>
     <p><a href="{% url 'pages:school_admin_teachers' %}">View all teachers</a></p>
