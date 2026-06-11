@@ -136,3 +136,4 @@
 - Exam model with class, subject, and teacher FKs.
 - MCQ questions with auto-mark on submit.
 - Written questions with manual teacher marking.
+- ExamResult auto_score from MCQ answers.
