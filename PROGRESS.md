@@ -1,0 +1,126 @@
+# ESA development log
+
+- QuranSession model scoped per student and teacher.
+- Tajweed, memorisation, and fluency mistake tags on annotations.
+- Timestamp and comment fields on QuranAnnotation rows.
+- Student recitation audio upload on QuranSession.
+- Teacher feedback audio and written notes on sessions.
+- Quran portal list view for teachers, students, and parents.
+- Teacher-only annotation POST endpoint.
+- Parent read access via StudentParentLink on quran sessions.
+- Sample Al-Fatiha ayah text in quran services.
+- Quran reviewed status notifies student in-app.
+- Exam model with class, subject, and teacher FKs.
+- MCQ questions with auto-mark on submit.
+- Written questions with manual teacher marking.
+- ExamResult auto_score from MCQ answers.
+- ExamResult manual_score for written sections.
+- Teacher finalise sets signed_off_by and signed_off_at.
+- Parents see only STATUS_FINALISED exam results.
+- Students see scores only after teacher finalises.
+- Exam publish creates result rows for enrolled students.
+- Exam builder UI with add-question form.
+- Student sit-exam form on published exams.
+- Finalised exam notification to student.
+- Parent dashboard finalised_exam_count per child.
+- User.email_verified boolean on accounts.User.
+- Six-digit EmailVerificationCode with 15-minute expiry.
+- Demo emails @esa.demo and @alnoor.example skip verification.
+- Reserved demo domains blocked on new registration.
+- EmailVerificationMiddleware redirects unverified users.
+- Password reset via email link with uid/token.
+- Verify-email page with resend code action.
+- Login redirects unverified users to verify-email.
+- School registration sends verification code.
+- seed_rbac_users marks demo accounts verified.
+- StudentLinkCode unique per student with 90-day expiry.
+- School admin issues and regenerates parent link codes.
+- Public /link/<code>/ route for parent onboarding.
+- Parent link-child form with relationship picker.
+- Registration pre-fills link code from school URL.
+- link_parent_to_student validates school tenant match.
+- School admin students table shows shareable parent URL.
+- Auth tests cover verification, reset, and link codes.
+- Web auth tests updated for verification flow.
+- Quran and exams apps registered in INSTALLED_APPS.
+- Portal routes delegate quran and exams to feature apps.
+- June sprint: quran, exams, auth, and parent linking complete.
+- Quran session detail split panel matches wireframe layout.
+- Exam results table shows auto, manual, and final scores.
+- Password reset uses custom EsaPasswordResetView.
+- Forgot password link added to login template.
+- Parent can link child from sidebar after registration.
+- School admin dashboard links to student link-code page.
+- ensure_platform_seed sets email_verified on demo logins.
+- Student link code expires after ninety days.
+- Regenerate link code invalidates previous active codes.
+- Email verification code invalidated on resend.
+- Unverified users blocked from portal except auth routes.
+- Real email required; duplicate emails rejected on register.
+- Parent link code optional field on registration form.
+- Public student link redirects authenticated parents to link-child.
+- QuranSession model scoped per student and teacher.
+- Tajweed, memorisation, and fluency mistake tags on annotations.
+- Timestamp and comment fields on QuranAnnotation rows.
+- Student recitation audio upload on QuranSession.
+- Teacher feedback audio and written notes on sessions.
+- Quran portal list view for teachers, students, and parents.
+- Teacher-only annotation POST endpoint.
+- Parent read access via StudentParentLink on quran sessions.
+- Sample Al-Fatiha ayah text in quran services.
+- Quran reviewed status notifies student in-app.
+- Exam model with class, subject, and teacher FKs.
+- MCQ questions with auto-mark on submit.
+- Written questions with manual teacher marking.
+- ExamResult auto_score from MCQ answers.
+- ExamResult manual_score for written sections.
+- Teacher finalise sets signed_off_by and signed_off_at.
+- Parents see only STATUS_FINALISED exam results.
+- Students see scores only after teacher finalises.
+- Exam publish creates result rows for enrolled students.
+- Exam builder UI with add-question form.
+- Student sit-exam form on published exams.
+- Finalised exam notification to student.
+- Parent dashboard finalised_exam_count per child.
+- User.email_verified boolean on accounts.User.
+- Six-digit EmailVerificationCode with 15-minute expiry.
+- Demo emails @esa.demo and @alnoor.example skip verification.
+- Reserved demo domains blocked on new registration.
+- EmailVerificationMiddleware redirects unverified users.
+- Password reset via email link with uid/token.
+- Verify-email page with resend code action.
+- Login redirects unverified users to verify-email.
+- School registration sends verification code.
+- seed_rbac_users marks demo accounts verified.
+- StudentLinkCode unique per student with 90-day expiry.
+- School admin issues and regenerates parent link codes.
+- Public /link/<code>/ route for parent onboarding.
+- Parent link-child form with relationship picker.
+- Registration pre-fills link code from school URL.
+- link_parent_to_student validates school tenant match.
+- School admin students table shows shareable parent URL.
+- Auth tests cover verification, reset, and link codes.
+- Web auth tests updated for verification flow.
+- Quran and exams apps registered in INSTALLED_APPS.
+- Portal routes delegate quran and exams to feature apps.
+- June sprint: quran, exams, auth, and parent linking complete.
+- Quran session detail split panel matches wireframe layout.
+- Exam results table shows auto, manual, and final scores.
+- Password reset uses custom EsaPasswordResetView.
+- Forgot password link added to login template.
+- Parent can link child from sidebar after registration.
+- School admin dashboard links to student link-code page.
+- ensure_platform_seed sets email_verified on demo logins.
+- Student link code expires after ninety days.
+- Regenerate link code invalidates previous active codes.
+- Email verification code invalidated on resend.
+- Unverified users blocked from portal except auth routes.
+- Real email required; duplicate emails rejected on register.
+- Parent link code optional field on registration form.
+- Public student link redirects authenticated parents to link-child.
+- Deploy: run migrate for accounts and students link-code tables.
+- Heroku: ensure_platform_seed sets email_verified on demo accounts.
+- Assessor note: demo logins skip email verification automatically.
+- Parent onboarding flow: register, verify email, enter link code.
+- Sprint complete: quran, exams, password recovery, parent linking.
+- QuranSession model scoped per student and teacher.
