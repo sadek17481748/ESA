@@ -140,3 +140,4 @@
 - ExamResult manual_score for written sections.
 - Teacher finalise sets signed_off_by and signed_off_at.
 - Parents see only STATUS_FINALISED exam results.
+- Students see scores only after teacher finalises.
