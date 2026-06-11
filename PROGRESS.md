@@ -134,3 +134,4 @@
 - Sample Al-Fatiha ayah text in quran services.
 - Quran reviewed status notifies student in-app.
 - Exam model with class, subject, and teacher FKs.
+- MCQ questions with auto-mark on submit.
