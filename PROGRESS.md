@@ -151,3 +151,4 @@
 - Demo emails @esa.demo and @alnoor.example skip verification.
 - Reserved demo domains blocked on new registration.
 - EmailVerificationMiddleware redirects unverified users.
+- Password reset via email link with uid/token.
