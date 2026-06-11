@@ -143,3 +143,4 @@
 - Students see scores only after teacher finalises.
 - Exam publish creates result rows for enrolled students.
 - Exam builder UI with add-question form.
+- Student sit-exam form on published exams.
