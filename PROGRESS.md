@@ -125,3 +125,4 @@
 - Sprint complete: quran, exams, password recovery, parent linking.
 - QuranSession model scoped per student and teacher.
 - Tajweed, memorisation, and fluency mistake tags on annotations.
+- Timestamp and comment fields on QuranAnnotation rows.
