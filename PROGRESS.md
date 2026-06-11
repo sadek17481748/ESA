@@ -145,3 +145,4 @@
 - Exam builder UI with add-question form.
 - Student sit-exam form on published exams.
 - Finalised exam notification to student.
+- Parent dashboard finalised_exam_count per child.
