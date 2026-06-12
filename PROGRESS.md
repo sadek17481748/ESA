@@ -155,3 +155,4 @@
 - Verify-email page with resend code action.
 - Login redirects unverified users to verify-email.
 - School registration sends verification code.
+- seed_rbac_users marks demo accounts verified.
