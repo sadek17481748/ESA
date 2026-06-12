@@ -1799,6 +1799,10 @@ Parents initiate payment from /payments/ by clicking Pay now on an eligible fee 
 
 School Admins connect institution payout accounts through Connect Express. /payments/connect/start/ initiates OAuth; callback stores stripe_account_id on the school. school_fees.html displays Connected, onboarding incomplete, or not started states with appropriate CTAs. Parent Checkout sessions pass stripe_account so funds settle to the school, not the platform operator. Platform commission hooks exist for future SaaS billing. Reconnection is required if Stripe revokes access. Admins without Connect see warnings that online pay is disabled—manual bank transfer fallbacks remain school policy. Connect test mode mirrors Checkout test keys in development .env files documented in README for local assessor setup.
 
+## Webhooks and Payment Confirmation
+
+POST /payments/webhook/ receives Stripe events with signature verification via STRIPE_WEBHOOK_SECRET. Handled types include checkout.session.completed for fee payments and subscription upgrades. Webhook handlers update fee status to paid, create Payment rows, and enqueue receipt availability. Local development uses stripe listen --forward-to localhost:8000/payments/webhook/. Failed signature returns HTTP 400 without state change. Retry-safe logic prevents double payment records. Logging aids Heroku troubleshooting via heroku logs --tail. Webhooks decouple user browser redirects from reliable settlement—critical when parents close tabs after paying on mobile devices. Assessor manual test: stripe listen forwarding to localhost during parent_demo checkout confirms fee status updates to paid without relying on the success redirect alone.
+
 
 ## Author
 
