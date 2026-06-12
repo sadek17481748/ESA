@@ -1,7 +1,6 @@
 """
-Seed sample year groups, classes, teachers, and timetables for demo schools.
-Run: python manage.py seed_timetable_samples
-     python manage.py seed_timetable_samples --school "Al-Noor Academy"
+Seed sample year groups, classes, teachers, and timetables for a school.
+Run automatically for the registered school-admin school on Heroku boot.
 """
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -19,10 +18,13 @@ from pages.timetable_service import (
 
 User = get_user_model()
 
-TEACHERS = (
-    ('ms_fatima', 'Fatima', 'Ahmed', 'fatima@esa.demo', 'Quran'),
-    ('mr_ali', 'Ali', 'Hassan', 'ali@esa.demo', 'Maths'),
-    ('mr_yusuf', 'Yusuf', 'Khan', 'yusuf@esa.demo', 'Arabic'),
+# School admin account that should receive demo timetable data on deploy
+PRIMARY_SCHOOL_ADMIN_EMAIL = 'msadekhussain2001@gmail.com'
+
+TEACHER_SPECS = (
+    ('ms_fatima', 'Fatima', 'Ahmed', 'Quran'),
+    ('mr_ali', 'Ali', 'Hassan', 'Maths'),
+    ('mr_yusuf', 'Yusuf', 'Khan', 'Arabic'),
 )
 
 CLASS_SPECS = (
@@ -50,6 +52,101 @@ TIMETABLE_SPECS = (
 )
 
 
+def school_scoped_username(base, school):
+    """Unique teacher username per school (avoids clashing across tenants)."""
+    return f'{base}_s{school.pk}'
+
+
+def seed_timetable_samples_for_school(school, stdout=None):
+    """Populate one school with demo teachers, classes, and timetables."""
+    write = stdout.write if stdout else print
+
+    if ClassGroup.objects.filter(school=school, name__in=['7A', '7B', '8A', '11B']).count() >= 4:
+        write(f'Skip {school.name} — sample classes already exist')
+        return
+
+    ensure_school_subjects(school)
+    subjects = {s.name: s for s in list_school_subjects(school)}
+    teacher_profiles = {}
+
+    for base, first, last, subject in TEACHER_SPECS:
+        username = school_scoped_username(base, school)
+        email = f'{username}@esa.demo'
+        user, _ = User.objects.get_or_create(
+            username=username,
+            defaults={'email': email},
+        )
+        user.email = email
+        user.first_name = first
+        user.last_name = last
+        user.role = 'teacher'
+        user.school = school
+        user.email_verified = True
+        user.set_password('teacher1234')
+        user.save()
+        profile, _ = TeacherProfile.objects.get_or_create(
+            user=user,
+            defaults={'school': school, 'subject': subject},
+        )
+        profile.school = school
+        profile.subject = subject
+        profile.save()
+        teacher_profiles[base] = profile
+        write(f'  teacher {username} / teacher1234')
+
+    class_by_name = {}
+    for year_name, sort_order, class_name, teacher_key in CLASS_SPECS:
+        yg, _ = YearGroup.objects.get_or_create(
+            school=school,
+            name=year_name,
+            defaults={'sort_order': sort_order},
+        )
+        teacher = teacher_profiles.get(teacher_key)
+        cg, created = ClassGroup.objects.get_or_create(
+            school=school,
+            name=class_name,
+            defaults={'year_group': yg, 'teacher': teacher},
+        )
+        if not created:
+            cg.year_group = yg
+            cg.teacher = teacher
+            cg.save()
+        class_by_name[class_name] = cg
+        write(f'  class {class_name} ({year_name})')
+
+    from timetable.models import Timetable
+    for tt_name, class_name, slots in TIMETABLE_SPECS:
+        class_group = class_by_name.get(class_name)
+        if not class_group:
+            continue
+        if Timetable.objects.filter(school=school, name=tt_name, is_active=True).exists():
+            continue
+        timetable = create_timetable(
+            school,
+            name=tt_name,
+            class_group=class_group,
+            notes='Sample timetable',
+        )
+        payload = []
+        for weekday, start, end, subj_name, teacher_key in slots:
+            subj = subjects.get(subj_name)
+            if not subj:
+                continue
+            tp = teacher_profiles.get(teacher_key)
+            payload.append({
+                'weekday': weekday,
+                'start_time': start,
+                'end_time': end,
+                'subject_id': subj.pk,
+                'teacher_id': tp.pk if tp else None,
+            })
+        if payload:
+            save_timetable(timetable, class_group, payload)
+        write(f'  timetable {tt_name} ({len(payload)} slots)')
+
+    write(f'Seeded timetable samples for {school.name}')
+
+
 class Command(BaseCommand):
     help = 'Adds sample year groups, classes, teachers, and timetables'
 
@@ -57,7 +154,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--school',
             default='',
-            help='School name (default: all schools with fewer than 2 classes)',
+            help='School name (default: primary school-admin school)',
         )
 
     def handle(self, *args, **options):
@@ -67,89 +164,17 @@ class Command(BaseCommand):
                 self.stderr.write(f'School not found: {options["school"]}')
                 return
         else:
-            schools = School.objects.all()
+            admin = User.objects.filter(
+                email__iexact=PRIMARY_SCHOOL_ADMIN_EMAIL,
+                role='school_admin',
+            ).select_related('school').first()
+            if not admin or not admin.school_id:
+                self.stdout.write(
+                    f'No school linked to {PRIMARY_SCHOOL_ADMIN_EMAIL} — nothing to seed',
+                )
+                return
+            schools = [admin.school]
 
         for school in schools:
-            if not options['school'] and ClassGroup.objects.filter(school=school).count() >= 4:
-                self.stdout.write(f'Skip {school.name} — already has classes')
-                continue
-            self._seed_school(school)
-
-    def _seed_school(self, school):
-        ensure_school_subjects(school)
-        subjects = {s.name: s for s in list_school_subjects(school)}
-        teacher_profiles = {}
-
-        for username, first, last, email, subject in TEACHERS:
-            user, created = User.objects.get_or_create(
-                username=username,
-                defaults={'email': email},
-            )
-            user.email = email
-            user.first_name = first
-            user.last_name = last
-            user.role = 'teacher'
-            user.school = school
-            user.email_verified = True
-            user.set_password('teacher1234')
-            user.save()
-            profile, _ = TeacherProfile.objects.get_or_create(
-                user=user,
-                defaults={'school': school, 'subject': subject},
-            )
-            profile.school = school
-            profile.subject = subject
-            profile.save()
-            teacher_profiles[username] = profile
-            self.stdout.write(f'  teacher {username}')
-
-        class_by_name = {}
-        for year_name, sort_order, class_name, teacher_key in CLASS_SPECS:
-            yg, _ = YearGroup.objects.get_or_create(
-                school=school,
-                name=year_name,
-                defaults={'sort_order': sort_order},
-            )
-            teacher = teacher_profiles.get(teacher_key)
-            cg, _ = ClassGroup.objects.get_or_create(
-                school=school,
-                name=class_name,
-                defaults={'year_group': yg, 'teacher': teacher},
-            )
-            cg.year_group = yg
-            cg.teacher = teacher
-            cg.save()
-            class_by_name[class_name] = cg
-            self.stdout.write(f'  class {class_name} ({year_name})')
-
-        for tt_name, class_name, slots in TIMETABLE_SPECS:
-            class_group = class_by_name.get(class_name)
-            if not class_group:
-                continue
-            from timetable.models import Timetable
-            if Timetable.objects.filter(school=school, name=tt_name, is_active=True).exists():
-                continue
-            timetable = create_timetable(
-                school,
-                name=tt_name,
-                class_group=class_group,
-                notes='Sample timetable for demos',
-            )
-            payload = []
-            for weekday, start, end, subj_name, teacher_key in slots:
-                subj = subjects.get(subj_name)
-                if not subj:
-                    continue
-                tp = teacher_profiles.get(teacher_key)
-                payload.append({
-                    'weekday': weekday,
-                    'start_time': start,
-                    'end_time': end,
-                    'subject_id': subj.pk,
-                    'teacher_id': tp.pk if tp else None,
-                })
-            if payload:
-                save_timetable(timetable, class_group, payload)
-            self.stdout.write(f'  timetable {tt_name} ({len(payload)} slots)')
-
-        self.stdout.write(self.style.SUCCESS(f'Seeded timetable samples for {school.name}'))
+            seed_timetable_samples_for_school(school, stdout=self.stdout)
+            self.stdout.write(self.style.SUCCESS(f'Done — {school.name}'))
