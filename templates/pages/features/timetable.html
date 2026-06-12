@@ -21,8 +21,8 @@
     <div class="timetable-step-card">
       <span class="timetable-step-num">1</span>
       <div>
-        <h3>Add year group &amp; class</h3>
-        <p>Create groups like <strong>7A</strong>, <strong>11B</strong> under Year 7 or Year 11.</p>
+        <h3>Add year group</h3>
+        <p>Create a class in one step — type the class code (e.g. <strong>2C</strong>) and we link it to the right year group automatically.</p>
         <button type="button" class="btn-primary" id="hub-show-add-class">Add year group</button>
       </div>
     </div>
@@ -45,15 +45,11 @@
   </div>
 
   <form id="add-class-form" class="timetable-inline-form panel-inset" hidden>
-    <h3 style="margin:0 0 0.75rem;font-size:1rem;">Add year group &amp; class</h3>
-    <p class="lead" style="font-size:0.88rem;margin:0 0 1rem;">Example: year group <strong>Year 7</strong>, class <strong>7A</strong>.</p>
+    <h3 style="margin:0 0 0.75rem;font-size:1rem;">Add class</h3>
+    <p class="lead" style="font-size:0.88rem;margin:0 0 1rem;">Type the class code only — <strong>2C</strong> is saved as class 2C under <strong>Year 2</strong>.</p>
     <div class="field">
-      <label for="class-name">Class name</label>
-      <input id="class-name" class="form-input" type="text" placeholder="e.g. 7A, 11B" required>
-    </div>
-    <div class="field">
-      <label for="class-year">Year group</label>
-      <input id="class-year" class="form-input" type="text" placeholder="e.g. Year 7, Year 11" required>
+      <label for="class-name">Class</label>
+      <input id="class-name" class="form-input" type="text" placeholder="e.g. 2C, 7A, 11B" required>
     </div>
     <div class="timetable-manage-actions">
       <button type="submit" class="btn-primary">Save class</button>
@@ -313,8 +309,7 @@
       const status = document.getElementById('add-class-status');
       status.textContent = 'Saving…';
       const { ok, data } = await postJson('{% url "pages:class_create" %}', {
-        name: document.getElementById('class-name').value,
-        year_group_name: document.getElementById('class-year').value,
+        name: document.getElementById('class-name').value.trim(),
       });
       if (ok) {
         window.location.href = '{% url "pages:timetable" %}';

@@ -2,6 +2,8 @@
 pages/forms.py
 Web login, parent/student registration (pick a school), and separate school sign-up.
 """
+import re
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
@@ -12,7 +14,7 @@ from parents.models import ParentProfile
 from schools.models import School
 from students.link_service import link_parent_to_student
 from students.models import StudentProfile
-from academics.models import ClassGroup
+from academics.models import ClassGroup, YearGroup
 from teachers.models import TeacherProfile
 
 User = get_user_model()
@@ -413,15 +415,15 @@ class TimetableForm(forms.Form):
 
 
 class AddClassForm(forms.Form):
+    """Single field — e.g. 2C creates class 2C under Year 2."""
+
     name = forms.CharField(
+        label='Class',
         max_length=120,
-        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. 7A, 11B'}),
-    )
-    year_group_name = forms.CharField(
-        label='Year group',
-        max_length=80,
-        required=False,
-        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Year 7, Year 11'}),
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'e.g. 2C, 7A, 11B',
+        }),
     )
     teacher = forms.ModelChoiceField(
         queryset=TeacherProfile.objects.none(),
@@ -441,21 +443,33 @@ class AddClassForm(forms.Form):
     def clean_name(self):
         name = self.cleaned_data['name'].strip()
         if not name:
-            raise forms.ValidationError('Class name is required.')
+            raise forms.ValidationError('Enter a class name (e.g. 2C).')
         return name
+
+    @staticmethod
+    def year_group_for_class(class_name):
+        """2C → Year 2, 11B → Year 11, otherwise use the class name."""
+        match = re.match(r'^(\d+)', class_name.strip())
+        if match:
+            return f'Year {int(match.group(1))}'
+        return class_name.strip()
 
     @transaction.atomic
     def save(self, school):
         data = self.cleaned_data
-        year_name = (data.get('year_group_name') or data['name']).strip()
+        class_name = data['name']
+        year_name = self.year_group_for_class(class_name)
         year_group, _ = YearGroup.objects.get_or_create(
             school=school,
             name=year_name,
             defaults={'sort_order': 0},
         )
+        if match := re.match(r'^(\d+)', class_name):
+            year_group.sort_order = int(match.group(1))
+            year_group.save(update_fields=['sort_order'])
         return ClassGroup.objects.create(
             school=school,
-            name=data['name'],
+            name=class_name,
             year_group=year_group,
             teacher=data.get('teacher'),
         )

@@ -102,7 +102,7 @@ class SchoolAdminTeacherTests(TestCase):
         school = School.objects.get(name='Al-Noor Academy')
         response = self.client.post(
             reverse('pages:class_create'),
-            data=json.dumps({'name': 'Year 9 Test', 'year_group_name': 'Year 9'}),
+            data=json.dumps({'name': 'Year 9 Test'}),
             content_type='application/json',
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
