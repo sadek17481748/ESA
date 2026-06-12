@@ -173,3 +173,4 @@
 - Password reset uses custom EsaPasswordResetView.
 - Forgot password link added to login template.
 - Parent can link child from sidebar after registration.
+- School admin dashboard links to student link-code page.
