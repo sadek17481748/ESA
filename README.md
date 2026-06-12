@@ -1787,6 +1787,10 @@ The exams app mounts at /exams/ via exams/urls.py with list, create, detail, mar
 
 The payments sprint closed the fee collection loop for Islamic schools using Stripe Checkout and Connect. Parents pay outstanding items online; funds route to each school's connected Stripe account. Status lifecycle covers pending, outstanding, overdue, and paid states. School Admins onboard via Connect Express, configure fee items, and monitor KPI totals on the school fees dashboard. Webhooks confirm asynchronous payment success; PDF receipts generate from payment records. The send_overdue_reminders management command emails parents and creates in-app alerts. Templates include fees.html for parents and school_fees.html for admins. Sprint completion aligned with multi-tenant isolation—each school's Connect account is stored on the School model.
 
+## Fee Status Lifecycle
+
+Fee rows progress through clear statuses for reporting and UI badges. Pending applies to newly created items not yet due. Outstanding means due date reached but unpaid. Overdue is assigned by process_overdue_reminders when past grace periods. Paid follows successful Stripe Checkout and webhook confirmation. School Admin dashboards show KPI counts per status. Parents sort by due date with colour-coded rows. Filters help admins chase overdue accounts before term end. Status transitions are idempotent to avoid duplicate charges. Historical paid rows retain receipt links indefinitely for audit. Terminology matches UK Islamic school office language parents already understand from paper invoices and termly statements.
+
 
 ## Author
 
