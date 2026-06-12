@@ -1677,6 +1677,17 @@ School Admins manage a single tenant—in the demo seed, Al-Noor Academy. They e
 
 Log in and verify the sidebar exposes LMS hub, attendance summaries, fee management, and Stripe Connect status. School Admins cannot view another school's data; queryset scoping enforces tenant isolation at the model layer. The verify_deploy command expects schooladmin to reach the LMS hub and search students by name. Use this account for CSV enrolment, subject configuration, and parent invitation demos during assessment.
 
+## Teacher Login Credentials
+
+Teachers sign off on Hifz progress, mark attendance, set homework, build exams, and review Qur'an recitation sessions. Two seeded teacher accounts support different demo scenarios on the Al-Noor tenant.
+
+| Username | Password | Notes |
+|----------|----------|-------|
+| `teacher_demo` | `teacher1234` | Primary RBAC demo teacher from seed_rbac_users |
+| `mr_mohammed` | `teacher1234` | Year 7 class teacher from seed_alnoor_demo |
+
+Log in as teacher_demo to access /quran/, /exams/, attendance, and homework modules. mr_mohammed is linked to thirty students and supports messaging search tests in verify_deploy. Teachers see only classes and subjects assigned to them. Exam finalisation, written marking, and Qur'an annotation creation require an authenticated teacher profile. JWT API tests use teacher_demo and teacher1234 against /api/auth/token/ for programmatic access validation during development.
+
 
 ## Author
 
