@@ -163,3 +163,4 @@
 - Registration pre-fills link code from school URL.
 - link_parent_to_student validates school tenant match.
 - School admin students table shows shareable parent URL.
+- Auth tests cover verification, reset, and link codes.
