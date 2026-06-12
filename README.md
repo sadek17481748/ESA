@@ -1710,6 +1710,27 @@ Parents monitor children's progress, pay fees via Stripe Checkout, and read scho
 
 Log in as parent_demo, navigate to /payments/, and confirm only that parent's fee rows appear—never another family's charges. Use Stripe test card 4242 4242 4242 4242 for checkout. test_parent supports inbox and student-linking scenarios with test_student. Parents see finalised exam results only. Overdue fee reminders arrive by email and in-app notification when send_overdue_reminders runs. Tenant scoping ensures parents cannot access other schools' portals.
 
+## Quick Navigation Links
+
+Assessors use this table to reach live features, repository assets, and documentation quickly. Screenshots live under docs/images/manual-testing/ and docs/images/validation/.
+
+| Resource | URL or path |
+|----------|-------------|
+| **Live deployment** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| **GitHub repository** | https://github.com/sadek17481748/ESA |
+| **Wireframes (PDF)** | docs/ESA-wireframes.pdf |
+| **Wireframes (Balsamiq)** | https://balsamiq.cloud/so6babk/pveanf2 |
+| **ERD / data model** | README Data model and ERD section |
+| **Payments** | /payments/ |
+| **Qur'an sessions** | /quran/ |
+| **Exams** | /exams/ |
+| **Messages** | /messages/ |
+| **Register** | /accounts/register/ |
+| **Verify email** | /accounts/verify-email/ |
+| **Password reset** | /accounts/password-reset/ |
+
+Open the live URL first, then visit each path using the demo role from the credential tables.
+
 
 ## Author
 
