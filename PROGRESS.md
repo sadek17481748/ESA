@@ -161,3 +161,4 @@
 - Public /link/<code>/ route for parent onboarding.
 - Parent link-child form with relationship picker.
 - Registration pre-fills link code from school URL.
+- link_parent_to_student validates school tenant match.
