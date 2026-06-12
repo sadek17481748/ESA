@@ -153,3 +153,4 @@
 - EmailVerificationMiddleware redirects unverified users.
 - Password reset via email link with uid/token.
 - Verify-email page with resend code action.
+- Login redirects unverified users to verify-email.
