@@ -181,3 +181,4 @@
 - Unverified users blocked from portal except auth routes.
 - Real email required; duplicate emails rejected on register.
 - Parent link code optional field on registration form.
+- Public student link redirects authenticated parents to link-child.
