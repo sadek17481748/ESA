@@ -1843,6 +1843,10 @@ Facilitators synthesised cross-cutting themes: email deliverability for verify-e
 
 UAT sign-off memo dated 2 July records facilitator names, environment URL, seed commands run, and participant consent for anonymised quotes in README. Evidence pack: twelve screenshots, three short screen recordings, feedback spreadsheet. School leadership volunteer letter affirms realistic workflows match UK supplementary school operations. Assessor may reproduce sessions using credentials in chunks two through six. Known limitations documented: no native mobile app, English-only UI, Stripe UK focus. UAT satisfied Definition of Done for MVP release candidate to Heroku production with monitoring enabled, verify_deploy passing on each deploy, and stakeholder sign-off recorded in the project wiki.
 
+## Design Inspiration — Islamic School Platforms
+
+Research began with commercial and open-source Islamic school management platforms to understand domain vocabulary and parent expectations. Reference products included madrasah registration modules, Hifz progress trackers, and fee ledgers common in UK supplementary schools. Team noted strengths: clear parent portals, weak areas: poor mobile UX and no teacher sign-off. ESA differentiated with annotation timestamps and Stripe Connect per tenant. Competitive analysis spreadsheet lives in planning docs. Design mood: professional, respectful, avoiding clichéd clip art; geometric motifs echo mosque tilework without religious imagery disputes. Findings informed sidebar hierarchy, parent payment flows, and terminology choices such as Hifz versus generic homework labels across the portal.
+
 
 ## Author
 
