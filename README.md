@@ -1649,6 +1649,20 @@ Sprint deliverables from 19 June through 1 July: Qur'an annotation, exams with t
 
 The ESA Islamic school platform begins at the portal login hub, a single entry point for every role across the multi-tenant system. From the live deployment homepage, assessors and demo users click Log in to reach the authentication form. Successful login routes each user to a role-specific dashboard: Super Admin sees platform-wide school management, School Admin manages Al-Noor Academy operations, teachers access class tools, students submit work, and parents monitor fees. The hub enforces email verification; unverified accounts redirect to verify-email. JWT tokens power the REST API, but the assessor path uses session-based Django authentication. Seed commands populate demo accounts for stakeholder walkthroughs on fresh environments.
 
+## Super Admin Login Credentials
+
+Super Admins operate above individual school tenants, managing subscriptions, school creation, and platform health. Use the following seeded account on local, staging, or Heroku after running seed_rbac_users or ensure_platform_seed.
+
+| Field | Value |
+|-------|-------|
+| **Username** | `super` |
+| **Password** | `super1234` |
+| **Role** | Super Admin |
+| **School scope** | None (platform-wide) |
+| **Email** | `super@esa.example` |
+
+After login, confirm the Super Admin dashboard lists registered schools, subscription tiers, and recent sign-ups. The verify_deploy command logs in as super and checks messaging inbox access. Super Admins suspend schools, assign tiers, and search users across tenants. Password re-entry is required for destructive actions in production. Never commit real credentials; these values exist solely for assessment and demonstration on the ESA Islamic school platform.
+
 
 ## Author
 
