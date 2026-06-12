@@ -1835,6 +1835,10 @@ Omar Hassan teaches Islamic studies and tested attendance plus homework modules 
 
 Khadijah Okonkwo administrates a small London madrasah and tested School Admin flows with schooladmin. Quote: "Stripe Connect setup was faster than our current standalone card terminal contract negotiation." She created fee items, ran CSV enrolment sample, and viewed overdue KPI after reminders command on staging. Khadijah flagged need for clearer Connect incomplete messaging—copy updated on school_fees.html. Verified she cannot see other schools when accidentally bookmarked wrong URL—403 handled gracefully. Endorsed tenant model for multi-branch expansion across her organisation's weekend and evening sites. Session duration ninety minutes; no severity-one defects logged.
 
+## UAT — Cross-Role Observations
+
+Facilitators synthesised cross-cutting themes: email deliverability for verify-email and reminders depends on Gmail SMTP limits; all volunteers succeeded with seeded accounts after one password reset demo. Mobile usage sat at seventy percent for parents versus forty for teachers. Trust features (finalise, review) universally praised. Confusion points included JWT versus session login—documentation clarified assessor path uses browser sessions. Average satisfaction 4.4 out of five. Seven non-critical issues opened; zero critical. Retest scheduled after payments webhook hardening on production Heroku. Evidence pack includes twelve screenshots and three screen recordings archived for README and assessor review packs.
+
 
 ## Author
 
