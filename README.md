@@ -1823,6 +1823,10 @@ Amina Shah, mother of two at a Birmingham supplementary school, tested parent lo
 
 Yusuf Rahman, father of one Hifz student, reviewed Qur'an session feedback read-only after teacher finalisation. Quote: "Hearing the teacher's voice note on Tajweed while seeing the timestamp helped me support practice at home." He could not access exams until finalised—initially confused, then approved after facilitator explained teacher sign-off policy. Tested test_parent messaging inbox with school admin broadcast. Requested email summary of weekly progress; team noted for roadmap. Desktop Chrome and Safari tested on a MacBook Air. Gave five out of five for trust features. No critical bugs filed during the ninety-minute parent session on staging environment.
 
+## UAT — Teacher Volunteer Fatima Begum
+
+Fatima Begum, Quran department lead with eight years classroom experience, used teacher_demo to annotate a recitation and finalise a mixed MCQ and written exam. Quote: "Tagging memorisation separately from tajweed matches how we mark in the mushaf during oral assessment." She added twelve annotations in under four minutes. Written marking form deemed intuitive; requested keyboard shortcuts for power users. Fatima validated that students cannot see draft exam scores. Filed minor bug: annotation timestamp defaulting to zero—fixed same week. Rated exam builder four out of five; wanted question bank reuse across terms in a future academic year module.
+
 
 ## Author
 
