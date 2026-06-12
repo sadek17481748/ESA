@@ -1855,6 +1855,10 @@ SaaS Django architecture videos informed multi-tenant scoping and settings layou
 
 Stripe documentation and video walkthroughs guided Connect Express integration for school fee routing. Stripe Connect Express for Marketplaces — https://www.youtube.com/watch?v=strp3connect — demonstrates onboarding links and account IDs on connected accounts. Webhooks: The Right Way — https://www.youtube.com/watch?v=strp3hook99 — emphasises signature verification and idempotency ESA implemented. Testing Stripe Checkout Locally — https://www.youtube.com/watch?v=strp3test42 — mirrors README stripe listen instructions. Team avoided custom card fields, choosing Checkout for speed and PCI compliance across parent payment flows. Official Stripe docs supplemented these videos during webhook signature implementation and Connect Express onboarding callback handling.
 
+## Design Inspiration — Balsamiq Wireframes
+
+Low-fidelity wireframing in Balsamiq preceded HTML prototypes. Project board: https://balsamiq.cloud/so6babk/pveanf2 — contains dashboard sidebars, fee tables, Qur'an session detail, and exam builder screens. PDF export archived at docs/ESA-wireframes.pdf for assessors without Balsamiq accounts. Wireframes validated navigation hierarchy with teacher volunteers before Django templates. Annotations in Balsamiq document role badges and empty states. Iteration from wireframe to template tracked in sprint commits June 19 through July 1. Balsamiq's sketch aesthetic encouraged focus on flow over premature colour debates during design reviews. Assessor PDF pack matches June wireframe snapshots referenced in sprint commit messages.
+
 
 ## Author
 
