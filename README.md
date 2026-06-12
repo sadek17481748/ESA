@@ -1779,6 +1779,10 @@ Finalisation is the trust gate for exam results. The finalise_result service rec
 
 Role-based queryset filtering in exams/views.py implements the visibility rule strictly. Parents querying exams see titles and dates but result rows filter to status finalised for their linked children. Students see the same for their own profile. Teachers and School Admins view all statuses including drafts and submitted attempts. Attempting to access another student's result returns 404 or 403. This prevents anxious parents from misreading provisional marks and stops students from disputing auto-mark before teacher review of written sections. API consumers must apply identical filters in serializers. User acceptance testers confirmed the behaviour matches madrasah expectations for confidential marking periods.
 
+## Exams Routes and Portal UI
+
+The exams app mounts at /exams/ via exams/urls.py with list, create, detail, mark_written, and finalise routes. list.html filters exams by school and role; exam_form.html collects title, subject, class, and publish date; detail.html combines question builder and live results table. Example paths: /exams/, /exams/new/, /exams/<pk>/, /exams/<pk>/mark/, /exams/<pk>/finalise/. Notifications link via link_path in exams/services.py. Automated tests cover MCQ accuracy, written save, finalise, and parent visibility. Manual scripts used teacher_demo and student_demo. Assessor checklist item 42 in README references portal exams page load. Sprint items marked complete in PROGRESS.md for 24–28 June.
+
 
 ## Author
 
