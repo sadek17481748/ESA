@@ -179,3 +179,4 @@
 - Regenerate link code invalidates previous active codes.
 - Email verification code invalidated on resend.
 - Unverified users blocked from portal except auth routes.
+- Real email required; duplicate emails rejected on register.
