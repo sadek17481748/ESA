@@ -171,3 +171,4 @@
 - Quran session detail split panel matches wireframe layout.
 - Exam results table shows auto, manual, and final scores.
 - Password reset uses custom EsaPasswordResetView.
+- Forgot password link added to login template.
