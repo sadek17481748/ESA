@@ -1699,6 +1699,17 @@ Students view timetables, submit homework, upload Qur'an recitation audio, and s
 
 Students cannot see unfinalised exam results—only teacher-verified scores appear on /exams/. The test_student account is validated by verify_deploy against the worksheets page. After logging in as student_demo, open a Qur'an session, upload recitation audio, and submit for teacher review. Student dashboards hide School Admin and payment configuration screens. Role checks run in views, templates, and API permission classes across ESA.
 
+## Parent Login Credentials
+
+Parents monitor children's progress, pay fees via Stripe Checkout, and read school messages. Two parent accounts support minimal and extended Al-Noor scenarios.
+
+| Username | Password | Notes |
+|----------|----------|-------|
+| `parent_demo` | `demo1234` | Primary parent; demo fees from seed_demo_fees |
+| `test_parent` | `test1234` | Al-Noor examples; messaging inbox in verify_deploy |
+
+Log in as parent_demo, navigate to /payments/, and confirm only that parent's fee rows appear—never another family's charges. Use Stripe test card 4242 4242 4242 4242 for checkout. test_parent supports inbox and student-linking scenarios with test_student. Parents see finalised exam results only. Overdue fee reminders arrive by email and in-app notification when send_overdue_reminders runs. Tenant scoping ensures parents cannot access other schools' portals.
+
 
 ## Author
 
