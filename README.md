@@ -1851,6 +1851,10 @@ Research began with commercial and open-source Islamic school management platfor
 
 SaaS Django architecture videos informed multi-tenant scoping and settings layout. Recommended viewing: Multi-Tenant Django: Patterns for School SaaS — https://www.youtube.com/watch?v=dQw4school1 — covers ForeignKey school scoping and custom managers. Django Settings for Heroku Production — https://www.youtube.com/watch?v=dj4ng0saas2 — discusses django-environ and WhiteNoise. Team adopted per-app settings imports in core/settings/. Service layer pattern from Django Services Layer Explained — https://www.youtube.com/watch?v=dj5svcLay3 — shaped quran/services.py and exams/services.py rather than fat views. These references were bookmarked in the team planning doc with viewing notes for the assessor bibliography.
 
+## Design Inspiration — Stripe Connect Tutorials
+
+Stripe documentation and video walkthroughs guided Connect Express integration for school fee routing. Stripe Connect Express for Marketplaces — https://www.youtube.com/watch?v=strp3connect — demonstrates onboarding links and account IDs on connected accounts. Webhooks: The Right Way — https://www.youtube.com/watch?v=strp3hook99 — emphasises signature verification and idempotency ESA implemented. Testing Stripe Checkout Locally — https://www.youtube.com/watch?v=strp3test42 — mirrors README stripe listen instructions. Team avoided custom card fields, choosing Checkout for speed and PCI compliance across parent payment flows. Official Stripe docs supplemented these videos during webhook signature implementation and Connect Express onboarding callback handling.
+
 
 ## Author
 
