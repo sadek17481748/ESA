@@ -897,3 +897,9 @@ def public_student_link(request, code):
         return redirect('pages:dashboard')
 
     return redirect(f'{reverse("pages:register")}?code={row.code}&school={row.school_id}')
+
+
+def security_page(request):
+    """Public security overview — no login required."""
+    return render(request, 'pages/security.html')
+

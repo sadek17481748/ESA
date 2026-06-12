@@ -39,6 +39,8 @@
       <p>ESA — Education &amp; Schooling Applications</p>
       {% if not user.is_authenticated %}
       <p class="footer-links">
+        <a href="{% url 'pages:security' %}">Security</a>
+        ·
         <a href="{% url 'pages:register_school' %}">Register a school</a>
         ·
         <a href="{% url 'pages:register' %}">Parent / student sign-up</a>

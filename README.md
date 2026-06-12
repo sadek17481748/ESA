@@ -86,6 +86,7 @@ Assessor-facing links and evidence paths:
 |----------|--------------|
 | **Source repository** | https://github.com/sadek17481748/ESA |
 | **Live deployment** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
+| **Security overview (public)** | https://esa-project-2a7a33dfe3fc.herokuapp.com/security/ |
 | **Bug tracker (GitHub Project board)** | https://github.com/users/sadek17481748/projects/8/views/1 |
 | **Wireframes (README anchor)** | [Wireframes](#wireframes) · [PDF pack](docs/ESA-wireframes.pdf) · [Balsamiq](https://balsamiq.cloud/so6babk/pveanf2) |
 | **ERD / data model** | [Data model and ERD](#data-model-and-erd-entity-relationships) |
@@ -1932,15 +1933,52 @@ Lighthouse reports will be generated for key pages and screenshots stored in `do
 
 ## Security
 
-To be expanded as implementation progresses:
+ESA security is documented for assessors in this README and on the live site at **[/security/](https://esa-project-2a7a33dfe3fc.herokuapp.com/security/)** (public page, no login required).
 
-- Environment variables for secrets (`.env` excluded from Git)
-- Hashed passwords (Django's built-in PBKDF2)
-- Tenant data isolation tests (query scoping, permissions, admin boundaries)
-- Permission checks for sensitive actions (especially teacher sign-offs and payments)
-- CSRF protection on all forms
-- JWT token expiry and rotation
-- Audit logs for critical actions (sign-offs, payments, role changes)
+### Multi-tenant data isolation
+
+Every school operates as an isolated tenant. `TenantMiddleware` sets `request.tenant_school` from the authenticated user. API viewsets use `TenantScopedQuerySetMixin` so teachers, students, classes, homework, and attendance queries never cross schools. Portal views filter with `request.user.school`. Automated tests assert parents cannot list other families' fees and teachers cannot see students from another madrasa.
+
+### Role-based access control (RBAC)
+
+Five roles — Super Admin, School Admin, Teacher, Student, Parent — are stored on the custom `User` model. Portal views use `@role_required(...)` decorators; the API defaults to `IsAuthenticated` with per-view permission classes. Dashboards and sidebars only link to pages the role may access.
+
+### Authentication and account safety
+
+| Control | Implementation |
+|---------|----------------|
+| Password hashing | Django PBKDF2 + validators (length, common passwords, similarity) |
+| Email verification | Six-digit code; `EmailVerificationMiddleware` blocks portal until verified |
+| Password recovery | `/accounts/password-reset/` with Django's secure token flow |
+| Session security | `SESSION_COOKIE_SECURE` and `CSRF_COOKIE_SECURE` on Heroku |
+| JWT API | SimpleJWT — 30-minute access tokens, 7-day refresh with rotation |
+| Parent–child linking | School-issued codes via `StudentLinkCode` — not open student search |
+
+### Teacher sign-off and data trust
+
+Exam results, homework approval, and Hifz progress require teacher verification before appearing on parent and student reports. Exam `ExamResult` rows stay hidden until `finalise_result` sets status to finalised. This prevents self-reported grades from becoming official records.
+
+### Payments security
+
+- **Stripe Checkout** — card data is entered on Stripe-hosted pages; ESA never stores card numbers.
+- **Webhook verification** — `POST /payments/webhook/` validates `STRIPE_WEBHOOK_SECRET` signatures.
+- **Idempotent settlement** — duplicate webhook or success-page hits do not create duplicate `Payment` rows.
+- **Stripe Connect** — school payouts route to each tenant's connected account; platform keys stay in environment variables only.
+
+### Application hardening
+
+- **CSRF** — all HTML forms include `{% csrf_token %}`; only the Stripe webhook is `@csrf_exempt` (signature-checked instead).
+- **HTTPS** — Heroku SSL with `SECURE_PROXY_SSL_HEADER` and `CSRF_TRUSTED_ORIGINS`.
+- **Secrets management** — `.env` gitignored; production uses Heroku Config Vars (`sync_stripe_to_heroku.sh`, `sync_email_to_heroku.sh`).
+- **CORS** — `django-cors-headers` restricts browser API origins.
+- **Audit logging** — `AuditLog` records logins, registrations, CRUD, and sign-offs with user, school, IP, and timestamp.
+
+### Operational recommendations
+
+- Rotate demo passwords after assessment; use strong unique passwords for real staff.
+- Deactivate accounts when staff leave (Django admin or school admin tools).
+- Keep Stripe webhook secrets and Gmail App Passwords out of Git.
+- Run `python manage.py test` after upgrades — tenant isolation and auth tests are in the suite.
 
 ---
 

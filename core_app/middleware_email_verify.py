@@ -12,6 +12,7 @@ ALLOWED_PREFIXES = (
     '/accounts/verify-email',
     '/register',
     '/link/',
+    '/security',
     '/admin/',
     '/api/',
     '/css/',

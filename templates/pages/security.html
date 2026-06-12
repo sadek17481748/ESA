@@ -1,0 +1,155 @@
+{% extends "base/marketing.html" %}
+
+{% block title %}Security — ESA{% endblock %}
+
+{% block top_nav %}
+<a href="{% url 'home' %}">Home</a>
+<a href="{% url 'pages:security' %}" aria-current="page">Security</a>
+{% if user.is_authenticated %}
+  <a href="{% url 'pages:dashboard' %}">Dashboard</a>
+  <a href="{% url 'logout' %}">Log out</a>
+{% else %}
+  <a href="{% url 'login' %}">Log in</a>
+  <a class="btn-outline" href="{% url 'pages:register_school' %}">Register your school</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="panel security-hero">
+  <p class="hero-eyebrow">Trust &amp; protection</p>
+  <h1>Security on ESA</h1>
+  <div class="accent-bar"></div>
+  <p class="lead">
+    ESA is built for Islamic schools handling sensitive student, family, and payment data.
+    Security is layered across authentication, tenant isolation, payments, and audit logging —
+    not added as an afterthought.
+  </p>
+</section>
+
+<section class="panel">
+  <h2>How ESA protects your school</h2>
+  <div class="security-grid">
+    <article class="security-card">
+      <h3>Multi-tenant isolation</h3>
+      <p>Each school is a separate tenant. Database queries, API endpoints, and portal views scope data to the logged-in user’s school so staff from one madrasa cannot see another school’s students, fees, or messages.</p>
+    </article>
+    <article class="security-card">
+      <h3>Role-based access (RBAC)</h3>
+      <p>Five roles — Super Admin, School Admin, Teacher, Student, and Parent — each see only the pages and actions their role allows. Sensitive screens (analytics, fee configuration, exam finalisation) are gated with server-side decorators.</p>
+    </article>
+    <article class="security-card">
+      <h3>Teacher sign-off</h3>
+      <p>Exam results, homework approval, and Hifz progress only become official after a verified teacher signs off. Parents and students see <strong>finalised</strong> exam outcomes only — draft marks stay hidden.</p>
+    </article>
+    <article class="security-card">
+      <h3>Secure payments</h3>
+      <p>Parents pay through <strong>Stripe Checkout</strong> — card details never touch ESA servers. Stripe webhooks confirm payment with signature verification. School payouts use <strong>Stripe Connect</strong> so funds route to each school’s own account.</p>
+    </article>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Authentication &amp; account safety</h2>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>What it does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Hashed passwords</strong></td>
+          <td>Django stores passwords with PBKDF2 — never in plain text. Built-in validators block common and overly short passwords.</td>
+        </tr>
+        <tr>
+          <td><strong>Email verification</strong></td>
+          <td>New accounts with real email addresses must enter a six-digit code before using the portal. Demo seed accounts are exempt for assessor walkthroughs.</td>
+        </tr>
+        <tr>
+          <td><strong>Password recovery</strong></td>
+          <td>Secure reset flow at <code>/accounts/password-reset/</code> sends a time-limited link to the user’s registered email.</td>
+        </tr>
+        <tr>
+          <td><strong>Session login (portal)</strong></td>
+          <td>Browser users authenticate with Django sessions and CSRF-protected forms. Production cookies are marked <code>Secure</code> on Heroku.</td>
+        </tr>
+        <tr>
+          <td><strong>JWT API access</strong></td>
+          <td>REST clients use short-lived access tokens (30 minutes) with refresh rotation (7 days) via SimpleJWT at <code>/api/auth/token/</code>.</td>
+        </tr>
+        <tr>
+          <td><strong>Parent–child linking</strong></td>
+          <td>Parents link to students using school-issued codes — not open search — so families cannot attach to arbitrary pupils.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Application &amp; infrastructure security</h2>
+  <ul class="pricing-features">
+    <li><strong>CSRF protection</strong> — every POST form includes a CSRF token; Stripe webhooks are the only exempt endpoint (signature-verified instead).</li>
+    <li><strong>HTTPS on production</strong> — Heroku terminates SSL; <code>CSRF_TRUSTED_ORIGINS</code> and secure cookie flags are set when deployed.</li>
+    <li><strong>Secrets in environment variables</strong> — <code>SECRET_KEY</code>, Stripe keys, and Gmail App Passwords live in <code>.env</code> locally and Heroku Config Vars in production — never in Git.</li>
+    <li><strong>Default API deny</strong> — Django REST Framework requires authentication on API routes unless a view explicitly opens access (e.g. registration).</li>
+    <li><strong>CORS policy</strong> — only configured origins may call the API from browsers; defaults restrict to local dev hosts.</li>
+    <li><strong>Audit logging</strong> — logins, registrations, timetable changes, and other sensitive actions write to an append-only <code>AuditLog</code> with user, school, IP, and timestamp.</li>
+    <li><strong>WhiteNoise static files</strong> — production static assets are served efficiently without exposing source code.</li>
+  </ul>
+</section>
+
+<section class="panel">
+  <h2>Data flow (simplified)</h2>
+  <p class="lead">Most assessor traffic uses server-rendered pages — not a public API exposed to the browser.</p>
+  <ol class="steps-list">
+    <li>
+      <span class="step-num">1</span>
+      <div>
+        <h3>Browser request</h3>
+        <p>User visits a URL (e.g. <code>/payments/</code>) with a session cookie.</p>
+      </div>
+    </li>
+    <li>
+      <span class="step-num">2</span>
+      <div>
+        <h3>Middleware checks</h3>
+        <p>Security, session, CSRF, authentication, and email-verification middleware run before the view.</p>
+      </div>
+    </li>
+    <li>
+      <span class="step-num">3</span>
+      <div>
+        <h3>Role &amp; tenant gate</h3>
+        <p>The view confirms role and scopes queries to <code>request.user.school</code>.</p>
+      </div>
+    </li>
+    <li>
+      <span class="step-num">4</span>
+      <div>
+        <h3>PostgreSQL</h3>
+        <p>Only rows for that tenant and role are read or written. Payments and sign-offs are idempotent.</p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<section class="panel">
+  <h2>What schools should still do</h2>
+  <p class="lead">ESA provides strong defaults, but good operational hygiene matters:</p>
+  <ul class="pricing-features">
+    <li>Rotate demo passwords after assessment — use strong unique passwords for real staff accounts.</li>
+    <li>Keep Stripe webhook secrets and Gmail App Passwords in Config Vars only.</li>
+    <li>Review School Admin access when staff leave — deactivate accounts in Django admin.</li>
+    <li>Run <code>python manage.py test</code> after upgrades; tenant isolation tests are included in the suite.</li>
+  </ul>
+  <p style="margin-top:1.5rem;">
+    <a class="btn-outline" href="{% url 'home' %}">← Back to home</a>
+    {% if not user.is_authenticated %}
+    · <a href="{% url 'pages:register_school' %}">Register your school</a>
+    {% endif %}
+  </p>
+</section>
+{% endblock %}

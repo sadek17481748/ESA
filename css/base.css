@@ -457,6 +457,36 @@ button.btn-primary:disabled,
   margin-top: 1.5rem;
 }
 
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.security-card {
+  background: var(--surface-up);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.35rem;
+}
+
+.security-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.security-card p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.security-hero {
+  margin-bottom: 0.5rem;
+}
+
 .pricing-card {
   position: relative;
   background: var(--surface-up);

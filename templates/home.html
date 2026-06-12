@@ -14,6 +14,7 @@
   <a href="#benefits">Benefits</a>
   <a href="#leaderboards">Leaderboards</a>
   <a href="#pricing">Pricing</a>
+  <a href="{% url 'pages:security' %}">Security</a>
   <a href="{% url 'login' %}">Log in</a>
   <a class="btn-outline" href="{% url 'pages:register_school' %}">Register your school</a>
 {% endif %}
@@ -401,7 +402,7 @@
     </details>
     <details class="faq-item">
       <summary>Is our school data kept separate?</summary>
-      <p>Yes. ESA is multi-tenant — each school’s users, classes, and records are scoped to that school only.</p>
+      <p>Yes. ESA is multi-tenant — each school’s users, classes, and records are scoped to that school only. <a href="{% url 'pages:security' %}">Read our security overview →</a></p>
     </details>
     <details class="faq-item">
       <summary>What about fee payments?</summary>
