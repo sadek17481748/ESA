@@ -165,3 +165,4 @@
 - School admin students table shows shareable parent URL.
 - Auth tests cover verification, reset, and link codes.
 - Web auth tests updated for verification flow.
+- Quran and exams apps registered in INSTALLED_APPS.
