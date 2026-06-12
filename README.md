@@ -1767,6 +1767,10 @@ The exams sprint introduced formal assessment tooling for Islamic schools combin
 
 Multiple-choice questions store prompt text, choices, correct answer key, and point values. When a student submits answers via the exam detail form, auto_mark_mcq compares responses to keyed correct options and calculates auto_score. Partial credit is not applied in the default configuration—each MCQ is right or wrong. Auto-mark runs server-side immediately on POST, giving students instant feedback on objective sections while written answers await teacher review. Teachers see auto scores in the results table alongside written columns. JSON answer storage maps question primary keys to selected choice indices. Invalid or missing answers score zero for that item. Auto-mark logs aid debugging when DEBUG is True in development.
 
+## Written Questions and Manual Marking
+
+Written question types accept free-text student responses—ideal for Islamic studies explanations, Arabic translations, or fiqh short answers. Teachers open the exam detail page, locate each student's row, and use the Save written marks form posting to /exams/<id>/mark/. Marks are numeric and validated against each question's maximum points. Comments per question are optional. Written marks combine with MCQ auto scores for a provisional total displayed only to teachers until finalisation. Students submitting written answers see confirmation that manual marking is pending. The UI distinguishes MCQ rows (auto-filled) from written rows (teacher input required). Bulk marking across a class is supported by scrolling the results table.
+
 
 ## Author
 
