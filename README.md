@@ -1735,6 +1735,10 @@ Open the live URL first, then visit each path using the demo role from the crede
 
 The Qur'an annotation sprint delivered a complete recitation review workflow for Islamic schools teaching Hifz and Tajweed. Scope covered models, services, templates, URL routes under /quran/, and role-based access for teachers and students. Each QuranSession ties a student, teacher, and ayah range within a single school tenant. Sessions progress through draft, submitted, and reviewed statuses. Teachers annotate mistakes while listening to student audio; students upload recordings from their portal. The sprint aligned with ESA's teacher sign-off principle: reviewed sessions represent official progress data. Automated tests in quran/tests.py verify annotation creation, submission, and review transitions. Unit and integration tests ran in CI before the 23 June sprint close-out.
 
+## QuranSession Model and Scoping
+
+The QuranSession model stores surah number, surah name, ayah start and end, displayed mushaf text, status, and optional audio files for student recitation and teacher feedback. Foreign keys link school, student, and teacher profiles, ensuring every query respects tenant boundaries. Status constants are draft, submitted, and reviewed. Students create or continue draft sessions; submission locks the recording for teacher review. reviewed_at timestamps mark completion. File fields upload to quran/recitations/ and quran/feedback/ paths, with S3-compatible storage on Heroku when configured. The list view at /quran/ filters sessions by role: teachers see assigned students, students see their own, parents see linked children. School Admins may audit session counts per class.
+
 
 ## Author
 
