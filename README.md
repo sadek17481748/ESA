@@ -1688,6 +1688,17 @@ Teachers sign off on Hifz progress, mark attendance, set homework, build exams, 
 
 Log in as teacher_demo to access /quran/, /exams/, attendance, and homework modules. mr_mohammed is linked to thirty students and supports messaging search tests in verify_deploy. Teachers see only classes and subjects assigned to them. Exam finalisation, written marking, and Qur'an annotation creation require an authenticated teacher profile. JWT API tests use teacher_demo and teacher1234 against /api/auth/token/ for programmatic access validation during development.
 
+## Student Login Credentials
+
+Students view timetables, submit homework, upload Qur'an recitation audio, and sit exams. Demo seeds provide both a minimal RBAC student and a fully linked Al-Noor example for assessor walkthroughs.
+
+| Username | Password | Notes |
+|----------|----------|-------|
+| `student_demo` | `student1234` | RBAC demo from seed_rbac_users |
+| `test_student` | `test1234` | Linked child in Al-Noor examples seed |
+
+Students cannot see unfinalised exam results—only teacher-verified scores appear on /exams/. The test_student account is validated by verify_deploy against the worksheets page. After logging in as student_demo, open a Qur'an session, upload recitation audio, and submit for teacher review. Student dashboards hide School Admin and payment configuration screens. Role checks run in views, templates, and API permission classes across ESA.
+
 
 ## Author
 
