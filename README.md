@@ -1879,6 +1879,10 @@ Additional references: Accessible Form Design in 2024 — https://www.youtube.co
 
 Team maintained bibliography in README Sources section with access dates. Videos supplemented official Django, Stripe, and Heroku documentation during architecture decisions for the ESA Islamic school management platform MVP delivery timeline.
 
+## Deployment Readiness — Heroku Platform
+
+Production runs on Heroku at esa-project-2a7a33dfe3fc.herokuapp.com. The Procfile launches Gunicorn serving core.wsgi. runtime.txt pins Python version matching local development. Environment variables configure DATABASE_URL, Stripe keys, Gmail SMTP, SECRET_KEY, and optional S3 credentials. ALLOWED_HOSTS includes the Heroku hostname. Static files served via WhiteNoise with compressed manifest storage. Enable Heroku Postgres mini plan minimum; review connection limits under load. CI pushes to GitHub; manual promote to production after verify_deploy passes. Document rollback via Heroku releases tab before schema migrations. Review dyno sizing if concurrent parent checkout traffic spikes during fee deadline weeks at term start.
+
 
 ## Author
 
