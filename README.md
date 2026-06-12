@@ -1819,6 +1819,10 @@ Beyond automated tests, ESA ran structured user acceptance testing with voluntee
 
 Amina Shah, mother of two at a Birmingham supplementary school, tested parent login and payments on an iPhone 13. She logged in as parent_demo, navigated to fees, and completed Stripe test checkout without facilitator help. Quote: "The overdue badge is clearer than the paper invoice we usually get—I knew exactly what to pay first." She struggled briefly with verify-email on first register but succeeded after checking spam. Suggested larger tap targets on Pay now; team increased button padding in a follow-up commit. Rated overall experience four out of five. Recommended adding Urdu tooltips for elders less fluent in English—logged as future enhancement, not sprint scope for the MVP release.
 
+## UAT — Parent Volunteer Yusuf Rahman
+
+Yusuf Rahman, father of one Hifz student, reviewed Qur'an session feedback read-only after teacher finalisation. Quote: "Hearing the teacher's voice note on Tajweed while seeing the timestamp helped me support practice at home." He could not access exams until finalised—initially confused, then approved after facilitator explained teacher sign-off policy. Tested test_parent messaging inbox with school admin broadcast. Requested email summary of weekly progress; team noted for roadmap. Desktop Chrome and Safari tested on a MacBook Air. Gave five out of five for trust features. No critical bugs filed during the ninety-minute parent session on staging environment.
+
 
 ## Author
 
