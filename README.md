@@ -1883,6 +1883,10 @@ Team maintained bibliography in README Sources section with access dates. Videos
 
 Production runs on Heroku at esa-project-2a7a33dfe3fc.herokuapp.com. The Procfile launches Gunicorn serving core.wsgi. runtime.txt pins Python version matching local development. Environment variables configure DATABASE_URL, Stripe keys, Gmail SMTP, SECRET_KEY, and optional S3 credentials. ALLOWED_HOSTS includes the Heroku hostname. Static files served via WhiteNoise with compressed manifest storage. Enable Heroku Postgres mini plan minimum; review connection limits under load. CI pushes to GitHub; manual promote to production after verify_deploy passes. Document rollback via Heroku releases tab before schema migrations. Review dyno sizing if concurrent parent checkout traffic spikes during fee deadline weeks at term start.
 
+## Deployment Readiness — Migrations
+
+Before first deploy and after each schema sprint, run python manage.py migrate locally and heroku run python manage.py migrate in production. Migration files live per app: accounts, schools, quran, exams, payments, and others. Squashing deferred until post-MVP. Backup database via heroku pg:backups:capture before risky migrations. Zero-downtime deploys assume additive migrations; destructive changes require maintenance window communication. Migration linter checks foreign keys include school scoping. Failed migrate rolls back release and investigates in staging clone before retry on production environment. Keep migration dependency graph linear to simplify rollback decisions during sprint deploys.
+
 
 ## Author
 
