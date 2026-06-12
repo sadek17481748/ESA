@@ -152,3 +152,4 @@
 - Reserved demo domains blocked on new registration.
 - EmailVerificationMiddleware redirects unverified users.
 - Password reset via email link with uid/token.
+- Verify-email page with resend code action.
