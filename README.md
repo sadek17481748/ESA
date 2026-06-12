@@ -11,6 +11,12 @@
   - [Project goals](#project-goals)
   - [Planning notes (written at project start)](#planning-notes-written-at-project-start)
 - [Quick links](#quick-links)
+- [Navigating the website](#navigating-the-website)
+  - [Request flow overview](#request-flow-overview)
+  - [Role-based navigation paths](#role-based-navigation-paths)
+- [Technical overview](#technical-overview)
+  - [Why PostgreSQL is the technical centre](#why-postgresql-is-the-technical-centre-of-this-work)
+  - [Role of Django](#role-of-django)
 - [Key UI screenshots](#key-ui-screenshots)
 - [Features](#features)
 - [User Experience (UX)](#user-experience-ux)
@@ -30,9 +36,16 @@
 - [Development](#development)
   - [Project setup from scratch (Django)](#project-setup-from-scratch-django)
   - [GitHub setup and version control](#github-setup-and-version-control)
+  - [Development guide (step-by-step)](#development-guide-step-by-step)
   - [Local setup](#local-setup)
   - [Environment variables](#environment-variables)
+  - [How I set up Stripe (test mode)](#how-i-set-up-stripe-test-mode)
+  - [How I connected the Google email account](#how-i-connected-the-google-email-account)
   - [Run locally](#run-locally)
+  - [Troubleshooting (local Postgres setup)](#troubleshooting-local-postgres-setup)
+  - [Assessor and demo logins](#assessor-and-demo-logins)
+  - [Automated tests](#automated-tests-local)
+  - [How I committed changes to GitHub](#how-i-committed-changes-to-github-workflow-used)
 - [Deployment](#deployment)
   - [GitHub and Heroku integration](#github-and-heroku-integration)
   - [Deployment steps](#deployment-steps)
@@ -90,6 +103,125 @@ A short assessor path on the live site:
 3. Log out, then log in as `parent_demo` / `demo1234` — open **Payments** and confirm only that parent's fees appear.
 4. Log in as `teacher_demo` / `teacher1234` — open **Attendance** or **Homework** and confirm teacher-only actions are visible.
 5. Log in as `super` / `super1234` — confirm the Super Admin schools overview is reachable.
+
+---
+
+## Navigating the website
+
+ESA is a **server-rendered Django portal** backed by a REST API. Most assessor walkthroughs use the browser UI (session login), not Postman. After you log in at `/accounts/login/`, Django reads your `User.role` and sends you to the correct dashboard. The sidebar on each dashboard lists only the pages your role is allowed to open.
+
+### Site map (high level)
+
+```mermaid
+flowchart TB
+    subgraph public [Public — no login]
+        HOME["/  Home carousel"]
+        REG["/register/  Parent or student sign-up"]
+        LOGIN["/accounts/login/"]
+        RESET["/accounts/password-reset/"]
+        LINK["/link/&lt;code&gt;/  Parent link child"]
+    end
+
+    subgraph auth [After login]
+        DASH["/dashboard/  Role router"]
+        SA["/dashboard/super-admin/"]
+        SCH["/dashboard/school-admin/"]
+        TCH["/dashboard/teacher/"]
+        STU["/dashboard/student/"]
+        PAR["/dashboard/parent/"]
+    end
+
+    subgraph features [Feature areas — role-gated]
+        PAY["/payments/  Fees and Stripe Checkout"]
+        MSG["/messages/  School messaging"]
+        ATT["/attendance/"]
+        TT["/timetable/"]
+        HW["/worksheets/  Homework"]
+        QUR["/quran/  Sessions and annotations"]
+        EXM["/exams/  MCQ and written exams"]
+        LMS["/lms/  LMS hub"]
+        HIFZ["/hifz/  Hifz progress"]
+        ANA["/analytics/  School metrics"]
+    end
+
+    HOME --> LOGIN
+    HOME --> REG
+    LOGIN --> DASH
+    REG --> DASH
+    DASH --> SA
+    DASH --> SCH
+    DASH --> TCH
+    DASH --> STU
+    DASH --> PAR
+    SA --> ANA
+    SCH --> PAY
+    SCH --> LMS
+    TCH --> ATT
+    TCH --> QUR
+    TCH --> EXM
+    STU --> HW
+    STU --> QUR
+    PAR --> PAY
+    PAR --> MSG
+```
+
+### Request flow overview
+
+The browser requests a URL (for example `/payments/`). Django’s root URLconf (`core/urls.py`) maps the path to a **view function or class** in the relevant app (`payments/views.py`, `pages/views.py`, `quran/views.py`, and so on). The view checks **authentication** (session cookie) and **role/tenant** permissions, then uses the **ORM** to read or write rows in **PostgreSQL** (via `DATABASE_URL`). Django renders an HTML template under `templates/` and returns it. Static assets (`css/base.css`, `static/`) load in a second request. Small behaviours (mobile nav toggle, confirm dialogs) are handled in JavaScript without replacing server-side validation.
+
+This is **server-side rendering**, not a single-page React app: most HTML is produced on the server, which keeps the project understandable while still being full stack (HTTP + Django + database + Stripe + email).
+
+### Role-based navigation paths
+
+Use these paths on the [live site](https://esa-project-2a7a33dfe3fc.herokuapp.com/) or locally at `http://127.0.0.1:8000/`. Full credential tables are in [Assessor and demo logins](#assessor-and-demo-logins) and [Portal login hub](#portal-login-hub-introduction).
+
+| Role | Start here after login | Typical next clicks | What to verify |
+|------|------------------------|---------------------|----------------|
+| **Super Admin** | `/dashboard/super-admin/` | Schools list, subscriptions, platform search | Cross-tenant school overview; no single-school fee data |
+| **School Admin** | `/dashboard/school-admin/` | `/school-admin/students/`, `/school-admin/teachers/`, `/payments/` (school fees), Stripe Connect | Tenant-scoped students; Connect onboarding link |
+| **Teacher** | `/dashboard/teacher/` | `/attendance/`, `/worksheets/`, `/quran/`, `/exams/` | Create session, annotate recitation, mark exam, finalise results |
+| **Student** | `/dashboard/student/` | `/timetable/`, `/worksheets/`, `/quran/`, `/exams/` | Upload recitation audio; see **finalised** exam results only |
+| **Parent** | `/dashboard/parent/` | `/payments/`, `/messages/`, `/parent/link-child/`, child progress | Own fees only; pay with test card `4242…`; link child by school code |
+
+**Suggested 10-minute assessor route**
+
+1. Home → Log in as `parent_demo` / `demo1234` → **Payments** → pay or view receipt.
+2. Log out → `teacher_demo` / `teacher1234` → **Qur'an** → open a session → add Tajweed annotation.
+3. **Exams** → mark written answer → **Finalise** so parents can see the result.
+4. Log out → `schooladmin` / `admin1234` → **School Admin** students list → confirm link codes.
+5. Log out → `super` / `super1234` → confirm multi-school overview.
+
+Unverified real-email registrations are redirected to `/accounts/verify-email/` until the six-digit code is entered. Demo seed accounts skip that step.
+
+---
+
+## Technical overview
+
+### Why PostgreSQL is the technical centre of this work
+
+PostgreSQL is a core part of ESA, not an afterthought:
+
+- **Connection:** the app reads `DATABASE_URL` from the environment (`core/settings.py`, `.env.example`). In development this points at a local Postgres instance; on Heroku it uses the managed Postgres add-on URL. Without `DATABASE_URL`, Django falls back to SQLite for quick local runs.
+- **Integrity:** foreign keys tie students to schools, fee items to parents, exam answers to results, Qur'an annotations to sessions, and payments to fee rows. Multi-table writes (checkout success, exam finalisation, attendance sessions) are verified in `psql` and Django admin during development.
+- **Tenant isolation:** every school-scoped model filters on `school_id` so Al-Noor Academy data never appears for another tenant. Automated tests in `accounts`, `students`, and `core_app` assert this.
+- **Meaningful aggregations:** analytics and school dashboards use `COUNT`, `SUM`, `GROUP BY`, and joins against real tables — SQL competence surfaced through the UI.
+- **Automated tests** use SQLite or in-memory backends where possible so `python manage.py test` runs quickly without Postgres on CI machines. For marking and demos, the app still runs against PostgreSQL as described in [Development](#development).
+
+### Role of Django
+
+Django provides the web layer between the user and PostgreSQL:
+
+| Layer | What Django does in ESA |
+|-------|-------------------------|
+| **Routing** | Maps paths like `/`, `/payments/`, `/quran/`, `/api/students/` to views in `core/urls.py` and per-app `urls.py` files |
+| **HTTP verbs** | Distinguishes GET (show page) from POST (submit form, pay fee, finalise exam) |
+| **Sessions / auth** | Session middleware loads the current user from the cookie; `EmailVerificationMiddleware` blocks unverified accounts |
+| **Templates** | Jinja-style Django templates under `templates/` — one response per page |
+| **Apps** | Splits features into `accounts`, `payments`, `quran`, `exams`, `messaging`, etc., so the codebase stays readable |
+| **ORM** | Maps Python models to Postgres tables; migrations keep live schema in sync |
+| **DRF + JWT** | `/api/*` endpoints for programmatic clients; portal uses session login |
+
+For a visual entity–relationship diagram, see [Data model and ERD](#data-model-and-erd-entity-relationships) under Design.
 
 ---
 
@@ -748,7 +880,221 @@ CSS variables and component tokens are defined in `css/base.css`; contrast targe
 
 ## Development
 
-This section documents the **full setup path** used for ESA: creating the Django project locally, connecting it to **GitHub** over HTTPS, pushing commits to `main`, and later linking that repository to **Heroku** for production deploys. If you clone the repo today, start at [Local setup](#local-setup); the subsections below are written for assessors who want to see how the project was bootstrapped from an empty folder.
+This section documents the **full setup path** used for ESA: creating the Django project locally, connecting it to **GitHub** over HTTPS, pushing commits to `main`, and later linking that repository to **Heroku** for production deploys. If you clone the repo today, start at [Development guide (step-by-step)](#development-guide-step-by-step); the subsections below are also written for assessors who want to see how the project was bootstrapped from an empty folder.
+
+### Development guide (step-by-step)
+
+This mirrors the structure I used in my previous [bookly](https://github.com/sadek17481748/bookly) README, adapted for **Django** instead of Flask.
+
+#### Prerequisites
+
+- **Python 3.11+** (3.13 used locally; Heroku builds from `requirements.txt`).
+- **PostgreSQL** installed and running locally (e.g. Homebrew Postgres on macOS: `brew install postgresql@16 && brew services start postgresql@16`).
+- **Git** and a **GitHub** account for pushing commits.
+- Optional: [Stripe](https://dashboard.stripe.com/test/apikeys) test keys and a **Gmail App Password** for real SMTP (see below).
+
+#### Environment setup
+
+```bash
+cd /path/to/ESA
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env
+```
+
+In `.env` I set at minimum:
+
+| Variable | Purpose |
+|----------|---------|
+| `SECRET_KEY` | Long random string for Django sessions and CSRF |
+| `DEBUG` | `True` locally |
+| `ALLOWED_HOSTS` | `localhost,127.0.0.1` |
+| `DATABASE_URL` | Postgres URL, for example `postgres://esa_user:change_me@localhost:5432/esa_db` |
+| `STRIPE_PUBLISHABLE_KEY` / `STRIPE_SECRET_KEY` | Stripe **test** keys for `/payments/` |
+| `EMAIL_HOST_USER` / `EMAIL_HOST_PASSWORD` | Gmail address + **App Password** (not normal Gmail password) |
+
+Example SQL to create a matching role and database (names line up with the example URL above):
+
+```sql
+CREATE USER esa_user WITH PASSWORD 'change_me';
+CREATE DATABASE esa_db OWNER esa_user;
+```
+
+Run inside `psql` as a superuser (`psql postgres` on macOS).
+
+#### Initialise the database (PostgreSQL)
+
+```bash
+source .venv/bin/activate
+python manage.py migrate
+python manage.py seed_rbac_users
+python manage.py seed_demo_fees          # parent fee rows for Stripe demo
+python manage.py ensure_platform_seed    # idempotent re-sync of demo data on Heroku/local
+```
+
+This creates all tables from Django migrations and seeds demo users, Al-Noor school data, and sample fees if the catalog is empty.
+
+#### Run the app locally
+
+```bash
+source .venv/bin/activate
+python manage.py runserver
+```
+
+The app is served at **http://127.0.0.1:8000/** during local runs.
+
+- Portal login: http://127.0.0.1:8000/accounts/login/
+- Django admin: http://127.0.0.1:8000/admin/
+- JWT token: `POST http://127.0.0.1:8000/api/auth/token/` with JSON `username` / `password`
+
+See [Navigating the website](#navigating-the-website) for role-based paths after login.
+
+#### Troubleshooting (local Postgres setup)
+
+**`password authentication failed for user ...`**  
+Usually means `DATABASE_URL` in `.env` still has placeholder values or the Postgres user password does not match. Fix by updating `.env` to a real connection string and (re)setting the user password in Postgres:
+
+```sql
+ALTER USER esa_user WITH PASSWORD 'esa_pass';
+```
+
+**Commands typed inside `psql` by mistake**  
+If the prompt looks like `postgres=#` or `postgres-#`, you are inside Postgres interactive mode. Exit with `\q` to return to the normal terminal prompt before running:
+
+```bash
+python manage.py migrate
+python manage.py runserver
+```
+
+**`ModuleNotFoundError` after clone**  
+Activate the virtual environment and run `pip install -r requirements.txt` again.
+
+#### Assessor and demo logins
+
+Demo accounts are created by `seed_rbac_users` and `ensure_platform_seed`. Use these on local or Heroku after seeding:
+
+| Role | Username | Password | Dashboard |
+|------|----------|----------|-----------|
+| Super Admin | `super` | `super1234` | `/dashboard/super-admin/` |
+| School Admin | `schooladmin` | `admin1234` | `/dashboard/school-admin/` |
+| Teacher | `teacher_demo` | `teacher1234` | `/dashboard/teacher/` |
+| Student | `student_demo` | `student1234` | `/dashboard/student/` |
+| Parent | `parent_demo` | `demo1234` | `/dashboard/parent/` |
+| Parent (Al-Noor examples) | `test_parent` | `test1234` | Messaging / link-child demos |
+| Student (Al-Noor examples) | `test_student` | `test1234` | Worksheets verify_deploy path |
+
+**Note (live Heroku app):** The Heroku deployment uses its own Postgres database. Demo users are created automatically on dyno boot via `ensure_platform_seed` in the `Procfile`. If logins fail after a fresh deploy, run:
+
+```bash
+heroku run python manage.py ensure_platform_seed -a esa-project
+```
+
+To promote a newly registered user to Super Admin locally, use Django admin (`/admin/`) or `python manage.py shell` and set `user.role = 'super_admin'`.
+
+#### Automated tests (local)
+
+```bash
+source .venv/bin/activate
+python manage.py test
+```
+
+Tests cover accounts, RBAC, payments, Qur'an, exams, messaging, and portal pages. Many tests call `ensure_platform_seed` in `setUp` so demo users exist. A feature → test mapping is in the [Automated testing](#automated-testing) section below.
+
+#### How I committed changes to GitHub (workflow used)
+
+During development I used a simple Git workflow so changes were traceable and easy to review:
+
+1. Check what changed with `git status` and `git diff`.
+2. Stage the files I wanted in the commit with `git add ...`.
+3. Create a commit with a short message describing what changed and why.
+4. Push commits to GitHub so the repository stayed up to date.
+
+Typical commands:
+
+```bash
+git status
+git diff
+git add README.md
+git commit -m "docs(readme): add website navigation guide and Django dev setup"
+git push origin main
+```
+
+Where changes affected both documentation and the app, I kept commits separate so it was obvious what was “README/docs” and what was “code changes”.
+
+---
+
+### How I set up Stripe (test mode)
+
+Parent school fees and school subscriptions use **Stripe Checkout** in test mode.
+
+1. Create a free [Stripe account](https://dashboard.stripe.com/register) and open **Developers → API keys**. Copy the **test** publishable key (`pk_test_…`) and secret key (`sk_test_…`).
+2. Add them to `.env`:
+
+   ```env
+   STRIPE_PUBLISHABLE_KEY=pk_test_...
+   STRIPE_SECRET_KEY=sk_test_...
+   STRIPE_WEBHOOK_SECRET=              # optional locally; required for production webhooks
+   ```
+
+3. Run migrations and seed fees:
+
+   ```bash
+   python manage.py migrate
+   python manage.py seed_demo_fees
+   ```
+
+4. Start the server, log in as `parent_demo` / `demo1234`, open **http://127.0.0.1:8000/payments/**, click **Pay now**, and complete checkout with test card **`4242 4242 4242 4242`**, any future expiry, any CVC.
+
+5. **Webhooks (recommended):** install the [Stripe CLI](https://stripe.com/docs/stripe-cli) and forward events to Django:
+
+   ```bash
+   stripe listen --forward-to localhost:8000/payments/webhook/
+   ```
+
+   Copy the webhook signing secret (`whsec_…`) into `STRIPE_WEBHOOK_SECRET` so payment status updates even if the user closes the browser before the success page loads.
+
+6. **Stripe Connect (school payouts):** School Admins open the Connect link from the school fees page. Onboarding uses Express accounts (`payments/connect.py`). Destination charges route parent payments to the connected school account with an optional platform fee. Test Connect in Stripe **test mode** with the same API keys.
+
+7. **Heroku:** push keys without committing them:
+
+   ```bash
+   bash scripts/sync_stripe_to_heroku.sh
+   ```
+
+   Or set manually: `heroku config:set STRIPE_PUBLISHABLE_KEY="pk_test_…" STRIPE_SECRET_KEY="sk_test_…" -a esa-project`
+
+Amounts are stored in **pence** in the database; `payments/services.py` passes `unit_amount` directly to Stripe so £250.00 displays correctly (see [Bugs encountered](#bugs-encountered-during-development) bug #1).
+
+### How I connected the Google email account
+
+ESA sends platform alerts (registrations, payments, messages) through **Gmail SMTP** using the inbox `educationandschoolapplications@gmail.com`.
+
+1. Enable **2-Step Verification** on the Google account.
+2. Create an **App Password** (Google Account → Security → App passwords → Mail → Other → `ESA local`).
+3. Add to `.env` (see `.env.example`):
+
+   ```env
+   ESA_PLATFORM_EMAIL=educationandschoolapplications@gmail.com
+   EMAIL_HOST=smtp.gmail.com
+   EMAIL_PORT=587
+   EMAIL_USE_TLS=True
+   EMAIL_HOST_USER=educationandschoolapplications@gmail.com
+   EMAIL_HOST_PASSWORD=your-16-char-app-password
+   DEFAULT_FROM_EMAIL=ESA Platform <educationandschoolapplications@gmail.com>
+   ```
+
+4. Test locally:
+
+   ```bash
+   python manage.py send_test_email
+   ```
+
+5. Push to Heroku: `bash scripts/sync_email_to_heroku.sh` then `heroku run python manage.py send_test_email -a esa-project`.
+
+Full step-by-step screenshots and troubleshooting are in [Connecting Gmail for platform email notifications](#connecting-gmail-for-platform-email-notifications).
+
+---
 
 ### Project setup from scratch (Django)
 
@@ -961,6 +1307,8 @@ python manage.py runserver
 - JWT obtain pair: `POST /api/auth/token/` with `username` and `password`.
 - JWT refresh: `POST /api/auth/token/refresh/` with `refresh` token.
 
+See [Development guide (step-by-step)](#development-guide-step-by-step) for Postgres setup, Stripe, Gmail, and demo logins.
+
 ---
 
 ## Foundation and RBAC (local test)
@@ -997,20 +1345,12 @@ python manage.py seed_rbac_users
 
 ## Stripe payments (local test)
 
-Parent school fees use Stripe Checkout in test mode (same API keys as my `stripe_demo` project).
+Parent school fees use Stripe Checkout in test mode. Full setup steps are in [How I set up Stripe (test mode)](#how-i-set-up-stripe-test-mode). Quick path:
 
-1. Copy Stripe keys into `.env` (`STRIPE_PUBLISHABLE_KEY`, `STRIPE_SECRET_KEY`).
-2. Run migrations and seed demo data:
-
-   ```bash
-   source .venv/bin/activate
-   python manage.py migrate
-   python manage.py seed_demo_fees
-   ```
-
-3. Start the server and log in as `parent_demo` / `demo1234`, then open `/payments/`.
-4. Click **Pay now** on a fee — use Stripe test card `4242 4242 4242 4242`, any future expiry, any CVC.
-5. Optional webhook forwarding: `stripe listen --forward-to localhost:8000/payments/webhook/`
+1. Copy Stripe test keys into `.env`.
+2. `python manage.py migrate && python manage.py seed_demo_fees`
+3. Log in as `parent_demo` / `demo1234` → `/payments/` → **Pay now** → card `4242 4242 4242 4242`.
+4. Optional: `stripe listen --forward-to localhost:8000/payments/webhook/`
 
 ---
 
