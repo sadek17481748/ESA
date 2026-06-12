@@ -166,3 +166,4 @@
 - Auth tests cover verification, reset, and link codes.
 - Web auth tests updated for verification flow.
 - Quran and exams apps registered in INSTALLED_APPS.
+- Portal routes delegate quran and exams to feature apps.
