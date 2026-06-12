@@ -1803,6 +1803,10 @@ School Admins connect institution payout accounts through Connect Express. /paym
 
 POST /payments/webhook/ receives Stripe events with signature verification via STRIPE_WEBHOOK_SECRET. Handled types include checkout.session.completed for fee payments and subscription upgrades. Webhook handlers update fee status to paid, create Payment rows, and enqueue receipt availability. Local development uses stripe listen --forward-to localhost:8000/payments/webhook/. Failed signature returns HTTP 400 without state change. Retry-safe logic prevents double payment records. Logging aids Heroku troubleshooting via heroku logs --tail. Webhooks decouple user browser redirects from reliable settlement—critical when parents close tabs after paying on mobile devices. Assessor manual test: stripe listen forwarding to localhost during parent_demo checkout confirms fee status updates to paid without relying on the success redirect alone.
 
+## PDF Receipts and Payment Records
+
+Each confirmed payment exposes a receipt link on the parent fees table. /payments/receipt/<payment_id>/ renders receipt.html with school name, payer, amount, date, and fee description. Users print to PDF via the browser print dialog—no wkhtmltopdf dependency. Authorization ensures parents access only their receipts. School Admins may audit payments in the fees dashboard export. Receipt context is built in payments/receipt.py for testability. Currency formats follow locale en_GB. Receipts satisfy parent record-keeping and school audit requirements for financial transparency without storing card numbers on ESA servers at any stage of the payment flow.
+
 
 ## Author
 
