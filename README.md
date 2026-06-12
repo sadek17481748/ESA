@@ -1811,6 +1811,10 @@ Each confirmed payment exposes a receipt link on the parent fees table. /payment
 
 Run python manage.py send_overdue_reminders on a schedule (Heroku Scheduler daily) to mark past-due fees overdue and notify parents. process_overdue_reminders in payments/overdue.py updates statuses, sends email via Gmail SMTP settings, and creates in-app notifications linking to /payments/. Optional school flag scopes to one tenant for testing. Use staging before production first run. Parents with multiple overdue items receive consolidated emails where possible. School Admins see overdue KPI increments on next dashboard load. Command output lists affected fee IDs for operator logs. Tests mock Stripe for checkout and webhook handling; manual UAT used parent_demo with seed_demo_fees.
 
+## User Acceptance Testing Overview
+
+Beyond automated tests, ESA ran structured user acceptance testing with volunteers representing real Islamic school stakeholders. Sessions occurred over three evenings in late June: parents tested payments and progress views, teachers exercised Qur'an and exams flows, and a School Admin volunteer configured fees and Connect. Facilitators recorded quotes, severity ratings, and screen recordings stored under docs/images/manual-testing/. Findings fed GitHub issues on the project board. UAT validated that terminology (Hifz, Tajweed, madrasah) resonated culturally and that mobile layouts worked on phones parents actually use. The following chunks summarise participant profiles and verbatim-style feedback.
+
 
 ## Author
 
