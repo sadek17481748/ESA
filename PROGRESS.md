@@ -174,3 +174,4 @@
 - Forgot password link added to login template.
 - Parent can link child from sidebar after registration.
 - School admin dashboard links to student link-code page.
+- ensure_platform_seed sets email_verified on demo logins.
