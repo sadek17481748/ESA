@@ -1903,6 +1903,10 @@ Confirm DEBUG=False in production, secure SECRET_KEY, HTTPS enforced via Heroku 
 
 Run automated tenant tests: python manage.py test schools.tests accounts.tests quran.tests exams.tests payments.tests focusing on cross-school access attempts. Manual spot check: create second school user, confirm 403 on foreign session IDs in URL tampering. Queryset managers on tenant models apply filter(school=request.user.school). Super Admin bypass explicit and audited. File uploads namespaced by school path. Connect accounts one-to-one with schools. Assessor sign-off requires isolation tests green in CI badge. Document known superuser support impersonation as not implemented in current MVP scope. Manual URL tampering tests with two seeded schools remain the assessor spot-check for isolation regressions.
 
+## Systems Used — Technology Summary
+
+ESA is built on Django 4.x with Django REST Framework for JWT-capable APIs at /api/auth/token/ and /api/accounts/me/. PostgreSQL backs all environments via DATABASE_URL. Authentication uses Django sessions for HTML portals and Simple JWT for API clients. Stripe powers Checkout and Connect with webhook handlers. Email flows use Gmail SMTP for verify-email, password reset, and overdue reminders. Heroku hosts production; WhiteNoise serves static assets. Optional AWS S3 stores uploaded Qur'an audio and media when configured. Frontend uses Django templates, vanilla CSS, and minimal JavaScript. Tooling includes Git, GitHub Actions CI, and Gunicorn.
+
 
 ## Author
 
