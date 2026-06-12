@@ -1751,6 +1751,10 @@ Timestamp fields on annotations use decimal seconds (e.g. 12.45) so teachers mar
 
 Students open an assigned or self-started session, confirm the surah and ayah range, and upload a recitation file from /quran/session/<id>/. Supported formats follow Django FileField defaults; production deployments should document accepted MIME types in School Admin settings. Upload saves to cloud storage when AWS_STORAGE_BUCKET_NAME is set; otherwise local media applies in development. After upload, the student submits the session, transitioning status to submitted. Teachers receive in-app notifications via the messaging service linking to /quran/session/<id>/. Students cannot edit annotations; they read teacher feedback and re-record if the teacher requests another attempt. Draft sessions allow replacement uploads before submission.
 
+## Teacher Feedback and Review Completion
+
+Teachers review submitted sessions from their /quran/ list. The review view displays mushaf text, annotation form, audio players, and a Mark reviewed action. Adding annotations posts tag, timestamp, ayah, and comment data. Teachers may upload feedback audio narrating corrections—especially valuable for Tajweed detail where tone matters. teacher_notes captures summary comments visible to parents. Calling the review service sets status to reviewed, stamps reviewed_at, and triggers student notification. Reviewed sessions appear in progress reports only after this sign-off, consistent with homework and exam finalisation patterns. Re-review is possible if school policy allows reopening sessions.
+
 
 ## Author
 
