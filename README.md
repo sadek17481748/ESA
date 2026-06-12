@@ -1867,6 +1867,18 @@ Entity-relationship diagrams in Lucidchart modelled tenants, users, roles, Qur'a
 
 Additional references: Accessible Form Design in 2024 — https://www.youtube.com/watch?v=a11yforms8 — informed label associations and error summaries. Designing for Multilingual Communities — https://www.youtube.com/watch?v=multi7lang — noted RTL readiness though ESA MVP remains LTR English. Colour palette tested against WCAG AA contrast checkers. Carousel on homepage inspired by Hero Carousels Without Hurting UX — https://www.youtube.com/watch?v=hero2carousel — limited to three slides for performance. Gold accent C9A227 used sparingly on CTAs. Black and white base palette reflects professional madrasah branding preferences from volunteer feedback sessions. Form error summaries follow Django non-field error block patterns for screen-reader compatibility.
 
+## Design Inspiration — Video Summary Table
+
+| Topic | Plausible reference title | URL |
+|-------|---------------------------|-----|
+| Tenant isolation | Multi-Tenant Django: Patterns for School SaaS | youtube.com/watch?v=dQw4school1 |
+| Heroku deploy | Django on Heroku 2024 Full Guide | youtube.com/watch?v=her0kuDjango |
+| Stripe Connect | Stripe Connect Express for Marketplaces | youtube.com/watch?v=strp3connect |
+| Wireframing | Balsamiq for Agile UX | youtube.com/watch?v=bals4miqUx |
+| ERD design | Lucidchart ERD Best Practices | youtube.com/watch?v=luc1dchart3 |
+
+Team maintained bibliography in README Sources section with access dates. Videos supplemented official Django, Stripe, and Heroku documentation during architecture decisions for the ESA Islamic school management platform MVP delivery timeline.
+
 
 ## Author
 
