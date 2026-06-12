@@ -1899,6 +1899,10 @@ python manage.py verify_deploy performs smoke tests against the live URL configu
 
 Confirm DEBUG=False in production, secure SECRET_KEY, HTTPS enforced via Heroku SSL, CSRF trusted origins updated, and session cookies secure. Review Django admin access limited to superusers. Role decorators on all sensitive views retested quarterly. Stripe webhook secret rotated if leaked. Gmail app password stored as config var not code. Rate limiting considered for login endpoints in future sprint. django.contrib.auth password validators enabled. Security checklist in README expanded with OWASP lite review. Penetration test out of scope for academic MVP but tenant isolation tests mandatory before release. Rotate SECRET_KEY only with planned session invalidation since all users must re-login afterward.
 
+## Deployment Readiness — Tenant Isolation Verification
+
+Run automated tenant tests: python manage.py test schools.tests accounts.tests quran.tests exams.tests payments.tests focusing on cross-school access attempts. Manual spot check: create second school user, confirm 403 on foreign session IDs in URL tampering. Queryset managers on tenant models apply filter(school=request.user.school). Super Admin bypass explicit and audited. File uploads namespaced by school path. Connect accounts one-to-one with schools. Assessor sign-off requires isolation tests green in CI badge. Document known superuser support impersonation as not implemented in current MVP scope. Manual URL tampering tests with two seeded schools remain the assessor spot-check for isolation regressions.
+
 
 ## Author
 
