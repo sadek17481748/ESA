@@ -1839,6 +1839,10 @@ Khadijah Okonkwo administrates a small London madrasah and tested School Admin f
 
 Facilitators synthesised cross-cutting themes: email deliverability for verify-email and reminders depends on Gmail SMTP limits; all volunteers succeeded with seeded accounts after one password reset demo. Mobile usage sat at seventy percent for parents versus forty for teachers. Trust features (finalise, review) universally praised. Confusion points included JWT versus session login—documentation clarified assessor path uses browser sessions. Average satisfaction 4.4 out of five. Seven non-critical issues opened; zero critical. Retest scheduled after payments webhook hardening on production Heroku. Evidence pack includes twelve screenshots and three screen recordings archived for README and assessor review packs.
 
+## UAT — Sign-Off and Evidence
+
+UAT sign-off memo dated 2 July records facilitator names, environment URL, seed commands run, and participant consent for anonymised quotes in README. Evidence pack: twelve screenshots, three short screen recordings, feedback spreadsheet. School leadership volunteer letter affirms realistic workflows match UK supplementary school operations. Assessor may reproduce sessions using credentials in chunks two through six. Known limitations documented: no native mobile app, English-only UI, Stripe UK focus. UAT satisfied Definition of Done for MVP release candidate to Heroku production with monitoring enabled, verify_deploy passing on each deploy, and stakeholder sign-off recorded in the project wiki.
+
 
 ## Author
 
