@@ -1755,6 +1755,10 @@ Students open an assigned or self-started session, confirm the surah and ayah ra
 
 Teachers review submitted sessions from their /quran/ list. The review view displays mushaf text, annotation form, audio players, and a Mark reviewed action. Adding annotations posts tag, timestamp, ayah, and comment data. Teachers may upload feedback audio narrating corrections—especially valuable for Tajweed detail where tone matters. teacher_notes captures summary comments visible to parents. Calling the review service sets status to reviewed, stamps reviewed_at, and triggers student notification. Reviewed sessions appear in progress reports only after this sign-off, consistent with homework and exam finalisation patterns. Re-review is possible if school policy allows reopening sessions.
 
+## Qur'an Routes and Portal Integration
+
+URL configuration mounts the Qur'an app at /quran/ with named routes for list, create, detail, submit, and review actions. Templates live under templates/quran/ including list.html, session_form.html, and session_detail.html. Sidebar navigation shows Qur'an for teachers and students with badges for pending reviews. Parents accessing linked children's sessions see read-only reviewed content. Permission decorators reject cross-tenant access with HTTP 403. Sprint QA included unit tests, manual walkthroughs with teacher_demo and student_demo, and isolation checks. PROGRESS.md records completion of models, tags, timestamps, audio, feedback, and routes as of 23 June for assessor verification.
+
 
 ## Author
 
