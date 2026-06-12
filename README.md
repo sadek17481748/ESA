@@ -1815,6 +1815,10 @@ Run python manage.py send_overdue_reminders on a schedule (Heroku Scheduler dail
 
 Beyond automated tests, ESA ran structured user acceptance testing with volunteers representing real Islamic school stakeholders. Sessions occurred over three evenings in late June: parents tested payments and progress views, teachers exercised Qur'an and exams flows, and a School Admin volunteer configured fees and Connect. Facilitators recorded quotes, severity ratings, and screen recordings stored under docs/images/manual-testing/. Findings fed GitHub issues on the project board. UAT validated that terminology (Hifz, Tajweed, madrasah) resonated culturally and that mobile layouts worked on phones parents actually use. The following chunks summarise participant profiles and verbatim-style feedback.
 
+## UAT — Parent Volunteer Amina Shah
+
+Amina Shah, mother of two at a Birmingham supplementary school, tested parent login and payments on an iPhone 13. She logged in as parent_demo, navigated to fees, and completed Stripe test checkout without facilitator help. Quote: "The overdue badge is clearer than the paper invoice we usually get—I knew exactly what to pay first." She struggled briefly with verify-email on first register but succeeded after checking spam. Suggested larger tap targets on Pay now; team increased button padding in a follow-up commit. Rated overall experience four out of five. Recommended adding Urdu tooltips for elders less fluent in English—logged as future enhancement, not sprint scope for the MVP release.
+
 
 ## Author
 
