@@ -1863,6 +1863,10 @@ Low-fidelity wireframing in Balsamiq preceded HTML prototypes. Project board: ht
 
 Entity-relationship diagrams in Lucidchart modelled tenants, users, roles, Qur'an sessions, exams, and payments before migrations. ERD to Django Models Walkthrough — https://www.youtube.com/watch?v=luc1dchart3 — inspired naming conventions. Diagram exports embedded in README Data model and ERD section show School at centre with foreign keys radiating to profiles and domain apps. Cardinality decisions: student belongs to one class; parent links many-to-many children. ERD reviews caught missing school_id on early homework sketch. Lucidchart sharing enabled supervisor async review before sprint coding began in June. ERD revisions tracked school-scoped foreign keys required for tenant isolation across Qur'an, exams, and payments apps.
 
+## Design Inspiration — UI Patterns and Accessibility
+
+Additional references: Accessible Form Design in 2024 — https://www.youtube.com/watch?v=a11yforms8 — informed label associations and error summaries. Designing for Multilingual Communities — https://www.youtube.com/watch?v=multi7lang — noted RTL readiness though ESA MVP remains LTR English. Colour palette tested against WCAG AA contrast checkers. Carousel on homepage inspired by Hero Carousels Without Hurting UX — https://www.youtube.com/watch?v=hero2carousel — limited to three slides for performance. Gold accent C9A227 used sparingly on CTAs. Black and white base palette reflects professional madrasah branding preferences from volunteer feedback sessions. Form error summaries follow Django non-field error block patterns for screen-reader compatibility.
+
 
 ## Author
 
