@@ -77,5 +77,5 @@ class Command(BaseCommand):
         from django.core.management import call_command
         call_command('seed_alnoor_demo')
         call_command('seed_alnoor_examples')
-        # Demo timetable data for the registered school-admin school (not Al-Noor)
-        call_command('seed_timetable_samples')
+        # Timetable samples for Al-Noor (schooladmin / admin1234)
+        call_command('seed_timetable_samples', school=DEMO_SCHOOL_NAME)

@@ -18,8 +18,8 @@ from pages.timetable_service import (
 
 User = get_user_model()
 
-# School admin account that should receive demo timetable data on deploy
-PRIMARY_SCHOOL_ADMIN_EMAIL = 'msadekhussain2001@gmail.com'
+# Default seed target — Al-Noor Academy (schooladmin / admin1234)
+DEMO_SCHOOL_NAME = 'Al-Noor Academy'
 
 TEACHER_SPECS = (
     ('ms_fatima', 'Fatima', 'Ahmed', 'Quran'),
@@ -154,26 +154,15 @@ class Command(BaseCommand):
         parser.add_argument(
             '--school',
             default='',
-            help='School name (default: primary school-admin school)',
+            help=f'School name (default: {DEMO_SCHOOL_NAME})',
         )
 
     def handle(self, *args, **options):
-        if options['school']:
-            schools = School.objects.filter(name=options['school'])
-            if not schools.exists():
-                self.stderr.write(f'School not found: {options["school"]}')
-                return
-        else:
-            admin = User.objects.filter(
-                email__iexact=PRIMARY_SCHOOL_ADMIN_EMAIL,
-                role='school_admin',
-            ).select_related('school').first()
-            if not admin or not admin.school_id:
-                self.stdout.write(
-                    f'No school linked to {PRIMARY_SCHOOL_ADMIN_EMAIL} — nothing to seed',
-                )
-                return
-            schools = [admin.school]
+        school_name = options['school'] or DEMO_SCHOOL_NAME
+        schools = School.objects.filter(name=school_name)
+        if not schools.exists():
+            self.stderr.write(f'School not found: {school_name}')
+            return
 
         for school in schools:
             seed_timetable_samples_for_school(school, stdout=self.stdout)
