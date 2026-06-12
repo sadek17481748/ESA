@@ -1891,6 +1891,10 @@ Before first deploy and after each schema sprint, run python manage.py migrate l
 
 Fresh environments need representative data for assessor demos. Run in order: python manage.py migrate; python manage.py seed_rbac_users; python manage.py seed_alnoor_demo or seed_alnoor_examples; python manage.py seed_demo_fees; python manage.py ensure_platform_seed for defensive re-sync. Heroku: prefix with heroku run. Seeds are idempotent where possible—safe to re-run after user edits. Never seed production with default passwords without forcing password change policy. Document which seeds create thirty-student stress data versus minimal RBAC set for lightweight smoke testing on review apps. Re-run seed_demo_fees after payment schema changes to refresh parent_demo checkout scenarios.
 
+## Deployment Readiness — verify_deploy Command
+
+python manage.py verify_deploy performs smoke tests against the live URL configured in settings. It logs in as test_parent, test_student, mr_mohammed, schooladmin, and super with documented passwords, asserting expected pages load: messaging inbox, worksheets, LMS hub. Additional check: School Admin student search returns seeded name Amina. Run after every production deploy; exit non-zero on failure for CI integration. Output lists pass or fail per check. Assessor can reproduce locally against localhost:8000 with dev server running. Complements unit tests with end-to-end confidence across roles. Failed checks print which username and route combination broke for faster triage during release nights.
+
 
 ## Author
 
