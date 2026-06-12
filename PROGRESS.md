@@ -169,3 +169,4 @@
 - Portal routes delegate quran and exams to feature apps.
 - June sprint: quran, exams, auth, and parent linking complete.
 - Quran session detail split panel matches wireframe layout.
+- Exam results table shows auto, manual, and final scores.
