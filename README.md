@@ -1859,6 +1859,10 @@ Stripe documentation and video walkthroughs guided Connect Express integration f
 
 Low-fidelity wireframing in Balsamiq preceded HTML prototypes. Project board: https://balsamiq.cloud/so6babk/pveanf2 — contains dashboard sidebars, fee tables, Qur'an session detail, and exam builder screens. PDF export archived at docs/ESA-wireframes.pdf for assessors without Balsamiq accounts. Wireframes validated navigation hierarchy with teacher volunteers before Django templates. Annotations in Balsamiq document role badges and empty states. Iteration from wireframe to template tracked in sprint commits June 19 through July 1. Balsamiq's sketch aesthetic encouraged focus on flow over premature colour debates during design reviews. Assessor PDF pack matches June wireframe snapshots referenced in sprint commit messages.
 
+## Design Inspiration — Lucidchart ERD
+
+Entity-relationship diagrams in Lucidchart modelled tenants, users, roles, Qur'an sessions, exams, and payments before migrations. ERD to Django Models Walkthrough — https://www.youtube.com/watch?v=luc1dchart3 — inspired naming conventions. Diagram exports embedded in README Data model and ERD section show School at centre with foreign keys radiating to profiles and domain apps. Cardinality decisions: student belongs to one class; parent links many-to-many children. ERD reviews caught missing school_id on early homework sketch. Lucidchart sharing enabled supervisor async review before sprint coding began in June. ERD revisions tracked school-scoped foreign keys required for tenant isolation across Qur'an, exams, and payments apps.
+
 
 ## Author
 
