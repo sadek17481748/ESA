@@ -175,3 +175,4 @@
 - Parent can link child from sidebar after registration.
 - School admin dashboard links to student link-code page.
 - ensure_platform_seed sets email_verified on demo logins.
+- Student link code expires after ninety days.
