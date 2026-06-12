@@ -1663,6 +1663,20 @@ Super Admins operate above individual school tenants, managing subscriptions, sc
 
 After login, confirm the Super Admin dashboard lists registered schools, subscription tiers, and recent sign-ups. The verify_deploy command logs in as super and checks messaging inbox access. Super Admins suspend schools, assign tiers, and search users across tenants. Password re-entry is required for destructive actions in production. Never commit real credentials; these values exist solely for assessment and demonstration on the ESA Islamic school platform.
 
+## School Admin Login Credentials
+
+School Admins manage a single tenant—in the demo seed, Al-Noor Academy. They enrol students, assign teachers, configure fees, connect Stripe, and publish timetables. Credentials below are created by seed_rbac_users and reinforced by ensure_platform_seed.
+
+| Field | Value |
+|-------|-------|
+| **Username** | `schooladmin` |
+| **Password** | `admin1234` |
+| **Role** | School Admin |
+| **School** | Al-Noor Academy |
+| **Email** | `admin@alnoor.example` |
+
+Log in and verify the sidebar exposes LMS hub, attendance summaries, fee management, and Stripe Connect status. School Admins cannot view another school's data; queryset scoping enforces tenant isolation at the model layer. The verify_deploy command expects schooladmin to reach the LMS hub and search students by name. Use this account for CSV enrolment, subject configuration, and parent invitation demos during assessment.
+
 
 ## Author
 
