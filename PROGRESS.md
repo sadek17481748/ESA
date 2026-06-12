@@ -160,3 +160,4 @@
 - School admin issues and regenerates parent link codes.
 - Public /link/<code>/ route for parent onboarding.
 - Parent link-child form with relationship picker.
+- Registration pre-fills link code from school URL.
