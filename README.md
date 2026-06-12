@@ -1807,6 +1807,10 @@ POST /payments/webhook/ receives Stripe events with signature verification via S
 
 Each confirmed payment exposes a receipt link on the parent fees table. /payments/receipt/<payment_id>/ renders receipt.html with school name, payer, amount, date, and fee description. Users print to PDF via the browser print dialog—no wkhtmltopdf dependency. Authorization ensures parents access only their receipts. School Admins may audit payments in the fees dashboard export. Receipt context is built in payments/receipt.py for testability. Currency formats follow locale en_GB. Receipts satisfy parent record-keeping and school audit requirements for financial transparency without storing card numbers on ESA servers at any stage of the payment flow.
 
+## Overdue Reminders Command
+
+Run python manage.py send_overdue_reminders on a schedule (Heroku Scheduler daily) to mark past-due fees overdue and notify parents. process_overdue_reminders in payments/overdue.py updates statuses, sends email via Gmail SMTP settings, and creates in-app notifications linking to /payments/. Optional school flag scopes to one tenant for testing. Use staging before production first run. Parents with multiple overdue items receive consolidated emails where possible. School Admins see overdue KPI increments on next dashboard load. Command output lists affected fee IDs for operator logs. Tests mock Stripe for checkout and webhook handling; manual UAT used parent_demo with seed_demo_fees.
+
 
 ## Author
 
