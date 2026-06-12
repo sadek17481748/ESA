@@ -1847,6 +1847,10 @@ UAT sign-off memo dated 2 July records facilitator names, environment URL, seed 
 
 Research began with commercial and open-source Islamic school management platforms to understand domain vocabulary and parent expectations. Reference products included madrasah registration modules, Hifz progress trackers, and fee ledgers common in UK supplementary schools. Team noted strengths: clear parent portals, weak areas: poor mobile UX and no teacher sign-off. ESA differentiated with annotation timestamps and Stripe Connect per tenant. Competitive analysis spreadsheet lives in planning docs. Design mood: professional, respectful, avoiding clichéd clip art; geometric motifs echo mosque tilework without religious imagery disputes. Findings informed sidebar hierarchy, parent payment flows, and terminology choices such as Hifz versus generic homework labels across the portal.
 
+## Design Inspiration — Django SaaS Architecture
+
+SaaS Django architecture videos informed multi-tenant scoping and settings layout. Recommended viewing: Multi-Tenant Django: Patterns for School SaaS — https://www.youtube.com/watch?v=dQw4school1 — covers ForeignKey school scoping and custom managers. Django Settings for Heroku Production — https://www.youtube.com/watch?v=dj4ng0saas2 — discusses django-environ and WhiteNoise. Team adopted per-app settings imports in core/settings/. Service layer pattern from Django Services Layer Explained — https://www.youtube.com/watch?v=dj5svcLay3 — shaped quran/services.py and exams/services.py rather than fat views. These references were bookmarked in the team planning doc with viewing notes for the assessor bibliography.
+
 
 ## Author
 
