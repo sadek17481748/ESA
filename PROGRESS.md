@@ -178,3 +178,4 @@
 - Student link code expires after ninety days.
 - Regenerate link code invalidates previous active codes.
 - Email verification code invalidated on resend.
+- Unverified users blocked from portal except auth routes.
