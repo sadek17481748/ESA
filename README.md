@@ -1759,6 +1759,10 @@ Teachers review submitted sessions from their /quran/ list. The review view disp
 
 URL configuration mounts the Qur'an app at /quran/ with named routes for list, create, detail, submit, and review actions. Templates live under templates/quran/ including list.html, session_form.html, and session_detail.html. Sidebar navigation shows Qur'an for teachers and students with badges for pending reviews. Parents accessing linked children's sessions see read-only reviewed content. Permission decorators reject cross-tenant access with HTTP 403. Sprint QA included unit tests, manual walkthroughs with teacher_demo and student_demo, and isolation checks. PROGRESS.md records completion of models, tags, timestamps, audio, feedback, and routes as of 23 June for assessor verification.
 
+## Exams Sprint Overview (24–28 June)
+
+The exams sprint introduced formal assessment tooling for Islamic schools combining multiple-choice auto-marking with written questions requiring manual teacher marks. Deliverables span Exam, ExamQuestion, and StudentExamResult models, services for auto-mark and finalisation, templates under templates/exams/, and routes at /exams/. A core product rule mirrors Qur'an review: parents and students see results only after a teacher finalises them. Teachers build exams, publish them to classes, enter written marks, and sign off per student. MCQ answers score instantly on submission. The sprint completed 28 June with list, create, detail, mark, and finalise views wired and tested in exams/tests.py before merge to main.
+
 
 ## Author
 
