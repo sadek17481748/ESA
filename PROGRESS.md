@@ -185,3 +185,4 @@
 - Deploy: run migrate for accounts and students link-code tables.
 - Heroku: ensure_platform_seed sets email_verified on demo accounts.
 - Assessor note: demo logins skip email verification automatically.
+- Parent onboarding: register, verify email, enter school link code.
