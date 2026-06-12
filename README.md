@@ -1795,6 +1795,10 @@ Fee rows progress through clear statuses for reporting and UI badges. Pending ap
 
 Parents initiate payment from /payments/ by clicking Pay now on an eligible fee row. POST to /payments/checkout/<id>/ creates a Stripe Checkout Session with line item amount, currency GBP, and success or cancel URLs. The browser redirects to Stripe's hosted page—reducing PCI scope for ESA. Test mode uses card 4242 4242 4242 4242. On success, /payments/success/?session_id=... verifies the session server-side and records a Payment linked to the fee. Duplicate success hits are ignored via idempotency checks. Cancel returns to fees list without charge. Missing Stripe keys show a configuration warning instead of a broken button on the parent portal.
 
+## Stripe Connect Onboarding
+
+School Admins connect institution payout accounts through Connect Express. /payments/connect/start/ initiates OAuth; callback stores stripe_account_id on the school. school_fees.html displays Connected, onboarding incomplete, or not started states with appropriate CTAs. Parent Checkout sessions pass stripe_account so funds settle to the school, not the platform operator. Platform commission hooks exist for future SaaS billing. Reconnection is required if Stripe revokes access. Admins without Connect see warnings that online pay is disabled—manual bank transfer fallbacks remain school policy. Connect test mode mirrors Checkout test keys in development .env files documented in README for local assessor setup.
+
 
 ## Author
 
