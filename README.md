@@ -1887,6 +1887,10 @@ Production runs on Heroku at esa-project-2a7a33dfe3fc.herokuapp.com. The Procfil
 
 Before first deploy and after each schema sprint, run python manage.py migrate locally and heroku run python manage.py migrate in production. Migration files live per app: accounts, schools, quran, exams, payments, and others. Squashing deferred until post-MVP. Backup database via heroku pg:backups:capture before risky migrations. Zero-downtime deploys assume additive migrations; destructive changes require maintenance window communication. Migration linter checks foreign keys include school scoping. Failed migrate rolls back release and investigates in staging clone before retry on production environment. Keep migration dependency graph linear to simplify rollback decisions during sprint deploys.
 
+## Deployment Readiness — Seed Commands
+
+Fresh environments need representative data for assessor demos. Run in order: python manage.py migrate; python manage.py seed_rbac_users; python manage.py seed_alnoor_demo or seed_alnoor_examples; python manage.py seed_demo_fees; python manage.py ensure_platform_seed for defensive re-sync. Heroku: prefix with heroku run. Seeds are idempotent where possible—safe to re-run after user edits. Never seed production with default passwords without forcing password change policy. Document which seeds create thirty-student stress data versus minimal RBAC set for lightweight smoke testing on review apps. Re-run seed_demo_fees after payment schema changes to refresh parent_demo checkout scenarios.
+
 
 ## Author
 
