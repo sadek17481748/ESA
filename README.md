@@ -1827,6 +1827,10 @@ Yusuf Rahman, father of one Hifz student, reviewed Qur'an session feedback read-
 
 Fatima Begum, Quran department lead with eight years classroom experience, used teacher_demo to annotate a recitation and finalise a mixed MCQ and written exam. Quote: "Tagging memorisation separately from tajweed matches how we mark in the mushaf during oral assessment." She added twelve annotations in under four minutes. Written marking form deemed intuitive; requested keyboard shortcuts for power users. Fatima validated that students cannot see draft exam scores. Filed minor bug: annotation timestamp defaulting to zero—fixed same week. Rated exam builder four out of five; wanted question bank reuse across terms in a future academic year module.
 
+## UAT — Teacher Volunteer Omar Hassan
+
+Omar Hassan teaches Islamic studies and tested attendance plus homework modules alongside exams. Quote: "Finalise button makes sense—same as signing the paper mark book at end of term." He walked through mr_mohammed login for class of thirty scenario on school Wi-Fi. Performance was acceptable with sub-two-second page loads. Suggested colour-blind friendly status badges; contrast tweaks applied to gold on white text. Omar confirmed sidebar order matched his mental model: classes, attendance, homework, Qur'an, exams. No blockers for go-live recommendation from teaching staff perspective after the second UAT evening session.
+
 
 ## Author
 
