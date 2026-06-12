@@ -188,10 +188,19 @@
   async function postJson(url, body) {
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
       body: JSON.stringify(body),
     });
-    const data = await res.json().catch(() => ({}));
+    let data = {};
+    try {
+      data = await res.json();
+    } catch (e) {
+      data = { error: res.ok ? 'Unexpected server response' : `Request failed (${res.status})` };
+    }
     return { ok: res.ok, data };
   }
 
@@ -364,10 +373,19 @@
   async function postJson(url, body) {
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
       body: JSON.stringify(body),
     });
-    const data = await res.json().catch(() => ({}));
+    let data = {};
+    try {
+      data = await res.json();
+    } catch (e) {
+      data = { error: res.ok ? 'Unexpected server response' : `Request failed (${res.status})` };
+    }
     return { ok: res.ok, data };
   }
 

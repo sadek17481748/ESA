@@ -112,9 +112,15 @@ def get_or_create_default_timetable(school, class_group):
     ).order_by('-updated_at').first()
     if timetable:
         return timetable
+    base_name = f'{class_group.name} timetable'
+    name = base_name
+    suffix = 2
+    while Timetable.objects.filter(school=school, name=name).exists():
+        name = f'{base_name} ({suffix})'
+        suffix += 1
     return Timetable.objects.create(
         school=school,
-        name=f'{class_group.name} timetable',
+        name=name,
         class_group=class_group,
     )
 

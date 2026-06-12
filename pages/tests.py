@@ -96,6 +96,33 @@ class SchoolAdminTeacherTests(TestCase):
         from subjects.models import Subject
         self.assertTrue(Subject.objects.filter(school=school, name='Tajweed').exists())
 
+    def test_school_admin_can_add_class(self):
+        admin = User.objects.get(username='schooladmin')
+        self.client.force_login(admin)
+        school = School.objects.get(name='Al-Noor Academy')
+        response = self.client.post(
+            reverse('pages:class_create'),
+            data=json.dumps({'name': 'Year 9 Test', 'year_group_name': 'Year 9'}),
+            content_type='application/json',
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertTrue(body.get('ok'))
+        self.assertTrue(ClassGroup.objects.filter(school=school, name='Year 9 Test').exists())
+
+    def test_teacher_cannot_add_class(self):
+        teacher = User.objects.get(username='teacher_demo')
+        self.client.force_login(teacher)
+        response = self.client.post(
+            reverse('pages:class_create'),
+            data=json.dumps({'name': 'Blocked Class'}),
+            content_type='application/json',
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertIn('error', response.json())
+
 
 class DemoSeedTests(TestCase):
     def test_ensure_platform_seed_creates_demo_logins(self):

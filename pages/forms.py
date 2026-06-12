@@ -430,11 +430,13 @@ class AddClassForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-input'}),
     )
 
-    def __init__(self, school, *args, **kwargs):
+    def __init__(self, *args, school=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['teacher'].queryset = TeacherProfile.objects.filter(
-            school=school,
-        ).select_related('user').order_by('user__last_name')
+        self.school = school
+        if school is not None:
+            self.fields['teacher'].queryset = TeacherProfile.objects.filter(
+                school=school,
+            ).select_related('user').order_by('user__last_name')
 
     def clean_name(self):
         name = self.cleaned_data['name'].strip()

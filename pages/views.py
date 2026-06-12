@@ -578,13 +578,18 @@ def subject_create(request):
 @require_POST
 def class_create(request):
     school = request.user.school
+    if not school:
+        return JsonResponse(
+            {'error': 'Your account is not linked to a school. Log in as a school admin.'},
+            status=400,
+        )
     try:
         payload = json.loads(request.body)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
     from .forms import AddClassForm
-    form = AddClassForm(school, payload)
+    form = AddClassForm(data=payload, school=school)
     if not form.is_valid():
         errors = '; '.join(
             f'{field}: {msgs[0]}' for field, msgs in form.errors.items()
@@ -594,8 +599,12 @@ def class_create(request):
     if ClassGroup.objects.filter(school=school, name=form.cleaned_data['name']).exists():
         return JsonResponse({'error': 'A class with that name already exists'}, status=400)
 
-    class_group = form.save(school)
-    get_or_create_default_timetable(school, class_group)
+    try:
+        class_group = form.save(school)
+        get_or_create_default_timetable(school, class_group)
+    except Exception as exc:
+        return JsonResponse({'error': str(exc) or 'Could not save class'}, status=400)
+
     log_action(
         user=request.user,
         action=AuditLog.ACTION_CREATE,
