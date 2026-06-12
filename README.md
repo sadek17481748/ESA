@@ -1771,6 +1771,10 @@ Multiple-choice questions store prompt text, choices, correct answer key, and po
 
 Written question types accept free-text student responses—ideal for Islamic studies explanations, Arabic translations, or fiqh short answers. Teachers open the exam detail page, locate each student's row, and use the Save written marks form posting to /exams/<id>/mark/. Marks are numeric and validated against each question's maximum points. Comments per question are optional. Written marks combine with MCQ auto scores for a provisional total displayed only to teachers until finalisation. Students submitting written answers see confirmation that manual marking is pending. The UI distinguishes MCQ rows (auto-filled) from written rows (teacher input required). Bulk marking across a class is supported by scrolling the results table.
 
+## Teacher Finalise Sign-Off
+
+Finalisation is the trust gate for exam results. The finalise_result service records the approving teacher, timestamp, optional comment, and sets result status to finalised. Only then may parents and students view scores on /exams/<id>/. The finalise form requires teacher role and POSTs to /exams/<id>/finalise/ with student result identifier. Re-authentication for sign-off aligns with the platform security roadmap. Audit events can log finalise actions for School Admin review. Unfinalised results show a lead message stating that only verified scores appear here. Teachers may finalise students individually as marking completes rather than waiting for the entire class to finish.
+
 
 ## Author
 
