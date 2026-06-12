@@ -1743,6 +1743,10 @@ The QuranSession model stores surah number, surah name, ayah start and end, disp
 
 QuranAnnotation records pinpoint errors during recitation review. Each annotation belongs to a session and includes ayah number, tag type, timestamp in seconds, optional comment, and creating teacher. Three tag choices reflect standard Islamic pedagogy: Tajweed for pronunciation rules, Memorisation for word or verse recall, and Fluency for rhythm and continuity. Teachers add annotations from the session detail page while audio plays; timestamps let students jump to the exact moment of correction. Annotations order by timestamp then ayah number for readable feedback lists. The tagging system replaces informal verbal notes with structured, auditable records parents and students can revisit. Services notify students when review completes.
 
+## Timestamps and Audio Playback
+
+Timestamp fields on annotations use decimal seconds (e.g. 12.45) so teachers mark mistakes precisely during playback. The session detail template renders annotation lists with human-readable times and tag badges. Student-uploaded audio attaches to student_audio; teachers may respond with teacher_feedback_audio plus teacher_notes text. Playback controls sync visually with the mushaf text panel showing the selected ayah range. This design mirrors classroom practice: the teacher listens, pauses, tags, and comments without leaving the page. Mobile-responsive layout ensures recitation review works on tablets used in madrasah settings. Empty audio fields gracefully hide upload widgets until the student submits their recording.
+
 
 ## Author
 
