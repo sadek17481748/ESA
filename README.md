@@ -1907,6 +1907,10 @@ Run automated tenant tests: python manage.py test schools.tests accounts.tests q
 
 ESA is built on Django 4.x with Django REST Framework for JWT-capable APIs at /api/auth/token/ and /api/accounts/me/. PostgreSQL backs all environments via DATABASE_URL. Authentication uses Django sessions for HTML portals and Simple JWT for API clients. Stripe powers Checkout and Connect with webhook handlers. Email flows use Gmail SMTP for verify-email, password reset, and overdue reminders. Heroku hosts production; WhiteNoise serves static assets. Optional AWS S3 stores uploaded Qur'an audio and media when configured. Frontend uses Django templates, vanilla CSS, and minimal JavaScript. Tooling includes Git, GitHub Actions CI, and Gunicorn.
 
+## Closing Assessor Guide
+
+Thank you for evaluating the ESA Islamic school platform. Start at the live URL, log in with each role from chunks two through six, and follow the demo walkthrough: School Admin dashboard, parent payments, teacher attendance, Super Admin schools list. Deep-dive features under /quran/ and /exams/ demonstrate teacher sign-off; /payments/ shows Stripe test checkout. Run verify_deploy if you have CLI access. Evidence lives in docs/images/manual-testing/, wireframes PDF, and GitHub project board. Seed commands documented in deployment chunks. For architectural decisions, see README Overview and user stories. This expansion supplements the main README with assessor-focused detail across fifty modular sections. End of guide.
+
 
 ## Author
 
