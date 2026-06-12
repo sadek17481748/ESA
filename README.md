@@ -1641,6 +1641,15 @@ Home page carousel (`static/images/carousel/`):
 
 ---
 
+## Sprint delivery evidence (June–July 2025)
+
+Sprint deliverables from 19 June through 1 July: Qur'an annotation, exams with teacher finalisation, payments with Stripe Connect, plus user acceptance testing, design references, and deployment readiness.
+
+## Portal Login Hub Introduction
+
+The ESA Islamic school platform begins at the portal login hub, a single entry point for every role across the multi-tenant system. From the live deployment homepage, assessors and demo users click Log in to reach the authentication form. Successful login routes each user to a role-specific dashboard: Super Admin sees platform-wide school management, School Admin manages Al-Noor Academy operations, teachers access class tools, students submit work, and parents monitor fees. The hub enforces email verification; unverified accounts redirect to verify-email. JWT tokens power the REST API, but the assessor path uses session-based Django authentication. Seed commands populate demo accounts for stakeholder walkthroughs on fresh environments.
+
+
 ## Author
 
 - Mohammed Sadek Hussain
