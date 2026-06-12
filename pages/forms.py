@@ -415,13 +415,13 @@ class TimetableForm(forms.Form):
 class AddClassForm(forms.Form):
     name = forms.CharField(
         max_length=120,
-        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Year 8'}),
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. 7A, 11B'}),
     )
     year_group_name = forms.CharField(
         label='Year group',
         max_length=80,
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Same as class name if blank'}),
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Year 7, Year 11'}),
     )
     teacher = forms.ModelChoiceField(
         queryset=TeacherProfile.objects.none(),

@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from academics.models import ClassGroup
+from academics.models import ClassGroup, YearGroup
 from audit.models import AuditLog
 from audit.services import log_action
 from teachers.models import TeacherProfile
@@ -334,57 +334,83 @@ def _teacher_profile_for_user(user):
 def page_timetable(request):
     school = request.user.school
     teacher_profile = _teacher_profile_for_user(request.user)
+    is_school_admin = request.user.role == 'school_admin'
+
+    view_mode = request.GET.get('view')
+    if not view_mode:
+        view_mode = 'hub' if is_school_admin else 'build'
+
+    year_groups = YearGroup.objects.filter(school=school).prefetch_related(
+        'classes', 'classes__teacher', 'classes__teacher__user',
+    ).order_by('sort_order', 'name') if school else YearGroup.objects.none()
+
     classes = ClassGroup.objects.filter(school=school).select_related(
         'teacher', 'teacher__user', 'year_group',
-    )
-    class_id = request.GET.get('class')
-    if class_id:
-        class_group = get_object_or_404(ClassGroup, pk=class_id, school=school)
-    else:
-        class_group = classes.first()
+    ).order_by('year_group__sort_order', 'name')
 
-    if request.user.role == 'teacher' and teacher_profile and class_group:
-        if class_group.teacher_id != teacher_profile.pk:
-            owned = classes.filter(teacher=teacher_profile).first()
-            if owned:
-                class_group = owned
+    live_timetables = list(list_live_timetables(school)) if school else []
+    teachers = teachers_for_json(school) if school else []
 
-    timetables = list(list_timetables(school, class_group))
-    timetable_id = request.GET.get('timetable')
     timetable = None
-    if timetable_id:
-        timetable = get_object_or_404(Timetable, pk=timetable_id, school=school)
-        if timetable.class_group_id and class_group and timetable.class_group_id != class_group.pk:
-            class_group = timetable.class_group
-    elif timetables:
-        timetable = timetables[0]
-    elif class_group:
-        timetable = get_or_create_default_timetable(school, class_group)
+    class_group = None
+    timetables = []
+    grid = {}
+    can_edit = False
+
+    if view_mode == 'build':
+        class_id = request.GET.get('class')
+        if class_id:
+            class_group = get_object_or_404(ClassGroup, pk=class_id, school=school)
+        elif is_school_admin:
+            class_group = classes.first()
+        elif teacher_profile:
+            class_group = classes.filter(teacher=teacher_profile).first() or classes.first()
+
+        if request.user.role == 'teacher' and teacher_profile and class_group:
+            if class_group.teacher_id != teacher_profile.pk:
+                owned = classes.filter(teacher=teacher_profile).first()
+                if owned:
+                    class_group = owned
+
         timetables = list(list_timetables(school, class_group))
+        timetable_id = request.GET.get('timetable')
+        if timetable_id:
+            timetable = get_object_or_404(Timetable, pk=timetable_id, school=school)
+            if timetable.class_group_id and class_group and timetable.class_group_id != class_group.pk:
+                class_group = timetable.class_group
+        elif timetables:
+            timetable = timetables[0]
+        elif class_group:
+            timetable = get_or_create_default_timetable(school, class_group)
+            timetables = list(list_timetables(school, class_group))
 
-    if timetable and not class_group and timetable.class_group_id:
-        class_group = timetable.class_group
+        if timetable and not class_group and timetable.class_group_id:
+            class_group = timetable.class_group
 
-    subjects = list_school_subjects(school)
-    teachers = teachers_for_json(school)
-    grid = build_timetable_grid(timetable) if timetable else {}
+        grid = build_timetable_grid(timetable) if timetable else {}
+        can_edit = bool(timetable and user_can_edit_timetable(request.user, timetable, teacher_profile))
+
+    subjects = list_school_subjects(school) if school and view_mode == 'build' else []
 
     periods = [
         {'start': s.strftime('%H:%M'), 'end': e.strftime('%H:%M'), 'label': s.strftime('%H:%M')}
         for s, e in PERIODS
     ]
     weekday_labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    can_edit = timetable and user_can_edit_timetable(request.user, timetable, teacher_profile)
 
-    ctx = build_portal_context(
-        request,
-        'Timetable',
-        'Create and edit multiple timetables — assign subjects and teachers to each slot.',
-    )
+    page_meta = {
+        'hub': 'Add year groups, build timetables, and manage live schedules.',
+        'live': 'All published timetables — open to edit or archive.',
+        'build': 'Drag subjects onto the grid and assign teachers, then save.',
+    }.get(view_mode, '')
+
+    ctx = build_portal_context(request, 'Timetable', page_meta)
     ctx.update({
+        'view_mode': view_mode,
+        'year_groups': year_groups,
         'classes': classes,
         'class_group': class_group,
-        'live_timetables': list_live_timetables(school),
+        'live_timetables': live_timetables,
         'timetables': timetables,
         'timetable': timetable,
         'subjects': subjects,
@@ -394,10 +420,11 @@ def page_timetable(request):
         'weekday_labels': weekday_labels,
         'grid_json': json.dumps({f'{w}-{t}': v for (w, t), v in grid.items()}) if timetable else '{}',
         'can_edit': can_edit,
-        'can_manage_timetables': request.user.role == 'school_admin',
-        'can_add_class': request.user.role == 'school_admin',
-        'timetable_form': TimetableForm(school),
+        'can_manage_timetables': is_school_admin,
+        'can_add_class': is_school_admin,
+        'timetable_form': TimetableForm(school) if school else None,
         'subject_form': CreateSubjectForm(),
+        'teacher_count': len(teachers),
     })
     return render(request, 'pages/features/timetable.html', ctx)
 
