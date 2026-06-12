@@ -1895,6 +1895,10 @@ Fresh environments need representative data for assessor demos. Run in order: py
 
 python manage.py verify_deploy performs smoke tests against the live URL configured in settings. It logs in as test_parent, test_student, mr_mohammed, schooladmin, and super with documented passwords, asserting expected pages load: messaging inbox, worksheets, LMS hub. Additional check: School Admin student search returns seeded name Amina. Run after every production deploy; exit non-zero on failure for CI integration. Output lists pass or fail per check. Assessor can reproduce locally against localhost:8000 with dev server running. Complements unit tests with end-to-end confidence across roles. Failed checks print which username and route combination broke for faster triage during release nights.
 
+## Deployment Readiness — Permissions and Security
+
+Confirm DEBUG=False in production, secure SECRET_KEY, HTTPS enforced via Heroku SSL, CSRF trusted origins updated, and session cookies secure. Review Django admin access limited to superusers. Role decorators on all sensitive views retested quarterly. Stripe webhook secret rotated if leaked. Gmail app password stored as config var not code. Rate limiting considered for login endpoints in future sprint. django.contrib.auth password validators enabled. Security checklist in README expanded with OWASP lite review. Penetration test out of scope for academic MVP but tenant isolation tests mandatory before release. Rotate SECRET_KEY only with planned session invalidation since all users must re-login afterward.
+
 
 ## Author
 
