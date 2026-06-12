@@ -1831,6 +1831,10 @@ Fatima Begum, Quran department lead with eight years classroom experience, used 
 
 Omar Hassan teaches Islamic studies and tested attendance plus homework modules alongside exams. Quote: "Finalise button makes sense—same as signing the paper mark book at end of term." He walked through mr_mohammed login for class of thirty scenario on school Wi-Fi. Performance was acceptable with sub-two-second page loads. Suggested colour-blind friendly status badges; contrast tweaks applied to gold on white text. Omar confirmed sidebar order matched his mental model: classes, attendance, homework, Qur'an, exams. No blockers for go-live recommendation from teaching staff perspective after the second UAT evening session.
 
+## UAT — School Admin Volunteer Khadijah Okonkwo
+
+Khadijah Okonkwo administrates a small London madrasah and tested School Admin flows with schooladmin. Quote: "Stripe Connect setup was faster than our current standalone card terminal contract negotiation." She created fee items, ran CSV enrolment sample, and viewed overdue KPI after reminders command on staging. Khadijah flagged need for clearer Connect incomplete messaging—copy updated on school_fees.html. Verified she cannot see other schools when accidentally bookmarked wrong URL—403 handled gracefully. Endorsed tenant model for multi-branch expansion across her organisation's weekend and evening sites. Session duration ninety minutes; no severity-one defects logged.
+
 
 ## Author
 
