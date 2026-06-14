@@ -4,12 +4,14 @@ Portal UI — login redirect, registration, dashboards, and placeholder feature 
 """
 import json
 from datetime import datetime
+from pathlib import Path
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from django.http import JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -1016,4 +1018,12 @@ def public_student_link(request, code):
 def security_page(request):
     """Public security overview — no login required."""
     return render(request, 'pages/security.html')
+
+
+def wireframe_page(request):
+    """Public detailed wireframe pack — rendered HTML, no login required."""
+    path = Path(settings.BASE_DIR) / 'docs' / 'wireframe.html'
+    if not path.is_file():
+        raise Http404('Wireframe pack not found.')
+    return HttpResponse(path.read_text(encoding='utf-8'), content_type='text/html; charset=utf-8')
 

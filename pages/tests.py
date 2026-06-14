@@ -205,6 +205,12 @@ class HomePageTests(TestCase):
         self.assertContains(response, 'Multi-tenant isolation')
         self.assertContains(response, 'Stripe Checkout')
 
+    def test_wireframes_page_is_public(self):
+        response = self.client.get(reverse('pages:wireframes'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'ESA WIRE FRAMES')
+        self.assertContains(response, 'Landing page')
+
 
 class WebAuthTests(TestCase):
     def setUp(self):

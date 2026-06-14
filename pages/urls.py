@@ -43,4 +43,5 @@ urlpatterns = [
     path('worksheets/', views.page_worksheets, name='worksheets'),
     path('analytics/', views.page_analytics, name='analytics'),
     path('security/', views.security_page, name='security'),
+    path('wireframes/', views.wireframe_page, name='wireframes'),
 ]
