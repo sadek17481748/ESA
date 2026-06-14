@@ -24,9 +24,11 @@ from timetable.models import Timetable
 from .attendance_service import (
     build_class_register,
     build_school_attendance_overview,
+    build_teacher_register,
     class_labels_for_teacher,
     parent_children_attendance,
     save_class_register,
+    save_teacher_register,
     session_date_or_today,
     student_attendance_history,
     teacher_can_access_class,
@@ -251,16 +253,14 @@ def dashboard_teacher(request):
     school = request.user.school
     teacher_profile = TeacherProfile.objects.filter(user=request.user).first()
     classes = list(teacher_classes(school, teacher_profile))
-    primary_class = classes[0] if classes else None
     schedule = teacher_portal_context(teacher_profile, school)
     ctx = build_portal_context(
         request,
         'Teacher workspace',
-        "Your lessons and class registers.",
+        "Your lessons from the school timetable — click a slot to take the register.",
     )
     ctx.update({
         'teacher_classes': classes,
-        'primary_class': primary_class,
     })
     ctx.update(schedule)
     return render(request, 'pages/dashboard/teacher.html', ctx)
@@ -440,7 +440,7 @@ def page_timetable(request):
     return render(request, 'pages/features/timetable.html', ctx)
 
 
-@role_required('school_admin', 'teacher')
+@role_required('school_admin')
 @require_POST
 def timetable_save(request):
     school = request.user.school
@@ -473,7 +473,7 @@ def timetable_save(request):
     return JsonResponse({'ok': True, 'count': len(slots)})
 
 
-@role_required('school_admin', 'teacher')
+@role_required('school_admin')
 @require_POST
 def timetable_create(request):
     school = request.user.school
@@ -518,7 +518,7 @@ def timetable_create(request):
     })
 
 
-@role_required('school_admin', 'teacher')
+@role_required('school_admin')
 @require_POST
 def timetable_update(request):
     school = request.user.school
@@ -567,7 +567,7 @@ def timetable_delete(request):
     return JsonResponse({'ok': True})
 
 
-@role_required('school_admin', 'teacher')
+@role_required('school_admin')
 @require_POST
 def subject_create(request):
     school = request.user.school
@@ -710,7 +710,10 @@ def page_attendance(request):
             class_group = classes[0] if classes else None
 
         session_date = session_date_or_today(_parse_date_param(request.GET.get('date')))
-        register = build_class_register(class_group, session_date) if class_group else None
+        register = (
+            build_teacher_register(school, class_group, session_date)
+            if class_group else None
+        )
         lesson_subject = (request.GET.get('subject') or '').strip()
 
         if request.method == 'POST' and class_group:
@@ -719,15 +722,15 @@ def page_attendance(request):
                 if key.startswith('status_'):
                     student_id = key.replace('status_', '')
                     marks_payload[student_id] = {'status': value}
-            session, count = save_class_register(
-                school, class_group, session_date, request.user, marks_payload,
+            count = save_teacher_register(
+                school, session_date, request.user, marks_payload,
             )
             log_action(
                 user=request.user,
                 action=AuditLog.ACTION_UPDATE,
                 resource='AttendanceSession',
-                resource_id=session.pk,
-                detail=f'Saved register for {class_group.name} ({count} marks)',
+                resource_id=class_group.pk,
+                detail=f'Saved register for {class_group.name} lesson ({count} marks)',
                 request=request,
             )
             messages.success(request, f'Register saved for {class_group.name}.')
@@ -742,7 +745,7 @@ def page_attendance(request):
         ctx = build_portal_context(
             request,
             'Take register',
-            'Mark each student present, late, or absent for today.',
+            'Mark any student in your school — lessons come from the school-admin timetable.',
         )
         ctx.update({
             'classes': classes,
@@ -824,7 +827,55 @@ def page_exams(request):
 
 @login_required
 def page_hifz(request):
-    return _portal_page(request, 'pages/features/hifz_progress.html', 'Hifz progress')
+    from hifz.forms import HifzSignOffForm
+    from hifz.services import (
+        sign_off_hifz_juz,
+        sign_offs_for_parent,
+        sign_offs_for_school_admin,
+        sign_offs_for_student,
+        sign_offs_for_teacher,
+    )
+
+    user = request.user
+    school = user.school
+    form = None
+    sign_offs = []
+
+    if user.role == 'teacher' and school:
+        if request.method == 'POST':
+            form = HifzSignOffForm(school, user, request.POST)
+            if form.is_valid():
+                student = form.cleaned_data['student']
+                juz_number = int(form.cleaned_data['juz_number'])
+                try:
+                    sign_off_hifz_juz(
+                        student=student,
+                        juz_number=juz_number,
+                        teacher_user=user,
+                    )
+                    messages.success(
+                        request,
+                        f'{student.full_name} signed off for Juz {juz_number}. '
+                        'A congratulations message was sent to the linked parent.',
+                    )
+                    return redirect('pages:hifz')
+                except ValueError as exc:
+                    messages.error(request, str(exc))
+        else:
+            form = HifzSignOffForm(school, user)
+        sign_offs = sign_offs_for_teacher(user)
+    elif user.role == 'parent':
+        sign_offs = sign_offs_for_parent(user)
+    elif user.role == 'student':
+        from pages.enrollment_service import student_profile_for_user
+        profile = student_profile_for_user(user)
+        sign_offs = sign_offs_for_student(profile)
+    elif user.role == 'school_admin' and school:
+        sign_offs = sign_offs_for_school_admin(school)
+
+    ctx = build_portal_context(request, 'Hifz progress', 'Juz sign-off and progress.')
+    ctx.update({'form': form, 'sign_offs': sign_offs})
+    return render(request, 'pages/features/hifz_progress.html', ctx)
 
 
 @login_required
