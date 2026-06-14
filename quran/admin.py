@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import QuranAnnotation, QuranSession
+from .models import QuranAnnotation, QuranSession, QuranSessionPage
 
 
 class QuranAnnotationInline(admin.TabularInline):
@@ -13,6 +13,12 @@ class QuranSessionAdmin(admin.ModelAdmin):
     list_display = ('student', 'surah_name', 'teacher', 'status', 'created_at')
     list_filter = ('status', 'school')
     inlines = [QuranAnnotationInline]
+
+
+@admin.register(QuranSessionPage)
+class QuranSessionPageAdmin(admin.ModelAdmin):
+    list_display = ('session', 'para_number', 'page_number', 'updated_at')
+    list_filter = ('para_number',)
 
 
 @admin.register(QuranAnnotation)
