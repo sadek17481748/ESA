@@ -1,19 +1,11 @@
 """Behaviour logging for teachers and read-only parent view."""
-from academics.models import BehaviourRecord, ClassEnrollment
+from academics.models import BehaviourRecord
 from students.models import StudentProfile
 
 
 def students_for_teacher(school, teacher_user):
-    from teachers.models import TeacherProfile
-    from academics.models import ClassGroup
-
-    profile = TeacherProfile.objects.filter(user=teacher_user).first()
-    if not profile:
-        return StudentProfile.objects.filter(school=school, is_active=True).order_by('last_name')
-
-    class_ids = ClassGroup.objects.filter(school=school, teacher=profile).values_list('pk', flat=True)
-    student_ids = ClassEnrollment.objects.filter(class_group_id__in=class_ids).values_list('student_id', flat=True)
-    return StudentProfile.objects.filter(pk__in=student_ids, is_active=True).distinct().order_by('last_name')
+    """Teachers may log behaviour or work with any student in their school."""
+    return StudentProfile.objects.filter(school=school, is_active=True).order_by('last_name', 'first_name')
 
 
 def behaviour_for_parent(parent_user, limit=30):
