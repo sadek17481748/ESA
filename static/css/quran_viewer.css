@@ -1,0 +1,151 @@
+.quran-viewer-panel {
+  padding: 1rem;
+}
+
+.quran-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.quran-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.quran-nav-btn {
+  min-width: 4.5rem;
+}
+
+.quran-page-label {
+  font-weight: 600;
+  padding: 0 0.5rem;
+  min-width: 9rem;
+  text-align: center;
+}
+
+.quran-zoom-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.quran-zoom-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 3.5rem;
+  text-align: center;
+  color: var(--muted, #666);
+}
+
+.quran-highlight-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.quran-tools-label {
+  font-size: 0.85rem;
+  color: var(--muted, #666);
+  margin-right: 0.25rem;
+}
+
+.quran-color-btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.quran-color-btn.is-active {
+  border-color: var(--gold, #b8860b);
+  box-shadow: 0 0 0 2px rgba(184, 134, 11, 0.25);
+}
+
+.quran-save-status {
+  font-size: 0.82rem;
+  color: var(--muted, #666);
+  min-width: 5rem;
+}
+
+.quran-canvas-scroll {
+  overflow: auto;
+  max-height: 72vh;
+  background: #f8f6f0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.quran-canvas-wrap {
+  position: relative;
+  display: inline-block;
+  text-align: left;
+  touch-action: none;
+}
+
+#quran-pdf-canvas {
+  display: block;
+  max-width: none;
+}
+
+.quran-highlight-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.quran-highlight {
+  position: absolute;
+  opacity: 0.45;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.quran-drag-preview {
+  position: absolute;
+  opacity: 0.45;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.quran-page-note {
+  margin-top: 1rem;
+}
+
+.quran-note-input {
+  width: 100%;
+  min-height: 9rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.quran-page-note label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+}
+
+.quran-note-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  color: var(--muted, #666);
+}
+
+@media (max-width: 640px) {
+  .quran-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
