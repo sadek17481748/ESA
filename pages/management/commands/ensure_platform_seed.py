@@ -1,6 +1,6 @@
 """
 Ensure demo school and login accounts exist (Heroku / fresh DB).
-Preserves user passwords and data across deploys — only resets public demo logins.
+Fast boot path only — heavy seeding is manual: python manage.py seed_alnoor_full_school
 """
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -8,13 +8,17 @@ from django.core.management.base import BaseCommand
 from parents.models import ParentProfile
 from schools.models import School
 
-from pages.seed_helpers import PUBLIC_DEMO_USERNAMES, upsert_user
+from pages.seed_helpers import (
+    PUBLIC_DEMO_USERNAMES,
+    sync_mr_mohammed_attendance_demo,
+    sync_personal_accounts,
+    upsert_user,
+)
 
 User = get_user_model()
 
 DEMO_SCHOOL_NAME = 'Al-Noor Academy'
 
-# username, role, password, first_name, last_name, email
 DEMO_LOGINS = (
     ('schooladmin', 'school_admin', 'admin1234', 'School', 'Admin', 'admin@alnoor.example'),
     ('parent_demo', 'parent', 'demo1234', 'Parent', 'Demo', 'parent@alnoor.example'),
@@ -22,7 +26,7 @@ DEMO_LOGINS = (
 
 
 class Command(BaseCommand):
-    help = 'Seeds Al-Noor Academy — idempotent, preserves registered accounts on deploy'
+    help = 'Fast boot seed — demo logins + personal accounts only (no bulk school seed)'
 
     def handle(self, *args, **options):
         school, school_created = School.objects.get_or_create(
@@ -47,7 +51,6 @@ class Command(BaseCommand):
             )
             action = 'Created' if created else 'Updated'
             self.stdout.write(f'{action} {username} ({role})')
-
             if role == 'parent':
                 ParentProfile.objects.get_or_create(
                     user=user,
@@ -66,16 +69,10 @@ class Command(BaseCommand):
         )
         self.stdout.write(f"{'Created' if super_created else 'Updated'} super (super_admin)")
 
-        from django.core.management import call_command
-        from students.models import StudentProfile
-
-        if StudentProfile.objects.filter(school=school, admission_number='Y7A-001').exists():
-            self.stdout.write('Full school already seeded — syncing personal accounts.')
-        call_command('seed_alnoor_full_school')
-        call_command('seed_alnoor_examples')
+        sync_personal_accounts(school, stdout=self.stdout)
+        sync_mr_mohammed_attendance_demo(school, stdout=self.stdout)
 
         self.stdout.write(self.style.SUCCESS(
-            'Demo logins — super / super1234 · schooladmin / admin1234 · '
-            'parent_demo / demo1234 · msadekhussain@outlook.com / Parent2026! · '
-            'msadekhussain2001@gmail.com / Teacher2026!'
+            'Boot seed complete (fast). For full Y7–Y11 data run: '
+            'python manage.py seed_alnoor_full_school'
         ))
