@@ -296,17 +296,9 @@ Use these paths on the [live site](https://esa-project-2a7a33dfe3fc.herokuapp.co
 | **School Admin** | `/dashboard/school-admin/` | `/school-admin/students/`, `/school-admin/teachers/`, `/payments/` (school fees), Stripe Connect | Tenant-scoped students; Connect onboarding link |
 | **Teacher** | `/dashboard/teacher/` | `/attendance/`, `/worksheets/`, `/quran/`, `/exams/` | Create session, annotate recitation, mark exam, finalise results |
 | **Student** | `/dashboard/student/` | `/timetable/`, `/worksheets/`, `/quran/`, `/exams/` | Upload recitation audio; see **finalised** exam results only |
-| **Parent** | `/dashboard/parent/` | `/payments/`, `/messages/`, `/parent/link-child/`, child progress | Own fees only; pay with test card `4242…`; link child by school code |
+| **Parent** | `/dashboard/parent/` | Sidebar: payments, messages, attendance, Hifz, reports | Own children's data only; fees scoped to linked parent account |
 
-**Suggested 10-minute assessor route**
-
-1. Home → Log in as `parent_demo` / `demo1234` → **Payments** → pay or view receipt.
-2. Log out → `teacher_demo` / `teacher1234` → **Qur'an** → open a session → add Tajweed annotation.
-3. **Exams** → mark written answer → **Finalise** so parents can see the result.
-4. Log out → `schooladmin` / `admin1234` → **School Admin** students list → confirm link codes.
-5. Log out → `super` / `super1234` → confirm multi-school overview.
-
-Unverified real-email registrations are redirected to `/accounts/verify-email/` until the six-digit code is entered. Demo seed accounts skip that step.
+Use the [Demo walkthrough](#demo-walkthrough) for logins and what each role should already see on the live site. Demo accounts skip email verification; real registrations require the six-digit code at `/accounts/verify-email/`.
 
 ---
 ## Technical overview
