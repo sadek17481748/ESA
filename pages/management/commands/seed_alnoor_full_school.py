@@ -325,7 +325,6 @@ class Command(BaseCommand):
             school=school,
             first_name='Mohammed',
             last_name='Hussain',
-            force_reset_password=t_created,
         )
         teacher_profile, _ = TeacherProfile.objects.get_or_create(
             user=teacher_user,
@@ -343,7 +342,6 @@ class Command(BaseCommand):
             school=school,
             first_name='Mohammed',
             last_name='Hussain',
-            force_reset_password=p_created,
         )
         StudentProfile.objects.filter(user=parent_user).delete()
 
