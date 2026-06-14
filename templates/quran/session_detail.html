@@ -1,51 +1,59 @@
 {% extends "base/portal.html" %}
+{% load static %}
 {% block portal_content %}
-<h1 class="page-title">{{ session.surah_name }}</h1>
-<p class="page-meta">Ayah {{ session.ayah_start }}–{{ session.ayah_end }} · {{ session.get_status_display }}</p>
+<h1 class="page-title">{{ session.display_title }}</h1>
+<p class="page-meta">{{ session.get_status_display }} · {{ session.student.full_name }}</p>
 
-<div class="split" style="margin-bottom:1.25rem;">
-  <section class="panel">
-    <h2 style="margin-top:0;font-size:1.1rem;">Text panel</h2>
-    <div class="accent-bar"></div>
-    <div class="card quran-text-panel" style="min-height:220px;direction:rtl;text-align:right;font-size:1.25rem;line-height:2;">
-      {{ session.ayah_text|linebreaksbr }}
+<section class="panel quran-viewer-panel">
+  <div class="quran-toolbar">
+    <div class="quran-nav">
+      <button type="button" class="btn-secondary quran-nav-btn" id="quran-prev-para" title="Previous juz">‹ Juz</button>
+      <button type="button" class="btn-secondary quran-nav-btn" id="quran-prev-page" title="Previous page">‹ Page</button>
+      <span class="quran-page-label" id="quran-page-label">Juz {{ para_number }} · Page {{ page_number }}</span>
+      <button type="button" class="btn-secondary quran-nav-btn" id="quran-next-page" title="Next page">Page ›</button>
+      <button type="button" class="btn-secondary quran-nav-btn" id="quran-next-para" title="Next juz">Juz ›</button>
     </div>
-  </section>
-
-  <section class="panel" id="annotations">
-    <h2 style="margin-top:0;font-size:1.1rem;">Mistake list</h2>
-    <div class="accent-bar"></div>
-    {% if annotation_form %}
-    <form method="post" action="{% url 'quran:add_annotation' session.pk %}" class="form-stack" style="margin-bottom:1rem;">
-      {% csrf_token %}
-      <div class="field"><label>Ayah</label>{{ annotation_form.ayah_number }}</div>
-      <div class="field"><label>Tag</label>{{ annotation_form.tag }}</div>
-      <div class="field"><label>Time (seconds)</label>{{ annotation_form.timestamp_seconds }}</div>
-      <div class="field"><label>Note</label>{{ annotation_form.comment }}</div>
-      <button type="submit" class="btn-primary">Add annotation</button>
-    </form>
+    <div class="quran-zoom-tools">
+      <span class="quran-tools-label">Zoom</span>
+      <button type="button" class="btn-secondary quran-nav-btn" id="quran-zoom-out" title="Zoom out">−</button>
+      <span class="quran-zoom-label" id="quran-zoom-label">Fit</span>
+      <button type="button" class="btn-secondary quran-nav-btn" id="quran-zoom-in" title="Zoom in">+</button>
+      <button type="button" class="btn-secondary quran-nav-btn" id="quran-zoom-fit" title="Fit to width">Fit</button>
+    </div>
+    {% if can_edit %}
+    <div class="quran-highlight-tools">
+      <span class="quran-tools-label">Highlighter</span>
+      <button type="button" class="quran-color-btn is-active" data-color="#fff59d" style="background:#fff59d" title="Yellow"></button>
+      <button type="button" class="quran-color-btn" data-color="#a5d6a7" style="background:#a5d6a7" title="Green"></button>
+      <button type="button" class="quran-color-btn" data-color="#90caf9" style="background:#90caf9" title="Blue"></button>
+      <button type="button" class="quran-color-btn" data-color="#f48fb1" style="background:#f48fb1" title="Pink"></button>
+      <button type="button" class="btn-secondary" id="quran-undo-highlight">Undo last</button>
+      <span class="quran-save-status" id="quran-save-status" aria-live="polite"></span>
+    </div>
     {% endif %}
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Ayah</th><th>Tag</th><th>Time</th><th>Note</th></tr></thead>
-        <tbody>
-          {% for a in annotations %}
-          <tr>
-            <td>{{ a.ayah_number }}</td>
-            <td><span class="pill">{{ a.get_tag_display }}</span></td>
-            <td>{{ a.timestamp_seconds }}s</td>
-            <td>{{ a.comment|default:"—" }}</td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="4" class="placeholder-row">No annotations yet.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </section>
-</div>
+  </div>
 
-<section id="audio" class="panel">
+  <div class="quran-canvas-scroll" id="quran-canvas-scroll">
+  <div class="quran-canvas-wrap" id="quran-canvas-wrap">
+    <canvas id="quran-pdf-canvas"></canvas>
+    <div class="quran-highlight-layer" id="quran-highlight-layer"></div>
+    {% if can_edit %}
+    <div class="quran-drag-preview" id="quran-drag-preview" hidden></div>
+    {% endif %}
+  </div>
+  </div>
+
+  <div class="quran-page-note">
+    <label for="quran-page-note">Notes for this page</label>
+    <textarea id="quran-page-note" class="form-input quran-note-input" rows="6" placeholder="Comments for this student on this page…"{% if not can_edit %} readonly{% endif %}>{{ page_note }}</textarea>
+    {% if can_edit %}
+    <p class="quran-note-hint">Notes save automatically when you change page or after you stop typing.</p>
+    {% endif %}
+  </div>
+</section>
+
+{% if audio_form or feedback_form or session.student_audio or session.teacher_feedback_audio %}
+<section id="audio" class="panel" style="margin-top:1.25rem;">
   <h2 style="margin-top:0;font-size:1.1rem;">Audio</h2>
   <div class="accent-bar"></div>
   <div class="split" style="margin:0;">
@@ -76,7 +84,7 @@
       <form method="post" action="{% url 'quran:upload_feedback' session.pk %}" enctype="multipart/form-data" style="margin-top:0.75rem;">
         {% csrf_token %}
         <div class="field"><label>Audio feedback</label>{{ feedback_form.teacher_feedback_audio }}</div>
-        <div class="field"><label>Written notes</label>{{ feedback_form.teacher_notes }}</div>
+        <div class="field"><label>Session summary</label>{{ feedback_form.teacher_notes }}</div>
         <button type="submit" class="btn-primary">Save feedback &amp; mark reviewed</button>
       </form>
       {% elif not session.teacher_feedback_audio and not session.teacher_notes %}
@@ -85,5 +93,25 @@
     </div>
   </div>
 </section>
+{% endif %}
+
 <p style="margin-top:1rem;"><a href="{% url 'quran:list' %}">← All sessions</a></p>
+
+<link rel="stylesheet" href="{% static 'css/quran_viewer.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+window.QURAN_VIEWER = {
+  sessionId: {{ session.pk }},
+  paraNumber: {{ para_number }},
+  pageNumber: {{ page_number }},
+  paraCount: {{ para_count }},
+  pdfUrl: "{{ pdf_url|escapejs }}",
+  saveUrl: "{% url 'quran:save_page' session.pk %}",
+  pageDataUrl: "{% url 'quran:page_data' session.pk %}",
+  canEdit: {{ can_edit|yesno:"true,false" }},
+  highlights: {{ page_highlights_json|safe }},
+  csrfToken: "{{ csrf_token }}",
+};
+</script>
+<script src="{% static 'js/quran_viewer.js' %}"></script>
 {% endblock %}
