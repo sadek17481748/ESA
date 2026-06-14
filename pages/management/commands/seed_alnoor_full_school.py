@@ -78,7 +78,7 @@ def weekly_timetable_slots(class_name):
     letter = class_name[-1].upper() if class_name else 'A'
     if letter == 'A':
         return (
-            (0, '08:30', '09:15', 'Quran', 'ms_fatima'),
+            (0, '08:30', '09:15', 'Quran', 'mr_mohammed'),
             (0, '09:15', '10:00', 'Maths', 'mr_ali'),
             (0, '10:15', '11:00', 'English', 'ms_fatima'),
             (0, '11:00', '11:45', 'Break', None),
@@ -89,12 +89,12 @@ def weekly_timetable_slots(class_name):
             (1, '10:15', '11:00', 'Science', 'mr_yusuf'),
             (2, '08:30', '09:15', 'Arabic', 'mr_yusuf'),
             (2, '09:15', '10:00', 'Maths', 'mr_ali'),
-            (2, '10:15', '11:00', 'Quran', 'ms_fatima'),
+            (2, '10:15', '11:00', 'Quran', 'mr_mohammed'),
             (3, '08:30', '09:15', 'English', 'ms_fatima'),
             (3, '09:15', '10:00', 'Science', 'mr_ali'),
             (3, '10:15', '11:00', 'Alimiyah', 'mr_yusuf'),
             (4, '08:30', '09:15', 'Maths', 'mr_ali'),
-            (4, '09:15', '10:00', 'Quran', 'ms_fatima'),
+            (4, '09:15', '10:00', 'Quran', 'mr_mohammed'),
             (4, '10:15', '11:00', 'Break', None),
         )
     return (
@@ -130,24 +130,27 @@ class Command(BaseCommand):
 
         already_seeded = StudentProfile.objects.filter(
             school=school,
-            admission_number='Y7A-001',
+            admission_number='7A-001',
         ).exists()
 
         if already_seeded:
-            self.stdout.write('Full school data exists — syncing personal accounts only.')
+            self.stdout.write('Full school data exists — syncing accounts + rich content.')
             self._ensure_personal_accounts(school)
+            from pages.seed_helpers import sync_mr_mohammed_attendance_demo
+            sync_mr_mohammed_attendance_demo(school, stdout=self.stdout)
+            from pages.alnoor_content_seed import seed_alnoor_rich_content
+            seed_alnoor_rich_content(school, stdout=self.stdout)
             return
 
         teacher_profiles = self._seed_teachers(school)
         class_by_name = self._seed_classes(school, teacher_profiles)
         self._seed_students_and_parents(school, class_by_name)
         self._seed_timetables(school, class_by_name, teacher_profiles)
-        personal_teacher, linked_student = self._ensure_personal_accounts(school)
-
-        if personal_teacher and '7A' in class_by_name:
-            cg = class_by_name['7A']
-            cg.teacher = personal_teacher
-            cg.save(update_fields=['teacher'])
+        _, linked_student = self._ensure_personal_accounts(school)
+        from pages.seed_helpers import sync_mr_mohammed_attendance_demo
+        sync_mr_mohammed_attendance_demo(school, stdout=self.stdout)
+        from pages.alnoor_content_seed import seed_alnoor_rich_content
+        seed_alnoor_rich_content(school, stdout=self.stdout)
 
         self.stdout.write(self.style.SUCCESS(
             f'Al-Noor full school: {len(class_by_name)} classes, '
@@ -311,7 +314,7 @@ class Command(BaseCommand):
         """Permanent outlook=parent, gmail=teacher, linked to first 7A student."""
         linked_student = StudentProfile.objects.filter(
             school=school,
-            admission_number='Y7A-001',
+            admission_number='7A-001',
         ).select_related('user').first()
 
         if not linked_student:
@@ -394,8 +397,10 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             '\nPermanent Al-Noor logins:\n'
             f'  School admin: schooladmin / admin1234\n'
+            f'  Attendance demo — teacher: mr_mohammed / {DEFAULT_TEACHER_PASSWORD} (7A)\n'
+            f'  Attendance demo — parent: parent_7a_01 / {DEFAULT_PARENT_PASSWORD} '
+            f'(child Amina Hassan, 7A-001)\n'
             f'  Parent: {PERSONAL_PARENT_EMAIL} / {PERSONAL_PARENT_PASSWORD}{child}\n'
             f'  Teacher: {PERSONAL_TEACHER_EMAIL} / {PERSONAL_TEACHER_PASSWORD}\n'
-            f'  Bulk example: student_7a_01 / {DEFAULT_STUDENT_PASSWORD} · '
-            f'parent_7a_01 / {DEFAULT_PARENT_PASSWORD}'
+            f'  Student: student_7a_01 / {DEFAULT_STUDENT_PASSWORD}'
         ))
