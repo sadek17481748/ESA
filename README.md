@@ -529,18 +529,197 @@ Screenshots will be stored under `docs/images/manual-testing/` so key screens ar
 ---
 ## Features
 
-- **Multi-tenant schools** — each school is a fully isolated tenant.
-- **RBAC (roles + permissions)** — five roles with explicit permission checks.
-- **Custom subjects per school** — Hifz, Alimiyah, General categories.
-- **Timetable system** — weekly grid with conflict detection.
-- **Attendance tracking** — per-session register with absence flagging.
-- **Hifz tracking** — surah/juz progress with teacher sign-off.
-- **Qur'an annotation** — recitation tagging (Tajweed / Memorisation / Fluency) with audio.
-- **Teacher sign-off verification** — Hifz, worksheets, and exams require authenticated sign-off.
-- **Payments with Stripe Connect** — fees routed directly to school bank accounts.
-- **Notifications (email + in-app)** — assignment alerts, absence alerts, overdue fees.
-- **Messaging** — teacher–parent direct messaging.
-- **Analytics dashboards** — attendance rates, Hifz progress, fee collection.
+This section describes **what ESA actually does today** on the live site. Each feature is grouped by area. For every item you will see **who uses it** and **what you can do** — written for someone new to the project, not a developer.
+
+Use the [Demo walkthrough](#demo-walkthrough) to try these with real logins.
+
+### Accounts and getting started
+
+| Feature | Who uses it | What it does |
+|---------|-------------|--------------|
+| **Home page** | Everyone (no login) | Marketing carousel explaining the platform; links to log in, register, or register a new school |
+| **Log in** | All roles | Email/username + password; you are sent to the correct dashboard for your role |
+| **Register as parent or student** | New users | Pick a school, choose role, create an account; students pick a class; parents can enter a **link code** to connect to a child straight away |
+| **Register a new school** | New school admins | Creates a school + school-admin account in one step (for onboarding a new madrasah onto the platform) |
+| **Email verification** | Real email sign-ups | Six-digit code sent to inbox before full access; demo seed accounts skip this |
+| **Password reset** | Anyone who forgot password | Email link to set a new password |
+| **Parent link child** | Parents | Enter a code the school gave you to link your account to your child's profile |
+| **Public link page** | Parents with a code | `/link/<code>/` — shortcut URL the school can share |
+| **Role dashboards** | Each role after login | Five separate home screens: Super Admin, School Admin, Teacher, Student, Parent — each with its own sidebar |
+
+### Multi-tenant schools
+
+ESA hosts **many schools on one platform**, but each school only sees **its own data**.
+
+- Every student, teacher, fee, timetable, and message belongs to **one school**.
+- A teacher at Al-Noor Academy cannot open another school's attendance register.
+- A School Admin manages **one school**; a Super Admin sees **all schools** on the platform.
+
+This is called **multi-tenant** architecture — one app, many isolated schools.
+
+### School admin — running the school
+
+| Feature | What you can do |
+|---------|-----------------|
+| **Dashboard overview** | Snapshot of the school — quick links into setup areas |
+| **Add teachers** | Create teacher accounts with username, email, and subject |
+| **Teachers list** | View staff already registered at your school |
+| **Students list** | View enrolled students; each row can show a **parent link code** to give families |
+| **Timetable hub** | Add year groups and classes, build weekly timetables, assign subjects and teachers |
+| **LMS hub** | Create subjects (e.g. Maths, Quran), add learning tracks, upload worksheets/links |
+| **Attendance overview** | School-wide view of registers taken across classes |
+| **Analytics** | KPI-style stats — attendance, fees, behaviour at a glance |
+| **Fees (school side)** | Create fee items charged to parents; see outstanding and paid |
+| **Subscription** | Choose platform plan (Free / Standard / Premium) and pay via Stripe |
+| **Stripe Connect** | Connect the school's Stripe account so parent fee payments go to the school bank account |
+| **Find student** | Search any student by name or admission number (for messaging and admin tasks) |
+| **Messages inbox** | See all conversations between parents, teachers, and school office |
+
+### Timetable
+
+| Feature | Who uses it | What you can do |
+|---------|-------------|-----------------|
+| **Timetable hub** | School admin | Add classes (e.g. 7A, 8B), create named timetables (e.g. "Spring term"), open the drag-and-drop builder |
+| **Timetable builder** | School admin | Drag subjects onto a weekly grid, set times, assign a teacher to each slot, save |
+| **Live timetables** | School admin | List of published timetables — edit, archive, or view lesson counts |
+| **Custom subjects** | School admin | Subjects tagged as **General**, **Hifz**, or **Alimiyah** per school |
+| **My timetable** | Teacher | Shows only lessons **you** are assigned to on the timetable; links to take the register for that class |
+| **Student timetable** | Student | Read-only weekly view of their class schedule |
+
+Teachers are **not** fixed to one class forever — they appear on whichever timetable slots the school admin assigned them to.
+
+### Attendance
+
+| Feature | Who uses it | What you can do |
+|---------|-------------|-----------------|
+| **Class register** | Teacher | Pick a date and class; mark each student **Present**, **Late**, or **Absent**; save the session |
+| **Teacher register (school-wide list)** | Teacher | Mark attendance for any student in the school (used when Quran or cross-class teaching applies) |
+| **School overview** | School admin | See which registers have been taken across classes |
+| **Parent view** | Parent | See attendance history for **linked children only** |
+| **Student view** | Student | See own attendance history |
+
+Registers are stored per **session** (school + class + date), so you can look back at previous days.
+
+### Homework and worksheets
+
+| Feature | Who uses it | What you can do |
+|---------|-------------|-----------------|
+| **Assignments** | Teacher | Create homework or worksheets for a class, set a due date and description |
+| **Submit work** | Student | Write a submission (or upload where supported) before the deadline |
+| **Sign-off queue** | Teacher | Approve or reject submitted work; only the **assigning teacher** can sign off |
+| **View results** | Student / parent | See whether work was approved or needs revision after sign-off |
+
+When a teacher approves work, the student gets an **in-app notification**. Rejected work shows as "needs revision."
+
+### LMS — learning materials
+
+The **LMS** (Learning Management System) is where schools store structured learning content beyond day-to-day homework.
+
+| Feature | Who uses it | What you can do |
+|---------|-------------|-----------------|
+| **Subjects & tracks** | School admin | e.g. Maths → Foundation / Higher; Quran → Beginners |
+| **Upload materials** | School admin | Add worksheets, document links, or files to a track |
+| **Assign track to class** | Teacher / admin | Attach a track so students in that class can see the materials |
+| **Student progress** | Student | Mark materials in progress or completed; percentage shown |
+| **Submit worksheet** | Student | Upload a completed file for teacher review |
+| **Review submission** | Teacher | Approve or send back for revision with feedback |
+
+### Qur'an sessions (mushaf viewer)
+
+This replaced the older ayah-by-ayah annotation picker. Teachers now work with **real mushaf PDF pages**.
+
+| Feature | Who uses it | What you can do |
+|---------|-------------|-----------------|
+| **Create session** | Teacher | Pick a student — opens a new Qur'an session for that child |
+| **Mushaf viewer** | Teacher (edit) / student & parent (read-only) | Page through **30 juz PDFs** with arrow buttons; fit-to-width and zoom controls |
+| **Per-page notes** | Teacher | Type comments for that student on that page (e.g. "work on madd") — saves automatically |
+| **Highlights** | Teacher | Drag coloured boxes on the page (like a highlighter pen) to mark areas to revise |
+| **Session list** | Teacher / student | See all sessions; open any session to continue where you left off |
+| **Audio (where uploaded)** | Student / teacher | Recitation upload and teacher feedback audio on a session |
+
+Parents and students can **view** notes and highlights but cannot edit them.
+
+### Hifz sign-off
+
+A simple flow for when a student has memorised a full **juz** (part) of the Qur'an.
+
+| Step | What happens |
+|------|--------------|
+| Teacher picks **student** and **juz** (1–30) | Form on the Hifz page |
+| Teacher clicks **Student has passed** | Record saved with date and teacher name |
+| Parent notified automatically | Congratulations message sent in **Messages** + in-app notification |
+
+Parents and students see a **list of signed-off juz**. Each juz can only be signed off once per student.
+
+> **Note:** Detailed surah-by-surah revision tracking and "smart revision suggestions" are **not** built yet — sign-off is at **juz** level only.
+
+### Exams
+
+| Feature | Who uses it | What you can do |
+|---------|-------------|-----------------|
+| **Create exam** | Teacher | Title, class, subject, date; add **multiple-choice** and **written** questions |
+| **Publish** | Teacher | Makes the exam visible to students in that class |
+| **Sit exam** | Student | Answer MCQs and written questions in the portal |
+| **Auto-mark MCQs** | System | Multiple-choice questions scored automatically when answers are saved |
+| **Mark written answers** | Teacher | Enter marks for long-answer questions |
+| **Finalise result** | Teacher | Locks the result — only **finalised** results show to parents and students as official |
+| **View results** | Student / parent | See scores and teacher comment after finalisation |
+
+### Behaviour
+
+| Feature | Who uses it | What you can do |
+|---------|-------------|-----------------|
+| **Log behaviour** | Teacher | Record a **commendation** (positive) or **incident** (negative) for any student in the school |
+| **View records** | Parent | Read-only list for linked children |
+| **School-wide list** | School admin | See recent behaviour entries across the school |
+
+Each record has a title, optional notes, date, and the teacher who logged it.
+
+### Messaging and reports
+
+| Feature | Who uses it | What you can do |
+|---------|-------------|-----------------|
+| **School messages** | Parent, teacher, school admin | Threaded conversations — parent ↔ teacher, parent ↔ school office, teacher ↔ parent |
+| **New message** | Parent / teacher / admin | Start a conversation with a subject line |
+| **Support cases** | Parent → platform team | Open a support ticket (case number, threaded replies); Super Admin responds |
+| **Teacher reports** | Teacher | Structured progress report (strengths, areas to improve, action required) sent to parent |
+| **Read reports** | Parent / student | View reports written about the child |
+| **Unread badge** | All messaging users | Sidebar shows when new messages arrived |
+| **Email copies** | Optional | New messages can trigger email if the user enabled notifications |
+
+Hifz sign-off and other system events also create **automatic messages** to parents (e.g. "Congratulations — passed Juz 3").
+
+### Payments and subscriptions
+
+| Feature | Who uses it | What you can do |
+|---------|-------------|-----------------|
+| **Parent fees** | Parent | See outstanding and paid fees for your children; pay via **Stripe Checkout** |
+| **Fee management** | School admin | Create fee items (tuition, trips, etc.) tied to a parent account |
+| **Payment receipt** | Parent | View receipt after successful Stripe payment |
+| **School subscription** | School admin | Upgrade platform plan (Free → Standard → Premium) with monthly Stripe billing |
+| **Stripe Connect onboarding** | School admin | Link the school's Stripe account so fee money routes to the school, not the platform |
+| **Webhooks** | Background | Stripe tells ESA when a payment succeeded so the database updates automatically |
+
+Use test card **`4242 4242 4242 4242`** in Stripe sandbox mode when testing payments.
+
+### Notifications
+
+| Feature | What it does |
+|---------|--------------|
+| **In-app notifications** | Bell-style alerts inside the portal — homework signed off, Hifz passed, general school news |
+| **Notification list** | Each user sees only their own notifications |
+| **Email on new messages** | Optional per-user setting in the Messages inbox |
+
+### Security and audit
+
+| Feature | What it does |
+|---------|--------------|
+| **Role checks** | Every page checks you are logged in and have the right role before showing data |
+| **Tenant scoping** | Database queries filtered by school so data does not leak between tenants |
+| **Public security page** | `/security/` — plain-language explanation of how ESA handles auth, payments, and data |
+| **Audit log** | Sensitive actions (e.g. login) recorded for review in development/admin |
+| **Email verification gate** | Unverified accounts cannot use the portal until they enter their code |
+| **REST API + JWT** | `/api/` endpoints for programmatic access; same permission rules as the web portal |
 
 ---
 ## User Experience (UX)
