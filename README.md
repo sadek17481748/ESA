@@ -1659,6 +1659,9 @@ Demo accounts are created by `ensure_platform_seed` (runs on every Heroku deploy
 | **Your teacher** | `msadekhussain2001@gmail.com` | `Teacher2026!` | Maths on **7A** timetable; class teacher for 7A |
 | Super admin | `super` | `super1234` | Platform-wide |
 | Demo parent | `parent_demo` | `demo1234` | Resets each deploy |
+| **Showcase parent** | `demo_parent` | `Demo2026!` | Full portal demo — linked to `demo_student`, class **7A** |
+| **Showcase student** | `demo_student` | `Demo2026!` | Attendance, homework, exams, Qur'an, Hifz, LMS — see [Demo walkthrough](#demo-walkthrough) |
+| Quran / attendance teacher | `mr_mohammed` | `teacher1234` | Registers, mushaf viewer, Hifz sign-off |
 | Example parent | `test_parent` | `test1234` | Messaging/LMS demos |
 | Example student | `test_student` | `test1234` | Enrolled in **7A** |
 | Bulk parent (7A #1) | `parent_7a_01` | `parent1234` | Paired with `student_7a_01` |
@@ -2329,7 +2332,7 @@ For ESA, I deliberately changed that pattern.
 
 #### Continuous testing throughout ESA (not only at the end)
 
-ESA’s [delivery timeline](#planning-notes-written-at-project-start) (May → July) schedules **testing in every sprint**, not as a single block before submission:
+ESA’s [delivery timeline](#delivery-timeline-may--july) (May → July) schedules **testing in every sprint**, not as a single block before submission:
 
 | Phase | Dates (approx.) | Testing focus |
 |-------|-----------------|---------------|
@@ -2382,7 +2385,7 @@ Manual testing proves the **full stack as a user experiences it**: session cooki
 
 - **End-to-end journeys** — school admin registers → adds teacher → teacher takes attendance → parent pays fee → message appears in inbox.
 - **Usability** — inline validation on register; role-aware dashboard redirect; unread message badge; Stripe test-mode banner on `/payments/`.
-- **Responsiveness** — Chrome DevTools device toolbar at phone (~375px), tablet (~768px), laptop (~1280px); messaging layout on narrow screens.
+- **Responsiveness** — [Responsive Testing Tool](http://responsivetesttool.com) at laptop/tablet presets (primary) and phone (secondary); live Heroku URL
 - **Production verification** — `heroku run python manage.py verify_deploy` plus live login as `parent_demo`, `schooladmin`, `teacher_demo`.
 
 Evidence is captured in **`docs/images/manual-testing/`** (feature screenshots) and **`docs/images/validation/`** (Lighthouse, W3C, responsiveness tools), with rows in the [manual testing table](#manual-testing) filled as each test passes.
@@ -2437,7 +2440,7 @@ The goal is to arrive at submission week with **most evidence already captured**
 |------|----------------------|------------|-------------------|
 | **Functionality** | End-to-end: auth, RBAC, CRUD, sign-offs, payments | Automated (Django test suite) + manual checklist | [Manual testing](#manual-testing); [Automated testing](#automated-testing) |
 | **Usability** | Navigation, forms, validation, error states, flash messages | Manual walkthroughs + Lighthouse | [Manual testing](#manual-testing); [Lighthouse testing](#lighthouse-testing) |
-| **Responsiveness** | Layout from phone → tablet → laptop → desktop | Manual pass with Chrome DevTools | [Responsive behaviour](#responsive-behaviour); `docs/images/validation/` |
+| **Responsiveness** | Layout on laptop and tablet (primary); phone sanity check | [Responsive Testing Tool](http://responsivetesttool.com) at live URL + Chrome DevTools | [How responsiveness was tested](#how-responsiveness-was-tested); `docs/images/validation/` |
 | **Data management** | Tenant isolation, FK integrity, sign-off audit trail, payment persistence | Automated tests + manual verification | [Data model and ERD](#data-model-and-erd-entity-relationships); [Automated testing](#automated-testing) |
 
 ### Manual testing
@@ -2798,6 +2801,7 @@ Assessors use this table to reach live features, repository assets, and document
 |----------|-------------|
 | **Live deployment** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
 | **GitHub repository** | https://github.com/sadek17481748/ESA |
+| **Wireframes (main — start here)** | [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf) |
 | **Wireframes (PDF)** | docs/ESA-wireframes.pdf |
 | **Wireframes (Balsamiq)** | https://balsamiq.cloud/so6babk/pveanf2 |
 | **ERD / data model** | README Data model and ERD section |
