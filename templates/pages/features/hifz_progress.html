@@ -1,7 +1,56 @@
 {% extends "base/portal.html" %}
 {% block portal_content %}
 <section class="panel" id="signoff">
+  <h2 style="margin-top:0;">Hifz sign-off</h2>
   <div class="accent-bar"></div>
-  <p class="lead">Hifz juz / surah tracking with teacher sign-off — placeholder.</p>
+
+  {% if form %}
+  <p class="lead">Pick a student and juz, then confirm they have passed. The linked parent receives a congratulations message automatically.</p>
+  <form method="post" class="form-stack" style="max-width:560px;margin-bottom:1.5rem;">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="field"><label>{{ field.label }}</label>{{ field }}</div>
+    {% endfor %}
+    <button type="submit" class="btn-primary">Student has passed</button>
+  </form>
+  {% elif user.role == 'parent' %}
+  <p class="lead">Juz milestones signed off by your child's teacher.</p>
+  {% elif user.role == 'student' %}
+  <p class="lead">Your signed-off juz progress.</p>
+  {% else %}
+  <p class="lead">Hifz juz sign-offs for your school.</p>
+  {% endif %}
+
+  <h3 class="section-label">
+    {% if user.role == 'parent' %}Your children's progress
+    {% elif user.role == 'student' %}Your progress
+    {% else %}Signed-off juz{% endif %}
+  </h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Student</th>
+          <th>Juz</th>
+          {% if user.role != 'teacher' %}<th>Teacher</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in sign_offs %}
+        <tr>
+          <td>{{ s.signed_off_at|date:"d M Y" }}</td>
+          <td>{{ s.student.full_name }}</td>
+          <td><strong>Juz {{ s.juz_number }}</strong></td>
+          {% if user.role != 'teacher' %}
+          <td>{{ s.signed_off_by.get_full_name|default:s.signed_off_by.username }}</td>
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr><td colspan="{% if user.role == 'teacher' %}3{% else %}4{% endif %}" class="placeholder-row">No juz sign-offs yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </section>
 {% endblock %}
