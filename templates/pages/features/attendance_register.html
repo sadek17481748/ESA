@@ -11,19 +11,22 @@
     <div>
       <h2 style="margin:0;font-size:1.1rem;">Class register</h2>
       <p class="lead" style="margin:0.35rem 0 0;">Mark each student present, late, or absent.</p>
+      {% if lesson_subject and class_group %}
+      <p class="lesson-context" style="margin:0.5rem 0 0;font-size:0.9rem;color:var(--gold);"><strong>{{ lesson_subject }}</strong> — {{ class_group.name }}</p>
+      {% endif %}
     </div>
   </div>
   <div class="accent-bar"></div>
 
   {% if not classes %}
-  <p class="lead">You are not assigned to a class yet. Ask your school admin to link you as the class teacher.</p>
+  <p class="lead">No classes assigned yet. Ask your school admin to add you to a class timetable.</p>
   {% else %}
   <form method="get" class="attendance-toolbar">
     <div class="field" style="margin:0;">
       <label for="class-select">Class</label>
       <select id="class-select" name="class" class="form-input" onchange="this.form.submit()">
-        {% for c in classes %}
-        <option value="{{ c.pk }}"{% if class_group and c.pk == class_group.pk %} selected{% endif %}>{{ c.name }}</option>
+        {% for opt in class_options %}
+        <option value="{{ opt.class_group.pk }}"{% if class_group and opt.class_group.pk == class_group.pk %} selected{% endif %}>{{ opt.label }}</option>
         {% endfor %}
       </select>
     </div>
@@ -31,6 +34,9 @@
       <label for="date">Date</label>
       <input type="date" id="date" name="date" class="form-input" value="{{ session_date|date:'Y-m-d' }}" onchange="this.form.submit()">
     </div>
+    {% if lesson_subject %}
+    <input type="hidden" name="subject" value="{{ lesson_subject }}">
+    {% endif %}
   </form>
 
   {% if class_group and register %}
@@ -38,7 +44,7 @@
     {% csrf_token %}
     <input type="hidden" name="class" value="{{ class_group.pk }}">
     <input type="hidden" name="date" value="{{ session_date|date:'Y-m-d' }}">
-    <p class="lead" style="margin:1rem 0 0.75rem;"><strong>{{ class_group.name }}</strong> — {{ register.student_count }} students</p>
+    <p class="lead" style="margin:1rem 0 0.75rem;"><strong>{{ class_group.name }}</strong>{% if lesson_subject %} — {{ lesson_subject }}{% endif %} — {{ register.student_count }} students</p>
     <div class="table-wrap">
       <table class="data-table attendance-register-table">
         <thead><tr><th>Student</th><th>Present</th><th>Late</th><th>Absent</th></tr></thead>

@@ -418,3 +418,62 @@ class AttendancePortalTests(TestCase):
         self.assertTrue(
             ClassEnrollment.objects.filter(student=profile, class_group=self.class_group).exists()
         )
+
+
+class TeacherTimetablePortalTests(TestCase):
+    def setUp(self):
+        call_command('ensure_platform_seed')
+        from datetime import time
+
+        from subjects.models import Subject
+        from teachers.models import TeacherProfile
+        from timetable.models import Timetable, TimetableSlot
+
+        self.school = School.objects.get(name='Al-Noor Academy')
+        self.teacher_user = User.objects.get(username='mr_mohammed')
+        self.teacher_profile = TeacherProfile.objects.get(user=self.teacher_user)
+        self.class_group = ClassGroup.objects.filter(school=self.school).first()
+        self.subject = Subject.objects.filter(school=self.school, name='Maths').first()
+        if not self.subject:
+            self.subject = Subject.objects.create(school=self.school, name='Maths', code='MAT')
+        self.timetable = Timetable.objects.create(
+            school=self.school,
+            name='Teacher portal test',
+            class_group=self.class_group,
+        )
+        TimetableSlot.objects.create(
+            school=self.school,
+            timetable=self.timetable,
+            class_group=self.class_group,
+            subject=self.subject,
+            teacher=self.teacher_profile,
+            weekday=0,
+            start_time=time(8, 30),
+            end_time=time(9, 15),
+        )
+
+    def test_teacher_dashboard_shows_assigned_lesson(self):
+        self.client.force_login(self.teacher_user)
+        response = self.client.get(reverse('pages:dashboard_teacher'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Maths')
+        self.assertContains(response, self.class_group.name)
+        self.assertContains(response, 'Take register')
+
+    def test_teacher_timetable_page_read_only(self):
+        self.client.force_login(self.teacher_user)
+        response = self.client.get(reverse('pages:timetable'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'My timetable')
+        self.assertNotContains(response, 'Save timetable')
+
+    def test_teacher_register_link_from_timetable_slot(self):
+        self.client.force_login(self.teacher_user)
+        url = (
+            reverse('pages:attendance')
+            + f'?class={self.class_group.pk}&subject=Maths'
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Maths')
+        self.assertContains(response, self.class_group.name)

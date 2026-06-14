@@ -2,6 +2,33 @@
 {% block portal_content %}
 <section class="panel timetable-page">
 
+  {% if view_mode == 'mine' %}
+  <div class="timetable-page-head">
+    <div>
+      <h2 style="margin:0;font-size:1.2rem;">My timetable</h2>
+      <p class="lead" style="margin:0.35rem 0 0;">Lessons assigned to you on the school timetable. Click a lesson to take the register for that class.</p>
+    </div>
+  </div>
+  <div class="accent-bar"></div>
+  {% include "pages/includes/teacher_timetable_grid.html" %}
+  {% if today_slots %}
+  <section class="panel-inset" style="margin-top:1.25rem;">
+    <h3 style="margin:0 0 0.75rem;font-size:1rem;">Today's lessons</h3>
+    <ul class="teacher-today-list">
+      {% for slot in today_slots %}
+      <li>
+        <a class="teacher-today-link" href="{% url 'pages:attendance' %}?class={{ slot.class_group_id }}&amp;subject={{ slot.subject_name|urlencode }}">
+          <span class="teacher-today-time">{{ slot.time_label }}</span>
+          <span class="teacher-today-detail"><strong>{{ slot.subject_name }}</strong> — {{ slot.class_name }}</span>
+          <span class="teacher-today-action">Register</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+  {% else %}
+
   {% if view_mode != 'hub' and can_manage_timetables %}
   <p class="timetable-breadcrumb">
     <a href="{% url 'pages:timetable' %}">← Timetable hub</a>
@@ -258,6 +285,7 @@
   {% endif %}
   {% endif %}
 
+  {% endif %}
 </section>
 
 <script>

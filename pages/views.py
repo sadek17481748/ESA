@@ -24,10 +24,12 @@ from timetable.models import Timetable
 from .attendance_service import (
     build_class_register,
     build_school_attendance_overview,
+    class_labels_for_teacher,
     parent_children_attendance,
     save_class_register,
     session_date_or_today,
     student_attendance_history,
+    teacher_can_access_class,
     teacher_classes,
 )
 from .decorators import role_required
@@ -70,6 +72,7 @@ from .timetable_service import (
     list_timetables,
     rename_timetable,
     save_timetable,
+    teacher_portal_context,
     teachers_for_json,
     user_can_edit_timetable,
 )
@@ -248,15 +251,17 @@ def dashboard_teacher(request):
     teacher_profile = TeacherProfile.objects.filter(user=request.user).first()
     classes = list(teacher_classes(school, teacher_profile))
     primary_class = classes[0] if classes else None
+    schedule = teacher_portal_context(teacher_profile, school)
     ctx = build_portal_context(
         request,
         'Teacher workspace',
-        "Take today's register and manage your classes.",
+        "Your lessons and class registers.",
     )
     ctx.update({
         'teacher_classes': classes,
         'primary_class': primary_class,
     })
+    ctx.update(schedule)
     return render(request, 'pages/dashboard/teacher.html', ctx)
 
 
@@ -338,7 +343,10 @@ def page_timetable(request):
 
     view_mode = request.GET.get('view')
     if not view_mode:
-        view_mode = 'hub' if is_school_admin else 'build'
+        view_mode = 'hub' if is_school_admin else 'mine'
+
+    if not is_school_admin:
+        view_mode = 'mine'
 
     year_groups = YearGroup.objects.filter(school=school).prefetch_related(
         'classes', 'classes__teacher', 'classes__teacher__user',
@@ -363,14 +371,6 @@ def page_timetable(request):
             class_group = get_object_or_404(ClassGroup, pk=class_id, school=school)
         elif is_school_admin:
             class_group = classes.first()
-        elif teacher_profile:
-            class_group = classes.filter(teacher=teacher_profile).first() or classes.first()
-
-        if request.user.role == 'teacher' and teacher_profile and class_group:
-            if class_group.teacher_id != teacher_profile.pk:
-                owned = classes.filter(teacher=teacher_profile).first()
-                if owned:
-                    class_group = owned
 
         timetables = list(list_timetables(school, class_group))
         timetable_id = request.GET.get('timetable')
@@ -390,6 +390,10 @@ def page_timetable(request):
         grid = build_timetable_grid(timetable) if timetable else {}
         can_edit = bool(timetable and user_can_edit_timetable(request.user, timetable, teacher_profile))
 
+    teacher_schedule = {}
+    if view_mode == 'mine':
+        teacher_schedule = teacher_portal_context(teacher_profile, school)
+
     subjects = list_school_subjects(school) if school and view_mode == 'build' else []
 
     periods = [
@@ -402,6 +406,7 @@ def page_timetable(request):
         'hub': 'Add year groups, build timetables, and manage live schedules.',
         'live': 'All published timetables — open to edit or archive.',
         'build': 'Drag subjects onto the grid and assign teachers, then save.',
+        'mine': 'Your assigned lessons — click a class to take the register.',
     }.get(view_mode, '')
 
     ctx = build_portal_context(request, 'Timetable', page_meta)
@@ -426,6 +431,7 @@ def page_timetable(request):
         'subject_form': CreateSubjectForm(),
         'teacher_count': len(teachers),
     })
+    ctx.update(teacher_schedule)
     return render(request, 'pages/features/timetable.html', ctx)
 
 
@@ -683,14 +689,24 @@ def page_attendance(request):
     if role == 'teacher':
         teacher_profile = TeacherProfile.objects.filter(user=request.user).first()
         classes = list(teacher_classes(school, teacher_profile))
+        class_labels = class_labels_for_teacher(school, teacher_profile)
+        class_options = [
+            {'class_group': c, 'label': class_labels.get(c.pk, c.name)}
+            for c in classes
+        ]
         class_id = request.GET.get('class')
+        class_group = None
         if class_id:
             class_group = get_object_or_404(ClassGroup, pk=class_id, school=school)
+            if not teacher_can_access_class(teacher_profile, class_group):
+                messages.error(request, 'You are not assigned to that class.')
+                class_group = classes[0] if classes else None
         else:
             class_group = classes[0] if classes else None
 
         session_date = session_date_or_today(_parse_date_param(request.GET.get('date')))
         register = build_class_register(class_group, session_date) if class_group else None
+        lesson_subject = (request.GET.get('subject') or '').strip()
 
         if request.method == 'POST' and class_group:
             marks_payload = {}
@@ -710,9 +726,13 @@ def page_attendance(request):
                 request=request,
             )
             messages.success(request, f'Register saved for {class_group.name}.')
-            return redirect(
-                f'{reverse("pages:attendance")}?class={class_group.pk}&date={session_date.isoformat()}',
+            redirect_url = (
+                f'{reverse("pages:attendance")}?class={class_group.pk}'
+                f'&date={session_date.isoformat()}'
             )
+            if lesson_subject:
+                redirect_url += f'&subject={lesson_subject}'
+            return redirect(redirect_url)
 
         ctx = build_portal_context(
             request,
@@ -721,9 +741,11 @@ def page_attendance(request):
         )
         ctx.update({
             'classes': classes,
+            'class_options': class_options,
             'class_group': class_group,
             'register': register,
             'session_date': session_date,
+            'lesson_subject': lesson_subject,
         })
         return render(request, 'pages/features/attendance_register.html', ctx)
 

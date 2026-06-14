@@ -61,11 +61,8 @@ def student_portal_context(student):
             'subjects': [],
         }
 
-    timetable = (
-        list_live_timetables(class_group.school)
-        .filter(class_group=class_group)
-        .first()
-    )
+    timetable_qs = list_live_timetables(class_group.school).filter(class_group=class_group)
+    timetable = timetable_qs.order_by('-slot_count', '-updated_at').first()
     if not timetable:
         timetable = (
             list_live_timetables(class_group.school)

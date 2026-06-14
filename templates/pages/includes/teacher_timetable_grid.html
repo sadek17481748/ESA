@@ -1,0 +1,29 @@
+{% if has_schedule and timetable_rows %}
+<div class="timetable-grid-wrap">
+  <table class="timetable-grid student-timetable-readonly teacher-timetable-readonly">
+    <thead>
+      <tr><th>Time</th>{% for label in weekday_labels %}<th>{{ label }}</th>{% endfor %}</tr>
+    </thead>
+    <tbody>
+      {% for row in timetable_rows %}
+      <tr>
+        <td class="period-label">{{ row.label }}</td>
+        {% for slot in row.cells %}
+        <td class="timetable-cell-readonly">
+          {% if slot %}
+          <a class="teacher-slot-link" href="{% url 'pages:attendance' %}?class={{ slot.class_group_id }}&amp;subject={{ slot.subject_name|urlencode }}">
+            <strong>{{ slot.subject_name }}</strong>
+            <span class="teacher-slot-class">{{ slot.class_name }}</span>
+            <span class="teacher-slot-action">Take register →</span>
+          </a>
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="lead">Your lessons will appear here once your school admin assigns you on a class timetable.</p>
+{% endif %}

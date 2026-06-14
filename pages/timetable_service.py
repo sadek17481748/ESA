@@ -173,6 +173,88 @@ def build_timetable_grid(timetable):
     return slots
 
 
+def teacher_assigned_slots(teacher_profile, school):
+    if not teacher_profile or not school:
+        return TimetableSlot.objects.none()
+    return TimetableSlot.objects.filter(
+        teacher=teacher_profile,
+        school=school,
+        timetable__is_active=True,
+    ).select_related('class_group', 'subject', 'timetable').order_by('weekday', 'start_time')
+
+
+def _period_rows():
+    return [
+        {'start': s.strftime('%H:%M'), 'end': e.strftime('%H:%M'), 'label': s.strftime('%H:%M')}
+        for s, e in PERIODS
+    ]
+
+
+def teacher_portal_context(teacher_profile, school):
+    """Personal schedule from timetable slots assigned to this teacher."""
+    weekday_labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    periods = _period_rows()
+    empty = {
+        'has_schedule': False,
+        'timetable_rows': [],
+        'periods': periods,
+        'weekday_labels': weekday_labels,
+        'subjects': [],
+        'today_slots': [],
+        'slot_count': 0,
+    }
+    if not teacher_profile:
+        return empty
+
+    from datetime import date
+
+    slots = list(teacher_assigned_slots(teacher_profile, school))
+    if not slots:
+        return empty
+
+    grid = {}
+    for slot in slots:
+        key = (slot.weekday, slot.start_time.strftime('%H:%M'))
+        grid[key] = {
+            'id': slot.pk,
+            'subject_name': slot.subject.name,
+            'class_group_id': slot.class_group_id,
+            'class_name': slot.class_group.name,
+        }
+
+    grid_json = {f'{w}-{t}': v for (w, t), v in grid.items()}
+    weekdays = list(range(7))
+    timetable_rows = []
+    for period in periods:
+        timetable_rows.append({
+            'label': period['label'],
+            'cells': [grid_json.get(f'{wd}-{period["start"]}') for wd in weekdays],
+        })
+
+    today_weekday = date.today().weekday()
+    today_slots = [
+        {
+            'id': slot.pk,
+            'subject_name': slot.subject.name,
+            'class_name': slot.class_group.name,
+            'class_group_id': slot.class_group_id,
+            'time_label': slot.start_time.strftime('%H:%M'),
+        }
+        for slot in slots
+        if slot.weekday == today_weekday
+    ]
+
+    return {
+        'has_schedule': True,
+        'timetable_rows': timetable_rows,
+        'periods': periods,
+        'weekday_labels': weekday_labels,
+        'subjects': sorted({slot.subject.name for slot in slots}),
+        'today_slots': today_slots,
+        'slot_count': len(slots),
+    }
+
+
 def save_timetable(timetable, class_group, slot_payload):
     """
     Replace all slots for a timetable from portal JSON:

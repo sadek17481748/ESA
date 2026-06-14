@@ -2,6 +2,7 @@
 <nav class="sidebar-nav">
   <a href="{% url 'pages:dashboard_teacher' %}"{% if current_portal_url == 'dashboard_teacher' %} aria-current="page"{% endif %}>Overview</a>
   <a href="{% url 'pages:attendance' %}"{% if current_portal_url == 'attendance' %} aria-current="page"{% endif %}>Attendance</a>
+  <a href="{% url 'pages:timetable' %}"{% if current_portal_url == 'timetable' %} aria-current="page"{% endif %}>My timetable</a>
   <a href="{% url 'pages:worksheets' %}"{% if current_portal_url == 'worksheets' %} aria-current="page"{% endif %}>Worksheets</a>
   <a href="{% url 'pages:exams' %}"{% if current_portal_url == 'exams' %} aria-current="page"{% endif %}>Exams</a>
   <a href="{% url 'pages:hifz' %}"{% if current_portal_url == 'hifz' %} aria-current="page"{% endif %}>Hifz</a>

@@ -1575,6 +1575,75 @@ button.btn-primary:disabled,
   padding: 0.45rem;
 }
 
+.teacher-timetable-readonly .teacher-slot-link {
+  display: block;
+  padding: 0.35rem 0.4rem;
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--gold-soft);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.teacher-timetable-readonly .teacher-slot-link:hover,
+.teacher-timetable-readonly .teacher-slot-link:focus {
+  background: var(--gold-soft);
+  border-color: var(--gold);
+}
+
+.teacher-slot-class {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+.teacher-slot-action {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--gold);
+  margin-top: 0.25rem;
+}
+
+.teacher-today-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.teacher-today-list li + li {
+  margin-top: 0.5rem;
+}
+
+.teacher-today-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.teacher-today-link:hover,
+.teacher-today-link:focus {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+}
+
+.teacher-today-time {
+  font-weight: 600;
+  min-width: 3.25rem;
+}
+
+.teacher-today-action {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: var(--gold);
+}
+
 /* -------- Messaging -------- */
 .msg-head {
   display: flex;

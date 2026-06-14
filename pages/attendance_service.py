@@ -141,11 +141,66 @@ def build_school_attendance_overview(school, session_date):
 
 
 def teacher_classes(school, teacher_profile):
+    """Homeroom classes plus any class this teacher is assigned on the timetable."""
     if not teacher_profile:
         return ClassGroup.objects.none()
+    from timetable.models import TimetableSlot
+
+    slot_class_ids = TimetableSlot.objects.filter(
+        teacher=teacher_profile,
+        school=school,
+        timetable__is_active=True,
+    ).values_list('class_group_id', flat=True)
     return ClassGroup.objects.filter(
-        Q(school=school) & Q(teacher=teacher_profile),
-    ).select_related('teacher', 'teacher__user').order_by('name')
+        Q(school=school) & (Q(teacher=teacher_profile) | Q(pk__in=slot_class_ids)),
+    ).select_related('teacher', 'teacher__user').order_by('name').distinct()
+
+
+def teacher_can_access_class(teacher_profile, class_group):
+    """Homeroom teacher or assigned on an active timetable slot for this class."""
+    if not teacher_profile or not class_group:
+        return False
+    if class_group.teacher_id == teacher_profile.pk:
+        return True
+    from timetable.models import TimetableSlot
+
+    return TimetableSlot.objects.filter(
+        teacher=teacher_profile,
+        class_group=class_group,
+        timetable__is_active=True,
+    ).exists()
+
+
+def class_labels_for_teacher(school, teacher_profile):
+    """Map class id → display label including subjects taught (e.g. 2C — Maths, Science)."""
+    from timetable.models import TimetableSlot
+
+    labels = {}
+    for class_group in teacher_classes(school, teacher_profile):
+        labels[class_group.pk] = class_group.name
+
+    slot_rows = (
+        TimetableSlot.objects.filter(
+            teacher=teacher_profile,
+            school=school,
+            timetable__is_active=True,
+        )
+        .select_related('class_group', 'subject')
+        .order_by('class_group__name', 'subject__name')
+    )
+    subjects_by_class = {}
+    for slot in slot_rows:
+        subjects_by_class.setdefault(slot.class_group_id, set()).add(slot.subject.name)
+
+    for class_id, subjects in subjects_by_class.items():
+        class_name = next(
+            (s.class_group.name for s in slot_rows if s.class_group_id == class_id),
+            labels.get(class_id, ''),
+        )
+        if subjects:
+            labels[class_id] = f'{class_name} — {", ".join(sorted(subjects))}'
+
+    return labels
 
 
 def student_attendance_history(student, limit=30):

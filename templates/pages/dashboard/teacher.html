@@ -2,24 +2,34 @@
 {% block portal_content %}
 <div class="grid-cards">
   <article class="card card-featured">
-    <h2>Today's register</h2>
-    {% if primary_class %}
-    <p>Take attendance for <strong>{{ primary_class.name }}</strong>.</p>
+    <h2>Today's lessons</h2>
+    {% if today_slots %}
+    <ul class="teacher-today-list">
+      {% for slot in today_slots %}
+      <li>
+        <a class="teacher-today-link" href="{% url 'pages:attendance' %}?class={{ slot.class_group_id }}&amp;subject={{ slot.subject_name|urlencode }}">
+          <span class="teacher-today-time">{{ slot.time_label }}</span>
+          <span class="teacher-today-detail"><strong>{{ slot.subject_name }}</strong> — {{ slot.class_name }}</span>
+          <span class="teacher-today-action">Register</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% elif primary_class %}
+    <p>Take attendance for homeroom <strong>{{ primary_class.name }}</strong>.</p>
     <p style="margin-top:0.75rem;"><a class="btn-primary" href="{% url 'pages:attendance' %}?class={{ primary_class.pk }}">Open register</a></p>
     {% else %}
-    <p>No class assigned yet. Ask your school admin to link you as class teacher.</p>
+    <p>No lessons assigned yet. Ask your school admin to add you to a class timetable.</p>
     {% endif %}
   </article>
   <article class="card">
     <h2>Welcome, {{ user_display }}</h2>
     <p>Teacher workspace at <strong>{{ school_name }}</strong>.</p>
-    {% if teacher_classes %}
+    {% if subjects %}
+    <p style="margin-top:0.5rem;font-size:0.88rem;color:var(--muted);">Teaching: {% for s in subjects %}{{ s }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    {% elif teacher_classes %}
     <p style="margin-top:0.5rem;font-size:0.88rem;color:var(--muted);">Classes: {% for c in teacher_classes %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
     {% endif %}
-  </article>
-  <article class="card">
-    <h2>Timetable</h2>
-    <p><a href="{% url 'pages:timetable' %}">View or edit class timetables</a></p>
   </article>
   <article class="card">
     <h2>Homework</h2>
@@ -30,4 +40,11 @@
     <p><a href="{% url 'pages:hifz' %}">Track progress</a> · <a href="{% url 'pages:quran' %}">Qur’an sessions</a></p>
   </article>
 </div>
+
+<section class="panel" style="margin-top:1.25rem;">
+  <h2 style="margin-top:0;font-size:1.05rem;">My weekly timetable</h2>
+  <p class="lead" style="margin:0 0 0.75rem;font-size:0.88rem;">Click a lesson to open the register for that class. <a href="{% url 'pages:timetable' %}">Full timetable view</a></p>
+  <div class="accent-bar"></div>
+  {% include "pages/includes/teacher_timetable_grid.html" %}
+</section>
 {% endblock %}
