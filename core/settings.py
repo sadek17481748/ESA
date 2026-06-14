@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'messaging',
     'lms',
     'quran',
+    'hifz',
     'exams',
     'pages',
 ]
