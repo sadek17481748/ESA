@@ -724,22 +724,249 @@ Use test card **`4242 4242 4242 4242`** in Stripe sandbox mode when testing paym
 ---
 ## User Experience (UX)
 
-### Responsive behaviour
+User experience is **how it feels to use ESA** — not just how it looks. The goal is that a parent on a phone, a teacher on a laptop, or a school admin setting up a timetable can all complete their tasks **without getting lost**, **without seeing the wrong school's data**, and **without wondering whether an action worked**.
 
-The UI is designed mobile-first. Navigation collapses to a hamburger menu on small screens, dashboard cards stack vertically, and data tables scroll horizontally. Touch targets meet the 44x44px minimum on mobile viewports.
+This section explains the design choices behind the live site. For a list of features, see [Features](#features). To try the site yourself, see [Demo walkthrough](#demo-walkthrough).
+
+### What we mean by user experience
+
+ESA is used by **five different roles** with very different needs. UX on this project means:
+
+| Principle | What it means in practice |
+|-----------|---------------------------|
+| **Role-first** | After login you only see pages your role is allowed to use — no clutter from admin tools on a student screen |
+| **School context** | The portal banner shows **which school** you belong to (e.g. Al-Noor Academy) so users always know where they are |
+| **Mobile-friendly** | Layouts reflow on phones; tables scroll; sidebars stack vertically |
+| **Clear feedback** | Saving, paying, or signing off shows a confirmation message — you are not left guessing |
+| **Trust visible** | Homework, exams, and Hifz progress only appear as "official" after a teacher has signed off or finalised |
+| **Plain language** | Buttons say what they do ("Student has passed", "Save register", "Pay now") — not developer jargon |
+| **Consistent shell** | Every signed-in page shares the same header, sidebar pattern, and footer so navigation feels familiar |
+
+### Layout and navigation
+
+ESA uses **two layout types**:
+
+**1. Marketing / auth pages** (no login, or login/register only)
+
+- Used for: home page, school registration, login, password reset, public security page
+- **Single column** — content centred, top navigation with Log in / Register
+- **Skip link** at the top ("Skip to content") jumps keyboard users past the header to the main area
+
+**2. Portal pages** (after login)
+
+- Used for: all dashboards and feature pages (attendance, fees, Qur'an, etc.)
+- **App shell:** sticky top header + **left sidebar** + main content area
+- **Top header:** ESA brand, school or role tag, quick links (Messages, Log out; parents also see Payments, teachers see Timetable)
+- **Sidebar:** grouped links by topic (e.g. teacher: Teaching → Reports → Sign-off). The current page is highlighted with `aria-current="page"` and a gold background
+- **Main area:** page title (`h1`), optional subtitle (`page-meta`), then panels and tables
+
+**Why a sidebar?** Islamic schools run many modules (fees, Hifz, Qur'an, timetable). A persistent sidebar lets users **jump between areas** without returning to a central hub every time. Each role gets a **different sidebar** — parents never see "Create report", students never see "Add teacher".
+
+**Navigation flow:**
+
+```text
+Log in → Role dashboard (overview) → Sidebar link → Feature page → Back via sidebar
+```
+
+Wrong role or wrong school? Django redirects to your dashboard rather than showing forbidden data.
+
+### Visual design and branding
+
+| Element | Purpose |
+|---------|---------|
+| **Colour palette** | Near-black background (`#0a0a0a`), off-white text, **gold accents** (`#c9a227`) — see [Colour palette](#colour-palette-and-css-tokens) for full tokens |
+| **Panels** | Content sits in rounded `.panel` cards with subtle borders — separates sections on busy pages |
+| **Accent bar** | Short gold bar under section headings — visual rhythm on long pages |
+| **Pills / badges** | Small labels for plan tier (Free / Standard), status, class name |
+| **Grid cards** | Dashboard overviews use card grids for "this week", KPIs, quick stats |
+| **Data tables** | Registers, fee lists, sign-off history — scannable rows with header row |
+| **Typography** | System font stack (Segoe UI, Roboto, etc.) at 16px base — readable without custom webfonts |
+| **Geometric header** | Subtle decorative pattern in the site header — nod to Islamic geometric art without harming readability |
+
+All styles live in `css/base.css` (shared by wireframes and Django templates). Django templates under `templates/` reuse the same classes so the **live site matches the wireframe look**.
+
+### Dashboards by role
+
+Each role lands on an **overview** designed for their daily tasks:
+
+| Role | Dashboard focus | Typical next steps from sidebar |
+|------|-----------------|--------------------------------|
+| **Super Admin** | All schools on the platform, support queue | Schools list, subscriptions, admin panel |
+| **School Admin** | School KPIs, setup shortcuts | Timetable hub, LMS, teachers, fees, analytics |
+| **Teacher** | Today's lessons, pending work | Attendance, Qur'an, worksheets, Hifz sign-off, exams |
+| **Student** | This week's deadlines, timetable snippet | Homework, exams, Qur'an sessions, Hifz progress |
+| **Parent** | Linked children, fee/attendance summary | Payments, messages, behaviour, reports |
+
+Overview pages use **cards and short lists** — detail lives on dedicated feature pages so the home screen stays scannable.
+
+### Forms, validation, and feedback
+
+Most actions use **HTML forms** posted to the server (not JavaScript-only saves), so they work even with JavaScript disabled (except interactive tools like the timetable drag grid and Qur'an PDF viewer).
+
+| UX pattern | What the user sees |
+|------------|-------------------|
+| **Form fields** | Consistent `.form-input` styling — text fields, selects, textareas look the same everywhere |
+| **Labels** | Each field has a visible label above it |
+| **Validation errors** | Wrong input returns the same page with errors **next to the field** or at the top — nothing fails silently |
+| **Success messages** | Green/gold flash banner after save ("Timetable saved", "Message sent", "Student has passed") |
+| **Destructive actions** | Archive timetable and similar actions ask for **confirm** before proceeding |
+| **Read-only mode** | Parents and students see Qur'an notes and highlights but cannot edit — fields are disabled or hidden |
+| **Long forms split** | Registration split into steps (pick school → pick role → pick class) so mobile users are not overwhelmed |
+
+**Payments** redirect to Stripe's hosted checkout — familiar card entry UI — then return to a **success page with receipt reference**.
+
+### Tables, lists, and empty states
+
+| Pattern | Behaviour |
+|---------|-----------|
+| **Wide tables** | Wrapped in `.table-wrap` with horizontal scroll on small screens — no squashed columns |
+| **Empty tables** | Placeholder row: "No behaviour records yet" — user knows the page loaded, there is just no data |
+| **Messaging on mobile** | Inbox tables switch to **stacked cards** (label + value per row) below 900px width |
+| **Pagination / limits** | Long lists (messages, notifications) show recent items first; search available for students (school admin) |
+| **Status columns** | Pass/Fail, Present/Late/Absent, Outstanding/Paid use plain English labels |
+
+### Responsive design
+
+ESA is built **mobile-first in CSS** (single column by default, wider layouts added with media queries) — but the **intended day-to-day use** is **laptop and tablet**, not phone.
+
+| Who | Primary device | Why |
+|-----|----------------|-----|
+| **School admin** | Laptop | Timetable builder, LMS uploads, fee setup — wide screen and mouse for drag-and-drop |
+| **Teacher** | Laptop or tablet | Registers, Qur'an mushaf viewer, exam marking — often at a desk or with a tablet in class |
+| **Parent** | Tablet or laptop | Checking fees, messages, reports — larger screen for reading teacher feedback |
+| **Student** | Tablet or laptop | Homework, timetable, Qur'an sessions |
+| **Phone** | Supported, secondary | Layout still works (stacked sidebar, scrollable tables) for parents checking messages on the go |
+
+The layout **reflows** at two main CSS breakpoints in `css/base.css`:
+
+| Width | What changes |
+|-------|--------------|
+| **Below 900px** | Sidebar stacks **above** main content; timetable builder toolbar stacks; messaging tables become card layout |
+| **Below 768px** | Home page hero and carousel go single column; stat cards wrap |
+
+On **laptop and tablet** (900px and above), users get the full experience: sidebar beside content, timetable grid beside subject palette, full-width data tables.
 
 ### How responsiveness was tested
 
-| Device class | Typical width | What was checked |
-|--------------|---------------|------------------|
-| **Phone** | ~375px (portrait) | Hamburger menu, single-column stacking, readable text, usable buttons |
-| **Tablet** | ~768px–834px | Grid layout transitions, navigation balance, form usability |
-| **Laptop** | ~1024px–1280px | Multi-column grids, sidebar navigation, dashboard readability |
-| **Desktop** | 1440px+ | Content respects max-width, tables use extra space, no awkward stretching |
+#### Why we test this way
 
-Responsiveness testing evidence screenshots will be added to `docs/images/validation/`.
+Responsiveness is tested against **how the school will actually use the site**, not every possible screen size.
 
-### User stories
+1. **Laptop and tablet are the priority** — staff and teachers need reliable layouts at 1024px–1440px where most admin and teaching work happens.
+2. **Real URLs, not guesses** — testing loads the **live Heroku deployment** inside device frames so Django templates, login sessions, and Stripe redirects behave exactly as assessors will see them.
+3. **Key pages, not every pixel** — we focus on pages that break easily when narrow: timetable builder, attendance register, payments, messages inbox, Qur'an viewer, and role dashboards.
+4. **Evidence for assessors** — screenshots are saved to `docs/images/validation/` so results can be checked without re-running tests.
+5. **Phone is a sanity check** — we confirm nothing is unusable on a small screen, but we do not optimise every feature for 320px the way we do for tablet.
+
+#### Tool: Website Responsive Testing Tool
+
+Primary tool: **[Website Responsive Testing Tool](http://responsivetesttool.com)** — paste the live URL and preview it inside preset device frames without installing browser extensions.
+
+| Category | Presets we use | Matches ESA priority |
+|----------|----------------|----------------------|
+| **Tablet** | iPad (768 × 1024), iPad Pro (1024 × 1366), iPad Air (768 × 1024) | **Primary** — teacher/parent classroom and home use |
+| **Laptop / desktop** | 1366 × 768, 1440 × 900, 1920 × 1080 | **Primary** — school admin and teacher daily work |
+| **Mobile** | iPhone 8 (375 × 667), 414 × 896 breakpoints | **Secondary** — confirm sidebar stacks and tables scroll |
+
+**URL tested:** https://esa-project-2a7a33dfe3fc.herokuapp.com/
+
+**Suggested order:**
+
+1. Log in on a **laptop** preset (1366 × 768) as `demo_parent` / `Demo2026!` — fees, messages, attendance.
+2. Repeat on **iPad** preset (768 × 1024) — same flows; sidebar should stack above content below 900px width.
+3. Open **timetable** and **Qur'an** as `mr_mohammed` / `teacher1234` on iPad Pro (1024 × 1366) — builder grid and mushaf viewer usable.
+4. Quick pass on **iPhone** preset — login form readable, tables scroll horizontally, no horizontal page overflow.
+
+#### Pages checked
+
+| Page | Laptop (1366 × 768) | Tablet (768 × 1024) | What we look for |
+|------|---------------------|---------------------|------------------|
+| Login / register | Centred form, readable labels | Form full width, no clipped fields | Auth usable without zooming |
+| School admin dashboard | Sidebar + cards side by side | Sidebar stacks; cards readable | Navigation still obvious |
+| Timetable builder | Grid + subject palette visible | Toolbar stacks; grid scrolls | Can still assign subjects |
+| Teacher attendance register | Full class table | Table scrolls; mark buttons reachable | Register save works |
+| Parent payments | Fee table + Pay now | Table scroll; button visible | Stripe redirect works |
+| Messages inbox | Full table layout | Card-style rows (under 900px) | Threads readable |
+| Qur'an mushaf viewer | Fit-to-width + zoom toolbar | Scroll area within viewport | Page navigation works |
+
+#### Secondary check: Chrome DevTools
+
+Chrome DevTools device mode is used for **quick checks during development** (toggle breakpoints, inspect overflow). Formal assessor evidence comes from [responsivetesttool.com](http://responsivetesttool.com) screenshots at the presets above.
+
+#### Evidence location
+
+| Folder | Contents |
+|--------|----------|
+| `docs/images/validation/` | Responsiveness screenshots (tablet + laptop presets), Lighthouse, W3C validation |
+| `docs/images/manual-testing/` | Feature flow screenshots at desktop width |
+
+If a screenshot is not yet in the repo, re-run the same preset on the live URL and save the image to `docs/images/validation/` with the device name in the filename (e.g. `ipad-768-timetable-builder.png`).
+
+### Accessibility
+
+ESA targets **WCAG AA** where practical for a student project:
+
+| Feature | Implementation |
+|---------|----------------|
+| **Skip link** | "Skip to content" — first focusable element on every page |
+| **Semantic HTML** | `<main>`, `<nav>`, `<header>`, heading hierarchy (`h1` page title, `h2` sections) |
+| **Focus styles** | `:focus-visible` gold outline on buttons and links — keyboard users see where they are |
+| **Current page** | Sidebar uses `aria-current="page"` for screen readers |
+| **Colour contrast** | Light text on dark surfaces; gold on black checked for button/link contrast |
+| **Form labels** | Explicit `<label>` elements tied to inputs |
+| **Alt text / decorative** | Decorative header geometry marked `aria-hidden="true"` |
+| **Language** | `<html lang="en">` set on all templates |
+
+**Known limits (honest):** the Qur'an PDF canvas and timetable drag-and-drop are pointer-heavy; keyboard-only use of those two tools is limited. Core flows (login, fees, messages, attendance marks) are keyboard accessible.
+
+### Everyday journeys (how people use ESA)
+
+These are common paths — not click-by-click instructions, but **what the experience should feel like**:
+
+**Parent — check child and pay a fee**
+
+Log in → see child's name on overview → open **Fees** → outstanding amount clear → **Pay now** → Stripe → return to success receipt → fee moves to "paid" on next visit.
+
+**Teacher — morning register**
+
+Log in → **My timetable** shows today's class → open register link → mark Present/Late/Absent → save → flash confirms register stored.
+
+**Teacher — Qur'an feedback**
+
+Open **Qur'an** → pick student session → page through mushaf → add note on weak page → drag yellow highlight → notes auto-save when changing page.
+
+**Teacher — Hifz milestone**
+
+Open **Hifz** → pick student and juz → **Student has passed** → parent receives congratulations message without teacher opening Messages manually.
+
+**Student — homework**
+
+See assignment on overview or **Homework** → submit text → wait for teacher sign-off → notification when approved or "needs revision".
+
+**School admin — new term setup**
+
+**Timetable hub** → add class → create timetable → drag subjects → assign teachers → save → students see schedule on their dashboard.
+
+### Trust, sign-off, and clarity
+
+Islamic schools need parents to **trust** what they see. UX reinforces that:
+
+| Data type | Before teacher action | After teacher action |
+|-----------|----------------------|----------------------|
+| Homework | "Submitted" — waiting | "Approved" or "Needs revision" — official |
+| Exam | Answers saved | **Finalised** — score visible to parent/student |
+| Hifz | Not listed | Juz appears on signed-off list + parent message |
+| Qur'an | Teacher draft notes | Reviewed session — student sees feedback |
+
+Students and parents **never** self-certify Hifz or exam results — the UI only promotes data the teacher has explicitly confirmed.
+
+---
+
+### User stories (acceptance criteria)
+
+The stories below are the **formal acceptance criteria** written at project start. They describe intended behaviour in "As a [role], I want…" format. Use them alongside the [Features](#features) section and [Manual testing](#manual-testing) table when assessing whether the build meets requirements.
+
+Some stories describe planned features not yet fully built (e.g. smart Hifz revision) — the [Features](#features) section reflects **what is live today**.
 
 #### Super Admin stories
 
