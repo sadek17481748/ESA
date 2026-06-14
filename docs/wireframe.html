@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<!--
+  ESA — Balsamiq-style descriptive wireframes
+  Open in browser → print to PDF or screenshot sections for assessor evidence.
+  Each screen: sketch layout + yellow callout boxes explaining every feature in detail.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESA Wireframes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sketch-bg: #ececec;
+      --sketch-paper: #fafafa;
+      --sketch-border: #888;
+      --sketch-dark: #333;
+      --sketch-muted: #666;
+      --sticky: #fff9b1;
+      --sticky-border: #e6d96a;
+      --info: #d9edf7;
+      --info-border: #7eb8da;
+      --warn: #fce4e4;
+      --warn-border: #e0a0a0;
+      --accent: #c9a227;
+      --sidebar: #ddd;
+      --font: 'Segoe UI', system-ui, sans-serif;
+      --hand: 'Patrick Hand', cursive;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--sketch-bg); color: var(--sketch-dark); font-size: 14px; line-height: 1.45; }
+
+    .doc-header { text-align: center; padding: 2rem 1rem 1.5rem; background: #fff; border-bottom: 3px solid var(--accent); }
+    .doc-header h1 { font-size: 1.75rem; margin-bottom: 0.35rem; }
+    .doc-header p { color: var(--sketch-muted); max-width: 720px; margin: 0 auto; }
+
+    .screen { max-width: 1180px; margin: 2rem auto; padding: 0 1rem; page-break-inside: avoid; }
+    .screen-head { margin-bottom: 0.75rem; }
+    .screen-head h2 { font-size: 1.25rem; border-left: 5px solid var(--accent); padding-left: 0.65rem; }
+    .screen-meta { font-size: 0.82rem; color: var(--sketch-muted); padding-left: 1.1rem; margin-top: 0.25rem; }
+    .screen-meta strong { color: var(--sketch-dark); }
+
+    .screen-body { display: grid; grid-template-columns: 1fr 340px; gap: 1rem; align-items: start; }
+    @media (max-width: 960px) { .screen-body { grid-template-columns: 1fr; } }
+
+    /* Sketch wireframe frame */
+    .wire {
+      background: var(--sketch-paper);
+      border: 2px solid var(--sketch-border);
+      border-radius: 3px;
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .wire-bar {
+      background: var(--sketch-dark);
+      color: #fff;
+      padding: 0.5rem 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    .wire-bar .logo { font-weight: 700; letter-spacing: 0.12em; }
+    .wire-bar .top-links span {
+      background: rgba(255,255,255,0.18);
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      margin-left: 0.35rem;
+      font-size: 0.72rem;
+    }
+    .wire-inner { display: flex; min-height: 320px; }
+    .wire-sb {
+      width: 165px;
+      background: var(--sidebar);
+      border-right: 1px dashed var(--sketch-border);
+      padding: 0.65rem 0;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+    }
+    .wire-sb .sb-h {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--sketch-muted);
+      padding: 0.35rem 0.6rem 0.2rem;
+    }
+    .wire-sb .sb-a {
+      display: block;
+      padding: 0.28rem 0.6rem;
+      border-left: 3px solid transparent;
+      color: var(--sketch-dark);
+    }
+    .wire-sb .sb-a.on { border-left-color: var(--accent); background: rgba(201,162,39,0.15); font-weight: 600; }
+    .wire-main { flex: 1; padding: 0.85rem; }
+    .wire-main h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .wire-banner {
+      background: rgba(201,162,39,0.12);
+      border: 1px dashed var(--accent);
+      padding: 0.35rem 0.6rem;
+      font-size: 0.75rem;
+      margin-bottom: 0.65rem;
+    }
+    .wire-panel {
+      border: 1px dashed var(--sketch-border);
+      border-radius: 3px;
+      padding: 0.6rem;
+      margin-bottom: 0.6rem;
+      background: #fff;
+    }
+    .wire-panel h4 { font-size: 0.82rem; margin-bottom: 0.35rem; color: var(--sketch-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .wire-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; margin-bottom: 0.6rem; }
+    .wire-kpi {
+      border: 1px solid var(--sketch-border);
+      padding: 0.4rem;
+      text-align: center;
+      font-size: 0.72rem;
+      background: #fff;
+    }
+    .wire-kpi b { display: block; font-size: 1.1rem; color: var(--accent); }
+    .wire-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+    .wire-table th, .wire-table td { border: 1px solid #ccc; padding: 0.3rem 0.4rem; text-align: left; }
+    .wire-table th { background: #eee; font-weight: 600; }
+    .wire-btn {
+      display: inline-block;
+      padding: 0.25rem 0.55rem;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 3px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      border: 1px solid #a88620;
+    }
+    .wire-btn-o {
+      display: inline-block;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: 3px;
+      font-size: 0.72rem;
+      background: #fff;
+    }
+    .wire-field {
+      display: block;
+      width: 100%;
+      border: 1px solid #aaa;
+      padding: 0.35rem 0.5rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--sketch-muted);
+      background: #fff;
+    }
+    .wire-row { display: flex; gap: 0.35rem; align-items: center; padding: 0.25rem 0; border-bottom: 1px dotted #ccc; font-size: 0.72rem; }
+    .wire-pill { font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 99px; border: 1px solid #aaa; }
+    .wire-pill.g { background: #d4edda; }
+    .wire-pill.a { background: #fff3cd; }
+    .wire-pill.r { background: #f8d7da; }
+    .wire-canvas {
+      height: 120px;
+      background: #f5f0e6;
+      border: 2px dashed #bbb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: var(--sketch-muted);
+      margin: 0.4rem 0;
+    }
+    .wire-toolbar { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.4rem; font-size: 0.68rem; }
+    .wire-toolbar span { border: 1px solid #aaa; padding: 0.15rem 0.35rem; background: #fff; }
+
+    /* Annotation column — Balsamiq sticky notes */
+    .notes-col { display: flex; flex-direction: column; gap: 0.55rem; }
+    .note {
+      background: var(--sticky);
+      border: 1px solid var(--sticky-border);
+      padding: 0.55rem 0.65rem;
+      font-family: var(--hand);
+      font-size: 0.95rem;
+      line-height: 1.35;
+      box-shadow: 2px 2px 4px rgba(0,0,0,0.06);
+      transform: rotate(-0.4deg);
+    }
+    .note:nth-child(even) { transform: rotate(0.35deg); }
+    .note b { font-family: var(--font); font-size: 0.78rem; display: block; margin-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.03em; color: #7a6f00; }
+    .note-info {
+      background: var(--info);
+      border-color: var(--info-border);
+      font-family: var(--font);
+      font-size: 0.8rem;
+      transform: none;
+    }
+    .note-info b { color: #31708f; }
+    .note-warn {
+      background: var(--warn);
+      border-color: var(--warn-border);
+      font-family: var(--font);
+      font-size: 0.78rem;
+      transform: none;
+    }
+    .note-warn b { color: #a94442; }
+    .note ul { margin: 0.25rem 0 0 1rem; padding: 0; }
+    .note li { margin-bottom: 0.15rem; }
+
+    .toc {
+      max-width: 1180px;
+      margin: 1.5rem auto;
+      padding: 1rem 1.25rem;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .toc h2 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .toc ol { columns: 2; font-size: 0.85rem; padding-left: 1.25rem; }
+    .toc a { color: #0066cc; }
+
+    @media print {
+      .screen { page-break-inside: avoid; margin-bottom: 1.5rem; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="doc-header">
+  <h1>ESA WIRE FRAMES</h1>
+</header>
+
+<nav class="toc">
+  <h2>Contents — 18 screens</h2>
+  <ol>
+    <li><a href="#s1">Landing page</a></li>
+    <li><a href="#s2">Subscription / pricing</a></li>
+    <li><a href="#s3">Login &amp; register</a></li>
+    <li><a href="#s4">Super Admin dashboard</a></li>
+    <li><a href="#s5">School Admin dashboard</a></li>
+    <li><a href="#s6">Teacher dashboard</a></li>
+    <li><a href="#s7">Student dashboard</a></li>
+    <li><a href="#s8">Parent dashboard</a></li>
+    <li><a href="#s9">Timetable builder</a></li>
+    <li><a href="#s10">Attendance register</a></li>
+    <li><a href="#s11">Homework / worksheets</a></li>
+    <li><a href="#s12">Exams</a></li>
+    <li><a href="#s13">Hifz juz sign-off</a></li>
+    <li><a href="#s14">Qur'an mushaf viewer</a></li>
+    <li><a href="#s15">Behaviour log</a></li>
+    <li><a href="#s16">Messaging</a></li>
+    <li><a href="#s17">Fees &amp; payments</a></li>
+    <li><a href="#s18">Analytics</a></li>
+  </ol>
+</nav>
+
+<!-- 1 LANDING -->
+<section class="screen" id="s1">
+  <div class="screen-head">
+    <h2>1. Landing page</h2>
+    <p class="screen-meta"><strong>URL:</strong> / &nbsp;|&nbsp; <strong>Role:</strong> Public (no login) &nbsp;|&nbsp; <strong>Template:</strong> home.html</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span><div class="top-links"><span>Home</span><span>Subscribe</span><span>Log in</span><span>Register</span></div></div>
+      <div style="padding:1rem;text-align:center;">
+        <div style="border:2px dashed #aaa;padding:1.25rem;margin-bottom:0.75rem;background:#fff;">
+          <strong style="font-size:1.1rem;">Education &amp; Schooling Applications</strong><br>
+          <span style="font-size:0.8rem;color:#666;">One platform for Islamic schools — attendance, Hifz, exams, payments</span><br><br>
+          <span class="wire-btn">Get Started</span> &nbsp; <span class="wire-btn-o">Learn More</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;font-size:0.75rem;">
+          <div class="wire-panel"><b>Multi-tenant</b>Each school isolated</div>
+          <div class="wire-panel"><b>Teacher sign-off</b>Verified progress only</div>
+          <div class="wire-panel"><b>Stripe payments</b>Fees to school</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Marketing entry point for new schools and parents. Explains what ESA does before anyone creates an account. Primary conversion: school registers and picks a subscription tier.</div>
+      <div class="note"><b>① Hero carousel</b>Three rotating slides (optional): platform overview, teacher sign-off trust message, parent portal preview. Auto-advance or manual dots.</div>
+      <div class="note"><b>② Get Started CTA</b>Links to Register school flow for new tenants, or Register for parents/students joining an existing school.</div>
+      <div class="note"><b>③ Feature cards</b>Three cards summarise core value props — not feature depth. Assessor should read these as elevator pitch, not spec.</div>
+      <div class="note"><b>④ Top navigation</b>Subscribe → pricing tiers. Log in → shared login for all 5 roles (redirect after auth). Register → role picker.</div>
+      <div class="note-warn"><b>Not on this page</b>No dashboards, no student data. Fully public — no tenant context until login.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 SUBSCRIPTION -->
+<section class="screen" id="s2">
+  <div class="screen-head">
+    <h2>2. Subscription / pricing</h2>
+    <p class="screen-meta"><strong>URL:</strong> /payments/subscription/ &nbsp;|&nbsp; <strong>Role:</strong> School Admin (or public preview) &nbsp;|&nbsp; <strong>Integration:</strong> Stripe Checkout</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span><div class="top-links"><span>Al-Noor Academy</span><span>Log out</span></div></div>
+      <div style="padding:1rem;">
+        <h3>Choose your plan</h3>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-top:0.5rem;font-size:0.72rem;">
+          <div class="wire-panel"><h4>Free</h4><b style="font-size:1.2rem;color:var(--accent);">£0</b>/mo<br>≤30 students<br>Attendance, basic timetable<br><span class="wire-btn-o" style="margin-top:0.4rem;display:block;text-align:center;">Current</span></div>
+          <div class="wire-panel" style="border-color:var(--accent);border-width:2px;"><h4>Standard ★</h4><b style="font-size:1.2rem;color:var(--accent);">£49</b>/mo<br>≤200 students<br>Hifz, homework, exams, parent portal<br><span class="wire-btn" style="margin-top:0.4rem;display:block;text-align:center;">Subscribe</span></div>
+          <div class="wire-panel"><h4>Premium</h4><b style="font-size:1.2rem;color:var(--accent);">£99</b>/mo<br>Unlimited<br>+ Stripe fees, analytics, messaging<br><span class="wire-btn-o" style="margin-top:0.4rem;display:block;text-align:center;">Subscribe</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Monetises the platform per school tenant. Tier gates features (e.g. payments on Premium). Stripe handles card capture; ESA stores subscription status on School record.</div>
+      <div class="note"><b>① Tier comparison</b>Each card lists student limits and feature flags. Struck-through items on lower tiers show upgrade path.</div>
+      <div class="note"><b>② Subscribe button</b>Redirects to Stripe Checkout session. On success → /payments/success/ with receipt reference. Webhook updates tier in database.</div>
+      <div class="note"><b>③ Current tier pill</b>School Admin sees which plan is active. Cannot downgrade if over student limit (validation on backend).</div>
+      <div class="note"><b>④ Super Admin view</b>Platform-level Subscriptions page lists all schools with tier + MRR — separate screen (#4).</div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 LOGIN -->
+<section class="screen" id="s3">
+  <div class="screen-head">
+    <h2>3. Login &amp; registration</h2>
+    <p class="screen-meta"><strong>URLs:</strong> /accounts/login/ · /accounts/register/ · /accounts/register-school/ · /accounts/verify-email/</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire" style="max-width:420px;">
+      <div class="wire-bar"><span class="logo">ESA</span></div>
+      <div style="padding:1.25rem;">
+        <h3>Log in</h3>
+        <input class="wire-field" value="Username or email" readonly>
+        <input class="wire-field" value="Password" readonly>
+        <div style="text-align:right;font-size:0.72rem;color:#0066cc;margin-bottom:0.5rem;">Forgot password?</div>
+        <span class="wire-btn" style="display:block;text-align:center;width:100%;">Sign in</span>
+        <hr style="margin:1rem 0;border:none;border-top:1px dashed #ccc;">
+        <h3 style="font-size:0.9rem;">Register (student/parent)</h3>
+        <input class="wire-field" value="School dropdown ▾" readonly>
+        <input class="wire-field" value="Role: Student ▾" readonly>
+        <input class="wire-field" value="Class: 7A ▾" readonly>
+        <input class="wire-field" value="Parent link code (optional)" readonly>
+        <span class="wire-btn-o" style="display:block;text-align:center;">Create account</span>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Single auth entry for all roles. After login, Django redirects to role-specific dashboard. Registration creates User + role profile scoped to one school (multi-tenant isolation).</div>
+      <div class="note"><b>① Login fields</b>Username OR email accepted. Failed login shows generic error (no user enumeration). Session cookie + CSRF protection.</div>
+      <div class="note"><b>② Register — school pick</b>User must select existing school from dropdown. Cannot register without valid school slug.</div>
+      <div class="note"><b>③ Register — role</b>Student → must pick class. Parent → optional link code to attach child immediately. Teacher accounts created by School Admin only.</div>
+      <div class="note"><b>④ Register school</b>Separate form: school name + admin user in one step. Creates School tenant + first School Admin. Then email verification (6-digit code).</div>
+      <div class="note"><b>⑤ Password reset</b>Email link → set new password. Token expires. Standard Django auth flow.</div>
+      <div class="note-warn"><b>Parent link code</b>Also available at /link/CODE/ for logged-in parents to attach another child without re-registering.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 SUPER ADMIN -->
+<section class="screen" id="s4">
+  <div class="screen-head">
+    <h2>4. Super Admin dashboard</h2>
+    <p class="screen-meta"><strong>URL:</strong> /dashboard/super-admin/ &nbsp;|&nbsp; <strong>Role:</strong> Super Admin only &nbsp;|&nbsp; <strong>Scope:</strong> All schools platform-wide</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span><div class="top-links"><span>Messages</span><span>Log out</span></div></div>
+      <div class="wire-inner">
+        <div class="wire-sb">
+          <div class="sb-h">Platform</div>
+          <span class="sb-a on">Overview</span>
+          <span class="sb-a">Analytics</span>
+          <span class="sb-a">Subscriptions</span>
+          <span class="sb-a">Support queue</span>
+          <span class="sb-a">Admin panel</span>
+        </div>
+        <div class="wire-main">
+          <div class="wire-banner">Platform overview — all tenants</div>
+          <div class="wire-kpis">
+            <div class="wire-kpi"><b>12</b>Schools</div>
+            <div class="wire-kpi"><b>847</b>Users</div>
+            <div class="wire-kpi"><b>£4.2k</b>MRR</div>
+            <div class="wire-kpi"><b>3</b>New this month</div>
+          </div>
+          <div class="wire-panel">
+            <h4>All schools</h4>
+            <table class="wire-table">
+              <tr><th>School</th><th>Tier</th><th>Status</th><th>Users</th></tr>
+              <tr><td>Al-Noor Academy</td><td>Premium</td><td><span class="wire-pill g">Active</span></td><td>124</td></tr>
+              <tr><td>Iqra School</td><td>Standard</td><td><span class="wire-pill g">Active</span></td><td>89</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Platform operator view. Manages all school tenants, subscription revenue, and support cases. No access to individual student grades — aggregate metrics only unless drilling into Django admin.</div>
+      <div class="note"><b>Sidebar links</b>Overview (this page), Analytics (cross-tenant charts), Subscriptions (tier management), Support queue (parent/school tickets), Admin panel (Django /admin/ for raw data).</div>
+      <div class="note"><b>Schools table</b>Columns: name, subscription tier, active/suspended status, user count. Click row → school detail (optional future). Suspend blocks all logins for that tenant.</div>
+      <div class="note"><b>Support queue</b>Lists open cases with case number, subject, status. Staff reply in thread — similar to Messages but platform-scoped.</div>
+      <div class="note-warn"><b>Tenant boundary</b>Super Admin sees all schools. School Admin never sees this screen.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 SCHOOL ADMIN -->
+<section class="screen" id="s5">
+  <div class="screen-head">
+    <h2>5. School Admin dashboard</h2>
+    <p class="screen-meta"><strong>URL:</strong> /dashboard/school-admin/ &nbsp;|&nbsp; <strong>Role:</strong> School Admin &nbsp;|&nbsp; <strong>Scope:</strong> One school only (Al-Noor Academy)</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span><div class="top-links"><span>Messages</span><span>Log out</span></div></div>
+      <div class="wire-inner">
+        <div class="wire-sb">
+          <div class="sb-h">School</div>
+          <span class="sb-a on">Overview</span><span class="sb-a">Analytics</span><span class="sb-a">Subscription</span><span class="sb-a">Fees</span>
+          <div class="sb-h">Staff</div>
+          <span class="sb-a">Teachers</span><span class="sb-a">Add teacher</span>
+          <div class="sb-h">Setup</div>
+          <span class="sb-a">Timetable</span><span class="sb-a">Attendance</span><span class="sb-a">LMS</span><span class="sb-a">Find student</span>
+        </div>
+        <div class="wire-main">
+          <div class="wire-banner">Al-Noor Academy · Premium plan</div>
+          <div class="wire-kpis">
+            <div class="wire-kpi"><b>124</b>Students</div>
+            <div class="wire-kpi"><b>18</b>Teachers</div>
+            <div class="wire-kpi"><b>94%</b>Attendance today</div>
+            <div class="wire-kpi"><b>£1,240</b>Fees outstanding</div>
+          </div>
+          <div style="display:flex;gap:0.35rem;margin-bottom:0.5rem;">
+            <span class="wire-btn">+ Add teacher</span><span class="wire-btn-o">Open timetable</span><span class="wire-btn-o">Create fee</span>
+          </div>
+          <div class="wire-panel"><h4>Recent activity</h4>
+            <div class="wire-row">Mrs Khan marked 7A register · <span class="wire-pill g">Attendance</span></div>
+            <div class="wire-row">Juz 3 signed off — Amina Hassan · <span class="wire-pill g">Hifz</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Command centre for one school. Admin sets up teachers, classes, timetables, LMS content, and fees. All queries filtered by school_id — cannot see other tenants.</div>
+      <div class="note"><b>① KPI cards</b>Live counts from database. Attendance today = % of students marked present across all classes. Fees outstanding = sum unpaid FeeItems.</div>
+      <div class="note"><b>② Teachers / Add teacher</b>List shows name, email, subject. Add form: username, email, first/last name, subject, password. Creates User with role=teacher + TeacherProfile.</div>
+      <div class="note"><b>③ Timetable hub</b>Create classes (7A, 7B), build weekly grid, assign teachers per slot. Archive old timetables. See screen #9.</div>
+      <div class="note"><b>④ LMS hub</b>Subjects → tracks (Foundation/Higher) → upload materials (link, PDF). Assign track to class. Teachers see assigned content.</div>
+      <div class="note"><b>⑤ Fees (school side)</b>Create fee item: pick parent, child, title, £ amount, due date. Parent sees it on their Fees page with Pay now.</div>
+      <div class="note"><b>⑥ Find student</b>Search by name or admission number. Shows class, linked parents, link code for parent registration.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 TEACHER -->
+<section class="screen" id="s6">
+  <div class="screen-head">
+    <h2>6. Teacher dashboard</h2>
+    <p class="screen-meta"><strong>URL:</strong> /dashboard/teacher/ &nbsp;|&nbsp; <strong>Role:</strong> Teacher &nbsp;|&nbsp; <strong>Demo login:</strong> mr_mohammed / teacher1234</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span><div class="top-links"><span>Mr Mohammed</span><span>Messages</span><span>Log out</span></div></div>
+      <div class="wire-inner">
+        <div class="wire-sb">
+          <div class="sb-h">Teaching</div>
+          <span class="sb-a on">Overview</span><span class="sb-a">Attendance</span><span class="sb-a">My timetable</span><span class="sb-a">Worksheets</span><span class="sb-a">Exams</span><span class="sb-a">Hifz</span><span class="sb-a">Qur'an</span><span class="sb-a">Behaviour</span>
+          <div class="sb-h">Reports</div>
+          <span class="sb-a">Create report</span><span class="sb-a">Sent reports</span>
+          <div class="sb-h">Sign-off</div>
+          <span class="sb-a">Pending submissions</span><span class="sb-a">Finalise results</span><span class="sb-a">Hifz sign-off</span>
+        </div>
+        <div class="wire-main">
+          <h3>Teacher workspace</h3>
+          <div class="wire-panel"><h4>Today's lessons</h4>
+            <div class="wire-row">09:00 Quran — 7A <span class="wire-btn" style="margin-left:auto;">Take register</span></div>
+            <div class="wire-row">10:30 Hifz — 8B <span class="wire-btn" style="margin-left:auto;">Take register</span></div>
+          </div>
+          <div class="wire-panel"><h4>Pending sign-offs (3)</h4>
+            <table class="wire-table"><tr><th>Student</th><th>Type</th><th>Action</th></tr>
+            <tr><td>Amina Hassan</td><td>Homework</td><td><span class="wire-btn-o">Review</span></td></tr>
+            <tr><td>Yusuf Ali</td><td>Exam written</td><td><span class="wire-btn-o">Mark</span></td></tr></table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Teacher's daily hub. Shows today's timetable slots with quick links to attendance. Surfaces queues needing teacher verification (homework, exams, Hifz). Teachers are NOT locked to homeroom — can mark any student in school.</div>
+      <div class="note"><b>① Today strip</b>Pulls from teacher's assigned timetable slots. "Take register" pre-fills class + subject on attendance page.</div>
+      <div class="note"><b>② Pending sign-offs</b>Aggregates: worksheet submissions awaiting approve/reject, exam written answers needing marks, optional Hifz reminders. Links to relevant module.</div>
+      <div class="note"><b>③ Sidebar — Teaching</b>Full module access. Qur'an = mushaf sessions. Hifz = juz sign-off form + history.</div>
+      <div class="note"><b>④ Sidebar — Reports</b>Structured message to parent: strengths, improvements, action required. Stored and visible on parent Reports page.</div>
+      <div class="note"><b>⑤ Sidebar — Sign-off</b>Deep links to #pending on worksheets, #finalise on exams, #signoff on Hifz. Core trust model: parents only see teacher-approved data.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 STUDENT -->
+<section class="screen" id="s7">
+  <div class="screen-head">
+    <h2>7. Student dashboard</h2>
+    <p class="screen-meta"><strong>URL:</strong> /dashboard/student/ &nbsp;|&nbsp; <strong>Demo:</strong> demo_student / Demo2026! (Amina Hassan, 7A)</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span><div class="top-links"><span>Amina Hassan</span><span>Messages</span><span>Log out</span></div></div>
+      <div class="wire-inner">
+        <div class="wire-sb">
+          <div class="sb-h">My work</div>
+          <span class="sb-a on">Overview</span><span class="sb-a">Timetable</span><span class="sb-a">Homework</span><span class="sb-a">Qur'an</span><span class="sb-a">Exams</span><span class="sb-a">Hifz</span><span class="sb-a">Attendance</span><span class="sb-a">Reports</span>
+        </div>
+        <div class="wire-main">
+          <div class="wire-banner">Welcome, Amina · Class 7A · Al-Noor Academy</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+            <div class="wire-panel"><h4>Due homework</h4>
+              <div class="wire-row">Surah revision · 14 Jun · <span class="wire-pill a">Pending</span></div>
+              <div class="wire-row">Maths sheet · 16 Jun · <span class="wire-pill r">Not submitted</span></div>
+            </div>
+            <div class="wire-panel"><h4>Hifz progress</h4>
+              <div class="wire-row">Juz 1 · <span class="wire-pill g">Signed off</span></div>
+              <div class="wire-row">Juz 2 · <span class="wire-pill g">Signed off</span></div>
+              <div class="wire-row">Juz 3 · <span class="wire-pill g">Signed off</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Student sees own data only — timetable, assignments, exam sit UI, Qur'an sessions (read-only mushaf), signed-off Hifz juz list, attendance history, teacher reports.</div>
+      <div class="note"><b>Read-only vs edit</b>Can SUBMIT homework and exam answers. Cannot edit Hifz sign-offs, attendance marks, or Qur'an teacher notes/highlights.</div>
+      <div class="note"><b>Homework</b>Lists assignments for student's class. Submit opens textarea or file upload. Status changes to Submitted → Approved/Rejected after teacher sign-off.</div>
+      <div class="note"><b>Exams</b>Only published exams shown. After submit, waits for teacher to mark written sections and finalise. Scores hidden until finalised.</div>
+      <div class="note"><b>Qur'an</b>Opens session list → mushaf viewer with teacher highlights and notes visible but not editable.</div>
+      <div class="note-warn"><b>No fees, no behaviour log</b>Those are parent/admin views. Student sidebar is intentionally narrower.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 PARENT -->
+<section class="screen" id="s8">
+  <div class="screen-head">
+    <h2>8. Parent dashboard</h2>
+    <p class="screen-meta"><strong>URL:</strong> /dashboard/parent/ &nbsp;|&nbsp; <strong>Demo:</strong> demo_parent / Demo2026! (linked to Amina Hassan)</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span><div class="top-links"><span>Mr Hassan</span><span>Messages</span><span>Log out</span></div></div>
+      <div class="wire-inner">
+        <div class="wire-sb">
+          <div class="sb-h">Family</div>
+          <span class="sb-a on">Overview</span><span class="sb-a">Attendance</span><span class="sb-a">Behaviour</span><span class="sb-a">Link child</span><span class="sb-a">Fees</span>
+          <div class="sb-h">Reports</div>
+          <span class="sb-a">Teacher reports</span><span class="sb-a">Exam results</span><span class="sb-a">Hifz progress</span>
+        </div>
+        <div class="wire-main">
+          <div style="display:flex;gap:0.35rem;margin-bottom:0.5rem;"><span class="wire-btn">Amina (7A)</span><span class="wire-btn-o">+ Link another child</span></div>
+          <div class="wire-kpis" style="grid-template-columns:repeat(4,1fr);">
+            <div class="wire-kpi"><b>92%</b>Attendance</div>
+            <div class="wire-kpi"><b>3</b>Juz signed off</div>
+            <div class="wire-kpi"><b>4/5</b>Homework</div>
+            <div class="wire-kpi"><b>£85</b>Fees due</div>
+          </div>
+          <span class="wire-btn">Pay fees</span> &nbsp; <span class="wire-btn-o">Message teacher</span>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Parent monitors linked children only. Cannot see other students. All academic data is post-sign-off (teacher verified). Fees paid via Stripe Checkout.</div>
+      <div class="note"><b>① Child selector</b>If multiple children linked, tabs switch context. All KPIs and reports filter to selected child.</div>
+      <div class="note"><b>② Link child</b>Enter school-issued code (from Find student admin page). Creates ParentChild relationship. Also works at /link/CODE/.</div>
+      <div class="note"><b>③ Hifz progress</b>Read-only table: Date | Student | Juz | Teacher. Only appears after teacher clicks "Student has passed". Auto-message sent on sign-off.</div>
+      <div class="note"><b>④ Exam results</b>Finalised scores only — same trust model as homework approval.</div>
+      <div class="note"><b>⑤ Pay fees</b>Redirects to Stripe for outstanding FeeItems. Receipt stored; status → Paid.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 TIMETABLE -->
+<section class="screen" id="s9">
+  <div class="screen-head">
+    <h2>9. Timetable builder &amp; view</h2>
+    <p class="screen-meta"><strong>URL:</strong> /timetable/ &nbsp;|&nbsp; <strong>Roles:</strong> School Admin builds · Teacher/Student/Parent read-only view</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span><div class="top-links"><span>Timetable — 7A</span></div></div>
+      <div style="padding:0.75rem;font-size:0.68rem;">
+        <div style="display:flex;gap:0.75rem;">
+          <div style="width:100px;border:1px dashed #aaa;padding:0.4rem;background:#fff;">
+            <strong>Palette</strong><br>Maths<br>English<br>Quran<br>Arabic<br>Science<br>Hifz<br>Break
+          </div>
+          <div style="flex:1;">
+            <table class="wire-table" style="font-size:0.65rem;">
+              <tr><th></th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th></tr>
+              <tr><td>09:00</td><td>Quran<br><em>Mr M</em></td><td>Arabic</td><td>Quran</td><td>Maths</td><td>Hifz</td></tr>
+              <tr><td>10:00</td><td>English</td><td>Hifz</td><td>Science</td><td>Arabic</td><td>Quran</td></tr>
+            </table>
+            <span class="wire-btn" style="margin-top:0.5rem;">Save timetable</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Weekly schedule per class. School Admin creates classes, timetables, and assigns teachers to slots. Drives teacher "Today" dashboard and attendance context.</div>
+      <div class="note"><b>① Timetable hub</b>Lists classes (7A, 7B, 8A). Create new timetable → name + assign class. Archive removes from active but keeps history.</div>
+      <div class="note"><b>② Builder grid</b>Mon–Fri columns, time rows (08:30–14:00). Drag subject from palette onto cell → teacher dropdown appears for that slot.</div>
+      <div class="note"><b>③ Save</b>Persists TimetableSlot records. Flash success message. Teachers immediately see updated My timetable.</div>
+      <div class="note"><b>④ Student/parent view</b>Same grid, no edit controls. Read-only for planning week ahead.</div>
+      <div class="note"><b>⑤ Take register link</b>From teacher dashboard, slot link passes class + subject query params to attendance form.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 ATTENDANCE -->
+<section class="screen" id="s10">
+  <div class="screen-head">
+    <h2>10. Attendance register</h2>
+    <p class="screen-meta"><strong>URL:</strong> /attendance/ &nbsp;|&nbsp; <strong>Roles:</strong> Teacher marks · Admin overview · Parent/Student read-only history</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span></div>
+      <div style="padding:0.75rem;">
+        <h3>Class register — Quran · 7A</h3>
+        <div style="display:flex;gap:0.5rem;margin:0.5rem 0;font-size:0.75rem;">
+          <span>Class: <u>7A ▾</u></span> <span>Date: <u>2026-06-14</u></span>
+        </div>
+        <table class="wire-table">
+          <tr><th>Student</th><th>Class</th><th>Present</th><th>Late</th><th>Absent</th></tr>
+          <tr><td>Amina Hassan</td><td>7A</td><td>●</td><td>○</td><td>○</td></tr>
+          <tr><td>Yusuf Ali</td><td>8B</td><td>○</td><td>●</td><td>○</td></tr>
+          <tr><td>Maryam Begum</td><td>7A</td><td>○</td><td>○</td><td>●</td></tr>
+        </table>
+        <p style="font-size:0.72rem;color:#666;margin:0.5rem 0;">124 students in school — all shown, not just one class</p>
+        <span class="wire-btn">Save register</span>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Daily presence tracking. Teachers mark any student in the school (cross-class). Data feeds School Admin analytics KPI and parent attendance history.</div>
+      <div class="note"><b>① Class dropdown</b>Filters default view but register lists ALL school students with their home class column — supports supplementary school model where teachers aren't homeroom-only.</div>
+      <div class="note"><b>② Date picker</b>Defaults to today. Changing date reloads existing marks if register already saved.</div>
+      <div class="note"><b>③ Status radios</b>One of Present / Late / Absent per student. Optional notes field for late/absent (not shown in wireframe, exists in live app for extended rows).</div>
+      <div class="note"><b>④ Save register</b>POST creates/updates AttendanceRecord per student+date. Flash confirmation. Idempotent re-save.</div>
+      <div class="note"><b>⑤ Parent view</b>Read-only table: Date | Status for linked child only. No edit.</div>
+      <div class="note"><b>⑥ Admin view</b>School-wide attendance overview % on dashboard — aggregate of today's registers.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 WORKSHEETS -->
+<section class="screen" id="s11">
+  <div class="screen-head">
+    <h2>11. Homework / worksheets</h2>
+    <p class="screen-meta"><strong>URL:</strong> /worksheets/ &nbsp;|&nbsp; <strong>Sign-off:</strong> Teacher approves before parent sees final status</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span></div>
+      <div style="padding:0.75rem;">
+        <div class="wire-panel"><h4>Create assignment (teacher)</h4>
+          Class ▾ · Subject ▾ · Title · Due date · <span class="wire-btn">Create</span>
+        </div>
+        <div class="wire-panel" id="pending"><h4>Submissions — pending sign-off</h4>
+          <table class="wire-table">
+            <tr><th>Student</th><th>Assignment</th><th>Status</th><th>Actions</th></tr>
+            <tr><td>Amina Hassan</td><td>Surah revision</td><td><span class="wire-pill a">Submitted</span></td><td><span class="wire-btn">Sign off</span> <span class="wire-btn-o">Reject</span></td></tr>
+          </table>
+        </div>
+        <div class="wire-panel"><h4>Student submit view</h4>
+          Textarea + file upload + <span class="wire-btn">Submit homework</span>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Digital homework pipeline with teacher verification. Parent trust: homework marked "done" only after teacher sign-off, not merely submitted.</div>
+      <div class="note"><b>Status flow</b>Draft → Submitted (student action) → Approved or Rejected (teacher action). Rejected may include feedback for resubmit.</div>
+      <div class="note"><b>Sign off button</b>Sets signed_off=true, signed_off_by, signed_off_at on WorksheetSubmission. Triggers optional parent notification.</div>
+      <div class="note"><b>Pending section</b>Highlighted at top of teacher page (#pending anchor from sidebar). Sorted by due date.</div>
+      <div class="note"><b>LMS link</b>Teachers can assign LMS track materials separately (Assign to class) — worksheets are distinct graded submissions.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 EXAMS -->
+<section class="screen" id="s12">
+  <div class="screen-head">
+    <h2>12. Exams</h2>
+    <p class="screen-meta"><strong>URL:</strong> /exams/ &nbsp;|&nbsp; <strong>Flow:</strong> Build → Publish → Sit → Mark → Finalise</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span></div>
+      <div style="padding:0.75rem;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div class="wire-panel"><h4>MCQ builder</h4>Prompt · 4 options · Correct ● · <span class="wire-btn-o">+ Add question</span></div>
+          <div class="wire-panel"><h4>Written questions</h4>Prompt · Max marks · <span class="wire-btn-o">+ Add</span></div>
+        </div>
+        <span class="wire-btn" style="margin:0.5rem 0;display:inline-block;">Publish exam</span>
+        <div class="wire-panel" id="finalise"><h4>Finalise results</h4>
+          <table class="wire-table">
+            <tr><th>Student</th><th>Auto (MCQ)</th><th>Written</th><th>Final</th><th>Finalised?</th></tr>
+            <tr><td>Amina Hassan</td><td>18/20</td><td>12/15</td><td>30/35</td><td><span class="wire-btn">Finalise</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Mixed MCQ (auto-marked) and written (teacher-marked) exams. Results invisible to parents until teacher finalises — prevents draft scores leaking.</div>
+      <div class="note"><b>① MCQ auto-mark</b>On student submit, system compares selected option to correct answer. Score stored immediately but not "official".</div>
+      <div class="note"><b>② Written marking</b>Teacher opens each student's written answers, enters marks per question. Manual queue on teacher dashboard.</div>
+      <div class="note"><b>③ Finalise button</b>Locks ExamResult. Parent and student can then view on Exam results page. Cannot unfinalise (audit integrity).</div>
+      <div class="note"><b>④ Student sit UI</b>One question per section or scrollable form. MCQ radio buttons + textareas for written. Submit once — no edit after (configurable).</div>
+      <div class="note-warn"><b>Draft exams</b>Not visible to students until Publish clicked.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 HIFZ -->
+<section class="screen" id="s13">
+  <div class="screen-head">
+    <h2>13. Hifz juz sign-off</h2>
+    <p class="screen-meta"><strong>URL:</strong> /hifz/ &nbsp;|&nbsp; <strong>Model:</strong> Juz 1–30 milestones (not surah-by-surah tracker)</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span></div>
+      <div style="padding:0.75rem;">
+        <div class="wire-panel" id="signoff"><h4>Teacher sign-off form</h4>
+          <p style="font-size:0.75rem;margin-bottom:0.4rem;">Pick student and juz, confirm they have passed. Parent receives congratulations message automatically.</p>
+          Student ▾ Amina Hassan<br><br>
+          Juz ▾ 4<br><br>
+          <span class="wire-btn">Student has passed</span>
+        </div>
+        <div class="wire-panel"><h4>Signed-off juz history</h4>
+          <table class="wire-table">
+            <tr><th>Date</th><th>Student</th><th>Juz</th><th>Teacher</th></tr>
+            <tr><td>14 Jun 2026</td><td>Amina Hassan</td><td><strong>Juz 3</strong></td><td>Mr Mohammed</td></tr>
+            <tr><td>01 Jun 2026</td><td>Amina Hassan</td><td><strong>Juz 2</strong></td><td>Mr Mohammed</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Simplified Hifz tracking: teacher confirms whole juz completion. Replaces earlier surah-row design. One sign-off = one juz milestone visible to student and parent.</div>
+      <div class="note"><b>① Student dropdown</b>All students in teacher's school (school-wide, not class-locked). Searchable on live site.</div>
+      <div class="note"><b>② Juz dropdown</b>Integers 1–30. Duplicate sign-off for same student+juz blocked or updates timestamp (backend validation).</div>
+      <div class="note"><b>③ Student has passed</b>Creates HifzSignOff record. Service layer sends automated message to linked parent(s) congratulating milestone.</div>
+      <div class="note"><b>④ History table</b>Teacher sees Date | Student | Juz (no teacher column). Parent/student see Date | Student | Juz | Teacher.</div>
+      <div class="note-warn"><b>Not included</b>No sabaq/muraja'ah planner, no surah progress bars — intentionally scoped down for MVP assessor demo.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 QURAN -->
+<section class="screen" id="s14">
+  <div class="screen-head">
+    <h2>14. Qur'an mushaf viewer</h2>
+    <p class="screen-meta"><strong>URL:</strong> /quran/ · /quran/session/&lt;id&gt;/ &nbsp;|&nbsp; <strong>Not</strong> ayah picker — full PDF mushaf pages</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span></div>
+      <div style="padding:0.75rem;">
+        <div class="wire-panel"><h4>Session list</h4>
+          <table class="wire-table"><tr><th>Student</th><th>Status</th><th>Date</th></tr>
+          <tr><td>Amina Hassan</td><td><span class="wire-pill a">Submitted</span></td><td>14 Jun</td></tr></table>
+          <span class="wire-btn-o">+ New session (pick student)</span>
+        </div>
+        <div class="wire-panel"><h4>Session detail — mushaf viewer</h4>
+          <div class="wire-toolbar">
+            <span>‹ Juz</span><span>‹ Page</span><span><strong>Juz 3 · Page 42</strong></span><span>Page ›</span><span>Juz ›</span>
+            <span>| Zoom −</span><span>Fit</span><span>+</span><span>Fit width</span>
+          </div>
+          <div class="wire-toolbar">
+            <span>Highlighter:</span><span style="background:#fff59d;">Y</span><span style="background:#a5d6a7;">G</span><span style="background:#90caf9;">B</span><span style="background:#f48fb1;">P</span><span>Undo last</span>
+          </div>
+          <div class="wire-canvas">[ PDF mushaf page — 30 juz files in static/quran/mushaf/ ]</div>
+          <label style="font-size:0.75rem;">Notes for this page</label>
+          <textarea class="wire-field" rows="3" readonly>Tajweed: elongate madd on verse 3. Student improving on ghunnah.</textarea>
+          <div style="font-size:0.72rem;margin-top:0.4rem;">Audio: student recitation upload · teacher feedback audio (optional)</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Teacher-led Qur'an recitation review on real mushaf pages. Highlights and per-page notes persist per session. Student/parent view same session read-only.</div>
+      <div class="note"><b>① Navigation</b>Prev/next page within juz; prev/next juz jumps to first page of adjacent juz PDF. Label always shows current juz + page number.</div>
+      <div class="note"><b>② Zoom</b>− / + increment scale. Fit resets to fit-to-width inside scroll container. Canvas uses PDF.js rendering.</div>
+      <div class="note"><b>③ Highlights</b>Teacher drag-selects region on page; colour applied. Stored per page in database. Undo removes last highlight. Auto-save indicator.</div>
+      <div class="note"><b>④ Page notes</b>Large textarea — saves on page change or debounced typing. Teacher editable; student/parent readonly attribute.</div>
+      <div class="note"><b>⑤ Session status</b>Draft → Submitted (student) → Reviewed (teacher). List filters by student for teacher; student sees own sessions only.</div>
+      <div class="note"><b>⑥ Audio section</b>Optional student upload + teacher recorded feedback — separate panel below viewer.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 BEHAVIOUR -->
+<section class="screen" id="s15">
+  <div class="screen-head">
+    <h2>15. Behaviour log</h2>
+    <p class="screen-meta"><strong>URL:</strong> /behaviour/ &nbsp;|&nbsp; <strong>Roles:</strong> Teacher logs · Parent reads linked child</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span></div>
+      <div style="padding:0.75rem;">
+        <div class="wire-panel"><h4>Log incident / commendation</h4>
+          Student ▾ · Type ▾ Commendation / Incident · Title · Notes<br><br>
+          <span class="wire-btn">Save record</span>
+        </div>
+        <table class="wire-table">
+          <tr><th>Date</th><th>Student</th><th>Type</th><th>Title</th><th>Logged by</th></tr>
+          <tr><td>12 Jun</td><td>Amina Hassan</td><td><span class="wire-pill g">Commendation</span></td><td>Helped tidy classroom</td><td>Mr Mohammed</td></tr>
+          <tr><td>10 Jun</td><td>Yusuf Ali</td><td><span class="wire-pill r">Incident</span></td><td>Late to lesson</td><td>Mrs Khan</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Lightweight behaviour tracking — positive and negative. Parents see commendations and incidents for linked children. Feeds analytics incident count.</div>
+      <div class="note"><b>Form fields</b>Student (required), Type enum, Title (short), Notes (longer context). Timestamp and logging teacher auto-set.</div>
+      <div class="note"><b>Parent view</b>Read-only filtered list. No ability to dispute in-app (would use Messages to contact school).</div>
+      <div class="note"><b>Admin analytics</b>Incident count tile on School Admin analytics dashboard.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 MESSAGING -->
+<section class="screen" id="s16">
+  <div class="screen-head">
+    <h2>16. Messaging</h2>
+    <p class="screen-meta"><strong>URL:</strong> /messages/ &nbsp;|&nbsp; <strong>Scope:</strong> Tenant-scoped; parents ↔ teachers/school office</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span><div class="top-links"><span>Messages ●2</span></div></div>
+      <div style="display:flex;min-height:220px;">
+        <div style="width:180px;border-right:1px dashed #aaa;background:#f5f5f5;font-size:0.72rem;">
+          <div style="padding:0.5rem;background:#e8e8e8;"><strong>Mr Hassan</strong><br><span style="color:#666;">How is Amina's Hifz?</span></div>
+          <div style="padding:0.5rem;"><strong>Mrs Begum</strong><br><span style="color:#666;">Report ready?</span></div>
+        </div>
+        <div style="flex:1;padding:0.6rem;font-size:0.75rem;">
+          <div style="background:#eee;padding:0.4rem;border-radius:6px;max-width:75%;margin-bottom:0.4rem;"><strong>Mr Hassan</strong><br>How is Amina doing in Hifz?</div>
+          <div style="background:rgba(201,162,39,0.2);padding:0.4rem;border-radius:6px;max-width:75%;margin-left:auto;margin-bottom:0.4rem;">She completed Juz 3 — sign-off sent to you today.</div>
+          <div style="display:flex;gap:0.35rem;margin-top:auto;padding-top:0.5rem;border-top:1px dashed #ccc;">
+            <input class="wire-field" style="margin:0;" value="Type a message…" readonly>
+            <span class="wire-btn">Send</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Secure in-app messaging replacing informal WhatsApp for school business. Unread badge on sidebar Messages link. Email notification optional.</div>
+      <div class="note"><b>Conversation list</b>Left panel shows counterpart name + last message preview. Sorted by recent activity.</div>
+      <div class="note"><b>Thread view</b>Received bubbles left-aligned; sent bubbles right-aligned with gold tint. Timestamps on live site.</div>
+      <div class="note"><b>New message</b>Parent picks teacher or school office. Teacher picks parent. Cannot message across schools.</div>
+      <div class="note"><b>Structured reports</b>Separate from free-form messages — Create report uses fixed fields (strengths, improvements) on Reports pages.</div>
+      <div class="note"><b>Support queue</b>Super Admin has platform-level support cases — different from school Messages.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 17 PAYMENTS -->
+<section class="screen" id="s17">
+  <div class="screen-head">
+    <h2>17. Fees &amp; payments</h2>
+    <p class="screen-meta"><strong>URL:</strong> /payments/fees/ &nbsp;|&nbsp; <strong>Integration:</strong> Stripe Checkout · Stripe Connect for schools</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span></div>
+      <div style="padding:0.75rem;">
+        <h3>Outstanding fees — Parent view</h3>
+        <table class="wire-table">
+          <tr><th>Fee</th><th>Child</th><th>Amount</th><th>Due</th><th>Status</th><th></th></tr>
+          <tr><td>Term 3 tuition</td><td>Amina</td><td>£250</td><td>01 Jun</td><td><span class="wire-pill r">Overdue</span></td><td><span class="wire-btn">Pay now</span></td></tr>
+          <tr><td>School trip</td><td>Amina</td><td>£35</td><td>20 Jun</td><td><span class="wire-pill a">Outstanding</span></td><td><span class="wire-btn">Pay now</span></td></tr>
+          <tr><td>Term 2 tuition</td><td>Amina</td><td>£250</td><td>01 Mar</td><td><span class="wire-pill g">Paid</span></td><td>Receipt</td></tr>
+        </table>
+        <div class="wire-panel" style="margin-top:0.5rem;font-size:0.72rem;"><h4>School Admin — create fee</h4>Parent ▾ · Child ▾ · Title · Amount £ · Due date · <span class="wire-btn">Create fee item</span></div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>School Admin creates fee items assigned to parent+child. Parent pays via Stripe Checkout. Payment webhook marks FeeItem paid and stores receipt reference.</div>
+      <div class="note"><b>Pay now</b>Creates Stripe Checkout session with line item amount. Redirect back to /payments/success/ or cancel URL.</div>
+      <div class="note"><b>Status pills</b>Overdue (past due), Outstanding (future due), Paid (completed). Paid rows show Receipt link.</div>
+      <div class="note"><b>School subscription</b>Separate from parent fees — School Admin pays ESA platform via Subscription page (screen #2).</div>
+      <div class="note"><b>Stripe Connect</b>Premium schools connect Stripe account so fee payments route to school (documented in README deployment section).</div>
+      <div class="note-warn"><b>Tenant scope</b>Parent only sees fees for linked children at their school.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 18 ANALYTICS -->
+<section class="screen" id="s18">
+  <div class="screen-head">
+    <h2>18. Analytics dashboard</h2>
+    <p class="screen-meta"><strong>URL:</strong> /analytics/ &nbsp;|&nbsp; <strong>Roles:</strong> School Admin (school data) · Super Admin (platform data)</p>
+  </div>
+  <div class="screen-body">
+    <div class="wire">
+      <div class="wire-bar"><span class="logo">ESA</span></div>
+      <div style="padding:0.75rem;">
+        <h3>School analytics — Al-Noor Academy</h3>
+        <div class="wire-kpis">
+          <div class="wire-kpi"><b>94%</b>Attendance rate</div>
+          <div class="wire-kpi"><b>47</b>Hifz sign-offs</div>
+          <div class="wire-kpi"><b>82%</b>Homework on time</div>
+          <div class="wire-kpi"><b>£3,800</b>Fees collected</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div class="wire-canvas" style="height:90px;">[ Attendance trend — term ]</div>
+          <div class="wire-canvas" style="height:90px;">[ Hifz sign-offs by month ]</div>
+          <div class="wire-canvas" style="height:90px;">[ Homework submission rate ]</div>
+          <div class="wire-canvas" style="height:90px;">[ Fee collection vs outstanding ]</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes-col">
+      <div class="note-info"><b>Feature purpose</b>Leadership view of school health. Aggregates attendance registers, Hifz sign-offs, worksheet submissions, and payments. Premium tier feature.</div>
+      <div class="note"><b>KPI tiles</b>Calculated from live DB queries scoped to school_id. Updated on page load (not real-time websocket).</div>
+      <div class="note"><b>Chart placeholders</b>Term-over-term comparison. Wireframe shows intent; live site may show tables if charts not fully implemented.</div>
+      <div class="note"><b>Data sources</b>Attendance → AttendanceRecord. Hifz → HifzSignOff count. Homework → submission due dates vs submit time. Fees → Payment totals.</div>
+      <div class="note"><b>Super Admin analytics</b>Same layout but cross-tenant aggregates — total schools, platform MRR, sign-up trend.</div>
+    </div>
+  </div>
+</section>
+
+<footer style="text-align:center;padding:2rem;color:#666;font-size:0.85rem;">
+  ESA main wireframe pack · <code>docs/wireframe.html</code> · Print to PDF for submission · See also <a href="https://balsamiq.cloud/so6babk/pveanf2">Balsamiq</a> and <code>docs/ESA-wireframes.pdf</code>
+</footer>
+
+</body>
+</html>

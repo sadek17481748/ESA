@@ -112,7 +112,7 @@ Assessor-facing links and evidence paths:
 | **Live deployment** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
 | **Security overview (public)** | https://esa-project-2a7a33dfe3fc.herokuapp.com/security/ |
 | **Bug tracker (GitHub Project board)** | https://github.com/users/sadek17481748/projects/8/views/1 |
-| **Wireframes (main pack)** | **[`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf)** · [Balsamiq](https://balsamiq.cloud/so6babk/pveanf2) |
+| **Wireframes (main pack)** | **[`docs/wireframe.html`](docs/wireframe.html)** · [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf) · [Balsamiq](https://balsamiq.cloud/so6babk/pveanf2) |
 | **ERD / data model** | [Data model and ERD](#data-model-and-erd-entity-relationships) |
 | **Test credentials** | Showcase: `demo_parent` / `demo_student` / `Demo2026!` — full list in [Demo walkthrough](#demo-walkthrough) and [Assessor and demo logins](#assessor-and-demo-logins) |
 | **Manual test evidence (screenshots)** | `docs/images/manual-testing/` |
@@ -1250,15 +1250,23 @@ As any user, I want the site to meet WCAG AA standards for colour contrast, keyb
 
 ### Main wireframe pack (start here)
 
-**Primary assessor wireframes:** [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf)
+**Detailed wireframes:** [`docs/wireframe.html`](docs/wireframe.html)
 
-Full wireframe pack — 18 screens with detailed annotation boxes explaining every feature, field, button, and role permission. Click the PDF link above to open it in GitHub or any browser (no extra setup required).
+The main wireframe document — **18 screens** with sketch layouts and annotation boxes explaining every feature, field, button, and role permission. Open the file in GitHub (click to view rendered) or locally:
+
+```bash
+python3 -m http.server 8080
+# then open http://127.0.0.1:8080/docs/wireframe.html
+```
+
+**PDF version:** [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf) — same content, convenient for download or printing.
 
 **Other wireframe assets (supplementary):**
 
 | Asset | Link | Notes |
 |-------|------|--------|
-| **Main PDF pack** | [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf) | **Primary** — full feature descriptions in callout boxes |
+| **Detailed wireframe (HTML)** | [`docs/wireframe.html`](docs/wireframe.html) | **Primary** — 18 screens with full feature callouts |
+| PDF export | [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf) | Same pack as PDF |
 | Balsamiq (interactive) | [ESA wireframes — Balsamiq Cloud](https://balsamiq.cloud/so6babk/pveanf2) | Early sketch flows |
 | Legacy root HTML | `*.html` at repo root | Simplified layout prototypes from early design |
 | Older gallery | [`docs/wireframes.html`](docs/wireframes.html) | Earlier single-file gallery |
@@ -1269,7 +1277,7 @@ Full wireframe pack — 18 screens with detailed annotation boxes explaining eve
 
 ### Wireframe inventory
 
-All screens below are documented in detail in **[`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf)** (main pack). Root-level `*.html` files are legacy layout stubs.
+All screens below are documented in detail in **[`docs/wireframe.html`](docs/wireframe.html)** (main pack). Root-level `*.html` files are legacy layout stubs.
 
 | Page | Main pack section | Legacy file | Description |
 |------|-------------------|-------------|-------------|
@@ -1294,7 +1302,7 @@ All screens below are documented in detail in **[`docs/ESA-wireframes.pdf`](docs
 
 ### Wireframe design overview
 
-The **main pack** at [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf) follows a **public → auth → role portal → feature module** hierarchy with annotated callouts on every screen. Marketing pages use a single-column layout; signed-in screens share a **left sidebar** and main workspace so each role sees only relevant modules. Status pills, KPI cards, and data tables map directly to Django templates under `templates/pages/` on the live Heroku deployment.
+The **main pack** at [`docs/wireframe.html`](docs/wireframe.html) follows a **public → auth → role portal → feature module** hierarchy with annotated callouts on every screen. Marketing pages use a single-column layout; signed-in screens share a **left sidebar** and main workspace so each role sees only relevant modules. Status pills, KPI cards, and data tables map directly to Django templates under `templates/pages/` on the live Heroku deployment.
 
 Legacy static HTML at the repo root (`*.html`) and [`docs/wireframes.html`](docs/wireframes.html) are earlier prototypes with less feature detail.
 
@@ -2801,7 +2809,7 @@ Assessors use this table to reach live features, repository assets, and document
 |----------|-------------|
 | **Live deployment** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
 | **GitHub repository** | https://github.com/sadek17481748/ESA |
-| **Wireframes (main — start here)** | [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf) |
+| **Wireframes (main — start here)** | [`docs/wireframe.html`](docs/wireframe.html) |
 | **Wireframes (PDF)** | docs/ESA-wireframes.pdf |
 | **Wireframes (Balsamiq)** | https://balsamiq.cloud/so6babk/pveanf2 |
 | **ERD / data model** | README Data model and ERD section |

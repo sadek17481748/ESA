@@ -16,6 +16,5 @@ db.sqlite3
 # Static collection
 staticfiles/
 
-# Local wireframe source (not committed — export to PDF for repo)
-docs/wireframe.html
-
+# Media uploads
+media/
