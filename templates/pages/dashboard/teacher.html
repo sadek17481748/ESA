@@ -15,9 +15,8 @@
       </li>
       {% endfor %}
     </ul>
-    {% elif primary_class %}
-    <p>Take attendance for homeroom <strong>{{ primary_class.name }}</strong>.</p>
-    <p style="margin-top:0.75rem;"><a class="btn-primary" href="{% url 'pages:attendance' %}?class={{ primary_class.pk }}">Open register</a></p>
+    {% elif teacher_classes %}
+    <p style="margin-top:0.75rem;font-size:0.88rem;color:var(--muted);">Open a lesson from your timetable below to take the register.</p>
     {% else %}
     <p>No lessons assigned yet. Ask your school admin to add you to a class timetable.</p>
     {% endif %}

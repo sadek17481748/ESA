@@ -10,7 +10,7 @@
   <div class="attendance-head">
     <div>
       <h2 style="margin:0;font-size:1.1rem;">Class register</h2>
-      <p class="lead" style="margin:0.35rem 0 0;">Mark each student present, late, or absent.</p>
+      <p class="lead" style="margin:0.35rem 0 0;">Mark any student in your school for this lesson.</p>
       {% if lesson_subject and class_group %}
       <p class="lesson-context" style="margin:0.5rem 0 0;font-size:0.9rem;color:var(--gold);"><strong>{{ lesson_subject }}</strong> — {{ class_group.name }}</p>
       {% endif %}
@@ -44,20 +44,21 @@
     {% csrf_token %}
     <input type="hidden" name="class" value="{{ class_group.pk }}">
     <input type="hidden" name="date" value="{{ session_date|date:'Y-m-d' }}">
-    <p class="lead" style="margin:1rem 0 0.75rem;"><strong>{{ class_group.name }}</strong>{% if lesson_subject %} — {{ lesson_subject }}{% endif %} — {{ register.student_count }} students</p>
+    <p class="lead" style="margin:1rem 0 0.75rem;"><strong>{{ class_group.name }}</strong>{% if lesson_subject %} — {{ lesson_subject }}{% endif %} — {{ register.student_count }} students in school</p>
     <div class="table-wrap">
       <table class="data-table attendance-register-table">
-        <thead><tr><th>Student</th><th>Present</th><th>Late</th><th>Absent</th></tr></thead>
+        <thead><tr><th>Student</th><th>Class</th><th>Present</th><th>Late</th><th>Absent</th></tr></thead>
         <tbody>
           {% for row in register.rows %}
           <tr>
             <td><strong>{{ row.student.full_name }}</strong></td>
+            <td>{% if row.class_group %}{{ row.class_group.name }}{% else %}—{% endif %}</td>
             <td><label class="attendance-radio"><input type="radio" name="status_{{ row.student.pk }}" value="present"{% if row.status == 'present' %} checked{% endif %}></label></td>
             <td><label class="attendance-radio"><input type="radio" name="status_{{ row.student.pk }}" value="late"{% if row.status == 'late' %} checked{% endif %}></label></td>
             <td><label class="attendance-radio"><input type="radio" name="status_{{ row.student.pk }}" value="absent"{% if row.status == 'absent' %} checked{% endif %}></label></td>
           </tr>
           {% empty %}
-          <tr><td colspan="4" class="placeholder-row">No students enrolled in this class.</td></tr>
+          <tr><td colspan="5" class="placeholder-row">No students in this school yet.</td></tr>
           {% endfor %}
         </tbody>
       </table>
