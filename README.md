@@ -112,22 +112,113 @@ Assessor-facing links and evidence paths:
 | **Live deployment** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
 | **Security overview (public)** | https://esa-project-2a7a33dfe3fc.herokuapp.com/security/ |
 | **Bug tracker (GitHub Project board)** | https://github.com/users/sadek17481748/projects/8/views/1 |
-| **Wireframes (README anchor)** | [Wireframes](#wireframes) · [PDF pack](docs/ESA-wireframes.pdf) · [Balsamiq](https://balsamiq.cloud/so6babk/pveanf2) |
+| **Wireframes (main pack)** | **[`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf)** · [Balsamiq](https://balsamiq.cloud/so6babk/pveanf2) |
 | **ERD / data model** | [Data model and ERD](#data-model-and-erd-entity-relationships) |
-| **Test credentials** | `schooladmin` / `admin1234`, `parent_demo` / `demo1234`, `teacher_demo` / `teacher1234` — run `seed_rbac_users` on Heroku |
+| **Test credentials** | Showcase: `demo_parent` / `demo_student` / `Demo2026!` — full list in [Demo walkthrough](#demo-walkthrough) and [Assessor and demo logins](#assessor-and-demo-logins) |
 | **Manual test evidence (screenshots)** | `docs/images/manual-testing/` |
 | **Validation evidence** | `docs/images/validation/` |
-| **Sprint checklist** | Follow the delivery timeline under [Planning notes](#planning-notes-written-at-project-start) |
+| **Sprint checklist** | [Delivery timeline (May → July)](#delivery-timeline-may--july) and [Scope creep](#scope-creep--what-changed-and-why) |
 
 ### Demo walkthrough
 
-A short assessor path on the live site:
+Use the [live deployment](https://esa-project-2a7a33dfe3fc.herokuapp.com/accounts/login/) with the logins below. Each account lands on a role-specific dashboard; the **sidebar** lists every feature that role can open. Explore in any order — the notes describe what is already seeded and what you can verify for yourself.
 
-1. Open the [live deployment](https://esa-project-2a7a33dfe3fc.herokuapp.com/) and browse the home carousel.
-2. Log in as `schooladmin` / `admin1234` — confirm the School Admin dashboard and sidebar links load.
-3. Log out, then log in as `parent_demo` / `demo1234` — open **Payments** and confirm only that parent's fees appear.
-4. Log in as `teacher_demo` / `teacher1234` — open **Attendance** or **Homework** and confirm teacher-only actions are visible.
-5. Log in as `super` / `super1234` — confirm the Super Admin schools overview is reachable.
+Demo data lives on **Al-Noor Academy**. Run `python manage.py seed_showcase_account` locally, or `heroku run python manage.py seed_showcase_account -a esa-project` on Heroku, if an account looks empty.
+
+#### Recommended — one linked family (parent + student)
+
+Best for testing the full parent/student experience in a single class (**7A**, student **Amina Hassan**).
+
+| Role | Username | Password |
+|------|----------|----------|
+| Parent | `demo_parent` | `Demo2026!` |
+| Student | `demo_student` | `Demo2026!` |
+
+**What is already set up**
+
+| Area | Parent (`demo_parent`) | Student (`demo_student`) |
+|------|------------------------|--------------------------|
+| **Dashboard** | Linked child shown on overview | Class **7A** timetable and this week's cards |
+| **Attendance** | Last 7 days marked (present, late, absent) | Same register visible on student view |
+| **Behaviour** | Commendation and incident for Amina | — |
+| **Payments** | Term 3 fee outstanding + Term 2 marked paid | — |
+| **Messages** | Thread with teacher; school office reply; support case | — |
+| **Reports** | Spring term teacher report for Amina | — |
+| **Hifz** | Juz 1–3 signed off (congratulations messages sent) | Own juz progress list |
+| **Homework** | — | Signed-off maths submission |
+| **Exams** | — | Finalised maths result with teacher comment |
+| **Qur'an** | — | Mushaf session with page notes and highlights |
+| **LMS / worksheets** | — | Completed fractions worksheet (approved) |
+| **Notifications** | Sign-off, attendance, and general alerts | Homework approved alert |
+
+**How to test it yourself**
+
+- Log in as **`demo_parent`** and check each sidebar area matches the table — fees, messages, reports, and Hifz sign-offs should all relate to **Amina Hassan** only.
+- Log in as **`demo_student`** and confirm timetable, homework, exams, Qur'an, and LMS content loads for the same child.
+- Switch between parent and student to confirm data is consistent (e.g. Hifz juz signed off by teacher appears on both accounts).
+
+#### Teacher — classes, registers, sign-offs, Qur'an
+
+| Username | Password |
+|----------|----------|
+| `mr_mohammed` | `teacher1234` |
+
+**What you can explore**
+
+| Feature | What to look for |
+|---------|------------------|
+| **Attendance** | School-wide student list for registers; marks save per class session (Quran slots on **7A** timetable) |
+| **Qur'an** | Mushaf PDF viewer — page through juz PDFs, add per-page notes, drag highlights (teacher only) |
+| **Hifz sign-off** | Pick any student + juz → **Student has passed** sends a congratulations message to the linked parent |
+| **Homework / worksheets** | Assignments for timetabled classes; sign-off approve/reject on submissions |
+| **Exams** | Published exams; mark written answers; **Finalise** so parents and students see results |
+| **Behaviour** | Log commendations or incidents for any student in the school |
+| **Messages** | Send to parents or school office; structured progress reports |
+
+Teachers are **not** locked to a homeroom — timetable slots control which lessons appear on **My timetable**, but registers and behaviour use the full school student list.
+
+#### School admin — tenant setup
+
+| Username | Password |
+|----------|----------|
+| `schooladmin` | `admin1234` |
+
+**What you can explore**
+
+| Feature | What to look for |
+|---------|------------------|
+| **Students / teachers** | Add staff, issue parent link codes, bulk class structure (**7A–11B** after full seed) |
+| **Timetable hub** | Create timetables, drag subjects onto the grid, assign teachers, archive live timetables |
+| **LMS** | Subjects, tracks, uploaded materials assigned to classes |
+| **Payments** | School fee setup; Stripe Connect onboarding for payouts |
+| **Analytics** | School KPIs — attendance, fees, behaviour overview |
+| **Messages** | Inbox across all school conversations; student search by name |
+
+#### Super admin — platform-wide
+
+| Username | Password |
+|----------|----------|
+| `super` | `super1234` |
+
+**What you can explore**
+
+| Feature | What to look for |
+|---------|------------------|
+| **Schools overview** | All tenants on the platform (not scoped to one school) |
+| **Support inbox** | Platform support cases opened by parents |
+| **Subscriptions** | School plan tiers across tenants |
+
+#### Other demo accounts
+
+| Role | Username | Password | Use when |
+|------|----------|----------|----------|
+| Teacher (generic) | `teacher_demo` | `teacher1234` | RBAC smoke test on Al-Noor |
+| Parent (generic) | `parent_demo` | `demo1234` | Quick fee/payment check |
+| Student (generic) | `student_demo` | `student1234` | Basic student portal |
+| Parent + student (examples) | `test_parent` / `test_student` | `test1234` | Messaging and LMS examples |
+| Bulk school (300+ logins) | `parent_7a_01` / `student_7a_01` | `parent1234` / `student1234` | Full-school seed; see `docs/alnoor-academy-logins.csv` |
+
+All seeded demo accounts skip email verification. Real registrations require the six-digit code at `/accounts/verify-email/`.
 
 ---
 ## Navigating the website
