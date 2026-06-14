@@ -1341,30 +1341,132 @@ The diagram above and the [Lucidchart source](https://lucid.app/lucidchart/62056
 
 ### Visual language
 
-- Modern, minimal dashboard UI with clear spacing and consistent components.
-- **Arabic design inspiration**: subtle geometric patterns (e.g. mashrabiya / mosaic motifs) in headers, dividers, and section breaks — used sparingly so content stays scannable.
+ESA looks and feels like a **modern school dashboard** — calm, dark, and professional. The design goal is that a parent, teacher, or admin can open any page and **recognise it as the same product** without relearning where things are.
 
-### Colour palette
+#### Overall look and feel
 
-The UI theme is **black, white, and hints of gold**:
+| Quality | What it means on ESA |
+|---------|----------------------|
+| **Dark theme** | Near-black backgrounds reduce glare on long admin sessions; content sits on slightly lighter panels so sections are easy to scan |
+| **Gold accents** | Used sparingly for actions and highlights — links, primary buttons, active sidebar item, section accent bars. Gold reads as **premium and Islamic-school appropriate** without filling the whole screen |
+| **Generous spacing** | Panels, cards, and form fields have padding and line-height (~1.55) so text is not cramped — important on tablet |
+| **Consistent shell** | Same header, sidebar, page title, and footer on every signed-in page |
+| **Subtle geometry** | A thin gold stripe pattern in the header (`header-geometry`) echoes Islamic tile/mashrabiya motifs — decorative only, never behind body text |
+| **No clutter** | One primary action per panel (gold button); secondary actions use outline buttons; status uses small pills not loud banners |
 
-- **Black / near-black** — primary background and primary navigation.
-- **White / off-white** — content surfaces and high-contrast body text on dark areas.
-- **Gold (accent)** — sparing use for primary actions, focus rings, active nav states, and key metrics.
+#### Layout patterns
 
-CSS variables and component tokens are defined in `css/base.css`; contrast targets WCAG AA.
+| Pattern | Where it appears | Purpose |
+|---------|------------------|---------|
+| **Marketing / auth** | Home, login, register | Centred single column (`main-single` max 560px) — focus on one task |
+| **Wide marketing** | Subscription, security page | `main-wide` up to 1200px — pricing grids, feature cards |
+| **Portal shell** | All dashboards and features | Sticky header + 240px sidebar + scrollable main (`app-shell`) |
+| **Panel** | Most feature pages | Rounded card with border — groups one topic (attendance register, fee list) |
+| **Accent bar** | Under section headings | Short gold gradient line — visual break between sections |
+| **Grid cards** | Dashboard overviews | Responsive card grid for KPIs and quick stats |
 
-### Teacher sign-off & verification (product requirement)
+All of this is defined in **`css/base.css`** and shared by static wireframes (`*.html` at repo root) and Django templates (`templates/`) so the **wireframes and live site match**.
 
-- **Hifz**: surah/lesson status moves to *Completed* only after teacher sign-off.
-- **Homework / worksheets**: submissions move through pending → approved/rejected with teacher id and timestamp.
-- **Exams**: results are **official** only when a teacher finalises (signs off) the record.
-- **Security**: sign-off actions require **password re-entry**; each sign-off creates an **AuditLog** entry.
-- **Analytics**: parent dashboards and school reports prioritise **signed-off / finalised** data.
+### Colour palette and CSS tokens
+
+ESA uses a **black, white, and gold** scheme. Colours are stored as **CSS variables** in `:root` so the whole site stays consistent — change one token and buttons, links, and borders update together.
+
+#### Core tokens
+
+| Token | Hex / value | Role |
+|-------|-------------|------|
+| `--bg` | `#0a0a0a` | Page background — deepest black |
+| `--surface` | `#121212` | Panels, cards, sidebar background |
+| `--surface-up` | `#1a1a1a` | Raised cards, table footers, nested blocks |
+| `--text` | `#f5f5f0` | Primary body text — warm off-white |
+| `--muted` | `#9c9c8e` | Secondary text, labels, footer, inactive nav |
+| `--gold` | `#c9a227` | **Primary accent** — links, buttons, active nav, focus rings |
+| `--gold-soft` | `rgba(201, 162, 39, 0.15)` | Hover backgrounds on outline buttons and highlights |
+| `--border` | `#2c2c28` | Panel borders, table lines, dividers |
+| `--radius` | `10px` | Corner rounding on panels, buttons, inputs |
+
+#### Accent and state colours
+
+| Use | Colour | Where |
+|-----|--------|-------|
+| **Primary button hover** | `#e6c04a` | Slightly brighter gold on `.btn-primary:hover` |
+| **Success / OK pill** | `#6fcf97` (green text) | Positive status badges (`.pill-ok`) |
+| **Warning pill** | `#e57373` (soft red text) | Alerts or caution badges (`.pill-warn`) |
+| **Header geometry** | `#8a7020` stripes | Decorative bar under site header |
+| **Qur'an viewer canvas** | `#f8f6f0` (light parchment) | Mushaf PDF background only — readable paper tone inside the viewer |
+
+Gold is **intentionally limited**. Large areas stay dark or neutral so gold draws the eye to **what to do next** (Save, Pay now, Student has passed).
+
+#### Why this palette
+
+1. **Readable on laptop/tablet** — high contrast between off-white text and dark surfaces (targets WCAG AA).
+2. **Appropriate for Islamic schools** — gold accent is familiar in madrasah branding without using religious imagery in the UI.
+3. **Professional SaaS feel** — dark dashboards are common in admin tools; parents still get clear fee and message screens.
+4. **One source of truth** — assessors can open `css/base.css` lines 13–25 and see every token documented.
+
+### How colour is used across the UI
+
+| UI element | Background | Text / border | Notes |
+|------------|------------|---------------|-------|
+| **Page** | `--bg` | `--text` | Full viewport |
+| **Panel / form area** | `--surface` | `--text` | Main content containers |
+| **Sidebar** | `--surface` | `--muted` links; **gold** when active | `aria-current="page"` gets gold tint |
+| **Primary button** | `--gold` | `--bg` (dark text on gold) | Main actions only |
+| **Outline button** | transparent | `--gold` border + text | Secondary actions (Cancel, archive) |
+| **Links in body** | — | `--gold` | Underline on hover |
+| **Data tables** | `--surface` | `--text` with `--border` row lines | Header row slightly emphasized |
+| **Form inputs** | dark surface | `--text` | Gold focus ring via `:focus-visible` |
+| **Flash messages** | `--gold-soft` | `--text` | Success/info after save |
+| **Subscription tiers** | card on `--surface-up` | Free = muted; Standard/Premium = gold | `.pill-tier-*` classes |
+| **Skip link** | `--gold` | `--bg` | Accessibility — visible on keyboard focus |
+
+#### Qur'an highlighter colours (teacher only)
+
+Teachers pick a highlight colour when marking the mushaf PDF. Defaults in the viewer:
+
+| Swatch | Hex | Typical use |
+|--------|-----|-------------|
+| Yellow | `#fff59d` | General revision mark |
+| Green | `#a5d6a7` | Memorisation strong |
+| Blue | `#90caf9` | Tajweed note |
+| Pink | `#f48fb1` | Area needing practice |
+
+These are **content markup colours** inside the PDF viewer only — they do not change the global site theme.
 
 ### Typography
 
-- Fonts will be chosen to support English + Arabic readability (to be finalised).
+ESA uses **system fonts** — no custom webfont downloads — so pages load fast on school networks and respect each device's native readability settings.
+
+| Setting | Value | Why |
+|---------|-------|-----|
+| **Font stack** | `system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif` | Looks native on Windows, Mac, Android, iOS |
+| **Base size** | `16px` on `html` | Comfortable default; avoids mobile browser zoom on form focus |
+| **Body line-height** | `1.55` | Extra space between lines for long reports and messages |
+| **Page title (`h1`)** | ~1.65rem, semibold | Clear page identity at top of main content |
+| **Card headings (`h2`)** | ~0.95rem, gold, semibold | Smaller labels inside dashboard cards |
+| **Brand mark** | Bold, wide letter-spacing (`0.2em`) | "ESA" in header — distinct but minimal |
+| **Brand tag / eyebrow** | Small caps, muted, `0.68rem` | Role or school name under logo |
+
+**Arabic Qur'an text** in the mushaf viewer is rendered inside the **PDF** (embedded Arabic typeface in the juz files), not via a separate web font on the page. English UI labels remain LTR; RTL Arabic support for the portal chrome is noted for a future phase.
+
+### UI components
+
+Reusable classes keep the visual language consistent:
+
+| Component | Class | Appearance |
+|-----------|-------|------------|
+| **Panel** | `.panel` | Dark card with border and 10px radius — wraps most page content |
+| **Accent bar** | `.accent-bar` | 3rem × 3px gold gradient under headings |
+| **Primary button** | `.btn-primary` | Solid gold, dark text |
+| **Secondary button** | `.btn-outline` | Gold border, transparent fill |
+| **Form field** | `.form-input` | Full-width inputs in `.field` stacks |
+| **Status pill** | `.pill`, `.pill-ok`, `.pill-warn` | Small rounded badges for status/tier |
+| **Dashboard card** | `.card` | Nested block inside `.grid-cards` |
+| **KPI card** | `.kpi-card`, `.stat-card` | Analytics and home overview numbers |
+| **Data table** | `.data-table` inside `.table-wrap` | Scrollable on narrow screens |
+| **School banner** | `.portal-school-banner` | Shows school name + plan tier at top of portal |
+
+New pages should **reuse these classes** rather than inventing new colours — that keeps the assessor experience consistent across attendance, fees, Hifz, and messaging.
 
 ### Accessibility
 
