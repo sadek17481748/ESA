@@ -374,11 +374,67 @@ class WebAuthTests(TestCase):
 
 class AttendancePortalTests(TestCase):
     def setUp(self):
+        from datetime import time
+
+        from subjects.models import Subject
+        from teachers.models import TeacherProfile
+        from timetable.models import Timetable, TimetableSlot
+
         call_command('ensure_platform_seed')
         self.school = School.objects.get(name='Al-Noor Academy')
         self.admin = User.objects.get(username='schooladmin')
         self.teacher = User.objects.get(username='mr_mohammed')
+        self.teacher_profile = TeacherProfile.objects.get(user=self.teacher)
         self.class_group = ClassGroup.objects.filter(school=self.school).first()
+        self.subject = Subject.objects.filter(school=self.school).first()
+        if not self.subject:
+            self.subject = Subject.objects.create(school=self.school, name='Maths', code='MAT')
+        self.timetable = Timetable.objects.create(
+            school=self.school,
+            name='Attendance test',
+            class_group=self.class_group,
+        )
+        TimetableSlot.objects.create(
+            school=self.school,
+            timetable=self.timetable,
+            class_group=self.class_group,
+            subject=self.subject,
+            teacher=self.teacher_profile,
+            weekday=0,
+            start_time=time(8, 30),
+            end_time=time(9, 15),
+        )
+
+    def test_teacher_without_timetable_slot_cannot_access_class(self):
+        from teachers.models import TeacherProfile
+        from timetable.models import TimetableSlot
+
+        other_teacher = User.objects.create_user(
+            username='other_teacher',
+            email='other@esa.demo',
+            password='teacher1234',
+            role='teacher',
+            school=self.school,
+        )
+        profile = TeacherProfile.objects.create(user=other_teacher, school=self.school, subject='Science')
+        self.class_group.teacher = profile
+        self.class_group.save(update_fields=['teacher'])
+        self.client.force_login(other_teacher)
+        response = self.client.get(
+            reverse('pages:attendance') + f'?class={self.class_group.pk}',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No classes assigned yet')
+
+    def test_teacher_register_lists_all_school_students(self):
+        self.client.force_login(self.teacher)
+        response = self.client.get(
+            reverse('pages:attendance') + f'?class={self.class_group.pk}',
+        )
+        self.assertEqual(response.status_code, 200)
+        student_count = StudentProfile.objects.filter(school=self.school, is_active=True).count()
+        self.assertGreater(student_count, 0)
+        self.assertContains(response, f'{student_count} students in school')
 
     def test_school_admin_attendance_overview(self):
         self.client.force_login(self.admin)
@@ -483,7 +539,7 @@ class TeacherTimetablePortalTests(TestCase):
         call_command('seed_alnoor_full_school')
         school = School.objects.get(name='Al-Noor Academy')
         self.assertTrue(
-            StudentProfile.objects.filter(school=school, admission_number='Y7A-001').exists()
+            StudentProfile.objects.filter(school=school, admission_number='7A-001').exists()
         )
         from django.contrib.auth import get_user_model
         User = get_user_model()
