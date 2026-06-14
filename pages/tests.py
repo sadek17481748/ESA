@@ -467,6 +467,15 @@ class TeacherTimetablePortalTests(TestCase):
         self.assertContains(response, 'My timetable')
         self.assertNotContains(response, 'Save timetable')
 
+    def test_break_subject_always_available(self):
+        from subjects.models import Subject
+        from pages.timetable_service import ensure_school_subjects, list_school_subjects
+
+        ensure_school_subjects(self.school)
+        names = [s.name for s in list_school_subjects(self.school)]
+        self.assertIn('Break', names)
+        self.assertEqual(names[0], 'Break')
+
     def test_teacher_register_link_from_timetable_slot(self):
         self.client.force_login(self.teacher_user)
         url = (

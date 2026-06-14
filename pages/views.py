@@ -70,6 +70,7 @@ from .timetable_service import (
     list_live_timetables,
     list_school_subjects,
     list_timetables,
+    periods_for_timetable_builder,
     rename_timetable,
     save_timetable,
     teacher_portal_context,
@@ -396,10 +397,14 @@ def page_timetable(request):
 
     subjects = list_school_subjects(school) if school and view_mode == 'build' else []
 
-    periods = [
-        {'start': s.strftime('%H:%M'), 'end': e.strftime('%H:%M'), 'label': s.strftime('%H:%M')}
-        for s, e in PERIODS
-    ]
+    periods = (
+        periods_for_timetable_builder(timetable)
+        if view_mode == 'build'
+        else [
+            {'start': s.strftime('%H:%M'), 'end': e.strftime('%H:%M'), 'label': s.strftime('%H:%M')}
+            for s, e in PERIODS
+        ]
+    )
     weekday_labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
     page_meta = {

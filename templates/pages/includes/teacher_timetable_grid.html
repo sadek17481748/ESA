@@ -11,11 +11,15 @@
         {% for slot in row.cells %}
         <td class="timetable-cell-readonly">
           {% if slot %}
+          {% if slot.is_break %}
+          <span class="teacher-slot-break"><strong>Break</strong></span>
+          {% else %}
           <a class="teacher-slot-link" href="{% url 'pages:attendance' %}?class={{ slot.class_group_id }}&amp;subject={{ slot.subject_name|urlencode }}">
             <strong>{{ slot.subject_name }}</strong>
             <span class="teacher-slot-class">{{ slot.class_name }}</span>
             <span class="teacher-slot-action">Take register →</span>
           </a>
+          {% endif %}
           {% endif %}
         </td>
         {% endfor %}

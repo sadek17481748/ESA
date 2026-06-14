@@ -12,6 +12,7 @@ from teachers.models import TeacherProfile
 from timetable.models import Timetable, TimetableSlot
 
 STANDARD_SUBJECTS = (
+    ('Break', Subject.TRACK_GENERAL, 'BRK'),
     ('English', Subject.TRACK_GENERAL, 'ENG'),
     ('Maths', Subject.TRACK_GENERAL, 'MAT'),
     ('Science', Subject.TRACK_GENERAL, 'SCI'),
@@ -45,7 +46,9 @@ def ensure_school_subjects(school):
 
 def list_school_subjects(school):
     ensure_school_subjects(school)
-    return Subject.objects.filter(school=school, is_active=True).order_by('name')
+    subjects = list(Subject.objects.filter(school=school, is_active=True))
+    subjects.sort(key=lambda s: (0 if s.name == 'Break' else 1, s.name.lower()))
+    return subjects
 
 
 def list_school_teachers(school):
@@ -169,8 +172,40 @@ def build_timetable_grid(timetable):
             'teacher_id': slot.teacher_id,
             'teacher_name': teacher_display(slot.teacher),
             'room': slot.room,
+            'end_time': slot.end_time.strftime('%H:%M'),
         }
     return slots
+
+
+def periods_for_timetable_builder(timetable=None):
+    """Default rows plus any custom start/end times already saved on this timetable."""
+    period_map = {s.strftime('%H:%M'): e.strftime('%H:%M') for s, e in PERIODS}
+    if timetable:
+        for slot in TimetableSlot.objects.filter(timetable=timetable):
+            period_map[slot.start_time.strftime('%H:%M')] = slot.end_time.strftime('%H:%M')
+    return [
+        {'start': start, 'end': end, 'label': start}
+        for start, end in sorted(period_map.items())
+    ]
+
+
+def periods_for_slot_list(slots):
+    """Read-only grids: rows from actual slot times (falls back to defaults when empty)."""
+    if not slots:
+        return _period_rows()
+    period_map = {}
+    for slot in slots:
+        start = slot.start_time.strftime('%H:%M')
+        end = slot.end_time.strftime('%H:%M')
+        period_map[start] = end
+    return [
+        {'start': start, 'end': end, 'label': start}
+        for start, end in sorted(period_map.items())
+    ]
+
+
+def is_break_subject(name):
+    return (name or '').strip().lower() == 'break'
 
 
 def teacher_assigned_slots(teacher_profile, school):
@@ -212,6 +247,7 @@ def teacher_portal_context(teacher_profile, school):
     if not slots:
         return empty
 
+    periods = periods_for_slot_list(slots)
     grid = {}
     for slot in slots:
         key = (slot.weekday, slot.start_time.strftime('%H:%M'))
@@ -220,6 +256,7 @@ def teacher_portal_context(teacher_profile, school):
             'subject_name': slot.subject.name,
             'class_group_id': slot.class_group_id,
             'class_name': slot.class_group.name,
+            'is_break': is_break_subject(slot.subject.name),
         }
 
     grid_json = {f'{w}-{t}': v for (w, t), v in grid.items()}
@@ -239,9 +276,10 @@ def teacher_portal_context(teacher_profile, school):
             'class_name': slot.class_group.name,
             'class_group_id': slot.class_group_id,
             'time_label': slot.start_time.strftime('%H:%M'),
+            'is_break': is_break_subject(slot.subject.name),
         }
         for slot in slots
-        if slot.weekday == today_weekday
+        if slot.weekday == today_weekday and not is_break_subject(slot.subject.name)
     ]
 
     return {
@@ -249,7 +287,10 @@ def teacher_portal_context(teacher_profile, school):
         'timetable_rows': timetable_rows,
         'periods': periods,
         'weekday_labels': weekday_labels,
-        'subjects': sorted({slot.subject.name for slot in slots}),
+        'subjects': sorted({
+            slot.subject.name for slot in slots
+            if not is_break_subject(slot.subject.name)
+        }),
         'today_slots': today_slots,
         'slot_count': len(slots),
     }

@@ -2,7 +2,13 @@
 from academics.models import ClassEnrollment, ClassGroup
 from students.models import StudentProfile
 
-from .timetable_service import PERIODS, build_timetable_grid, list_live_timetables
+from .timetable_service import (
+    PERIODS,
+    build_timetable_grid,
+    is_break_subject,
+    list_live_timetables,
+    periods_for_slot_list,
+)
 
 
 def enroll_student(student, class_group):
@@ -71,11 +77,12 @@ def student_portal_context(student):
         )
 
     grid = build_timetable_grid(timetable) if timetable else {}
-    grid_json = {f'{w}-{t}': v for (w, t), v in grid.items()}
-    periods = [
+    slot_list = list(timetable.slots.select_related('subject').order_by('weekday', 'start_time')) if timetable else []
+    periods = periods_for_slot_list(slot_list) if slot_list else [
         {'start': s.strftime('%H:%M'), 'end': e.strftime('%H:%M'), 'label': s.strftime('%H:%M')}
         for s, e in PERIODS
     ]
+    grid_json = {f'{w}-{t}': v for (w, t), v in grid.items()}
     weekdays = list(range(7))
     timetable_rows = []
     for period in periods:
@@ -83,7 +90,10 @@ def student_portal_context(student):
             'label': period['label'],
             'cells': [grid_json.get(f'{wd}-{period["start"]}') for wd in weekdays],
         })
-    subject_names = sorted({v['subject_name'] for v in grid_json.values()})
+    subject_names = sorted({
+        v['subject_name'] for v in grid_json.values()
+        if not is_break_subject(v.get('subject_name'))
+    })
 
     return {
         'class_group': class_group,

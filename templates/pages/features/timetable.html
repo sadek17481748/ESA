@@ -231,7 +231,7 @@
       <p class="sidebar-title">Subjects — drag onto grid</p>
       <div id="subject-palette">
         {% for subject in subjects %}
-        <div class="lesson-chip" draggable="true" data-subject-id="{{ subject.pk }}" data-subject-name="{{ subject.name }}">{{ subject.name }}</div>
+        <div class="lesson-chip{% if subject.name == 'Break' %} break-chip{% endif %}" draggable="true" data-subject-id="{{ subject.pk }}" data-subject-name="{{ subject.name }}">{{ subject.name }}</div>
         {% endfor %}
       </div>
       <details class="subject-create-panel">
@@ -253,7 +253,7 @@
           <p id="subject-create-status" class="lead" style="font-size:0.82rem;margin:0.35rem 0 0;"></p>
         </form>
       </details>
-      <p class="lead" style="font-size:0.82rem;margin-top:1rem;">Double-click a cell to clear it.</p>
+      <p class="lead" style="font-size:0.82rem;margin-top:1rem;">Edit start/end times on each row. Double-click a cell to clear it.</p>
     </aside>
 
     <div class="timetable-grid-wrap">
@@ -264,10 +264,16 @@
             {% for label in weekday_labels %}<th>{{ label }}</th>{% endfor %}
           </tr>
         </thead>
-        <tbody>
+        <tbody id="timetable-grid-body">
           {% for period in periods %}
-          <tr>
-            <td class="period-label">{{ period.label }}</td>
+          <tr class="period-row">
+            <td class="period-time-cell">
+              <label class="period-time-label">Start</label>
+              <input type="time" class="period-start form-input" value="{{ period.start }}" step="300">
+              <label class="period-time-label">End</label>
+              <input type="time" class="period-end form-input" value="{{ period.end }}" step="300">
+              <button type="button" class="period-remove" title="Remove this row" aria-label="Remove row">×</button>
+            </td>
             {% for wd in weekdays %}
             <td class="timetable-cell" data-weekday="{{ wd }}" data-start="{{ period.start }}" data-end="{{ period.end }}"></td>
             {% endfor %}
@@ -275,6 +281,7 @@
           {% endfor %}
         </tbody>
       </table>
+      <button type="button" id="add-period-row" class="btn-outline" style="margin-top:0.75rem;">+ Add time row</button>
     </div>
   </div>
 
@@ -392,7 +399,12 @@
   const timetableId = {{ timetable.pk }};
   const classGroupId = {{ class_group.pk|default:'null' }};
   const csrfToken = '{{ csrf_token }}';
-  const cells = document.querySelectorAll('.timetable-cell');
+  const weekdays = {{ weekdays|safe }};
+  const gridBody = document.getElementById('timetable-grid-body');
+
+  function getCells() {
+    return document.querySelectorAll('.timetable-cell');
+  }
 
   async function postJson(url, body) {
     const res = await fetch(url, {
@@ -410,6 +422,10 @@
   }
 
   function cellKey(cell) { return cell.dataset.weekday + '-' + cell.dataset.start; }
+
+  function isBreakSubject(name) {
+    return (name || '').trim().toLowerCase() === 'break';
+  }
 
   function teacherOptions(selectedId) {
     let html = '<option value="">— Teacher —</option>';
@@ -430,49 +446,42 @@
 
   function renderCell(cell, data) {
     cell.innerHTML = '';
-    cell.classList.remove('has-lesson');
+    cell.classList.remove('has-lesson', 'has-break');
+    delete cell.dataset.subjectId;
+    delete cell.dataset.subjectName;
+    delete cell.dataset.teacherId;
     if (!data) return;
+
+    const breakLesson = isBreakSubject(data.subject_name);
     cell.classList.add('has-lesson');
+    if (breakLesson) cell.classList.add('has-break');
+
     const chip = document.createElement('div');
-    chip.className = 'lesson-chip placed';
+    chip.className = 'lesson-chip placed' + (breakLesson ? ' break-chip' : '');
     chip.draggable = true;
     chip.dataset.subjectId = data.subject_id;
     chip.dataset.subjectName = data.subject_name;
     chip.textContent = data.subject_name;
-    const teacherSelect = document.createElement('select');
-    teacherSelect.className = 'timetable-teacher-select form-input';
-    teacherSelect.innerHTML = teacherOptions(data.teacher_id);
-    teacherSelect.addEventListener('change', () => { cell.dataset.teacherId = teacherSelect.value; updateSummary(); });
     cell.dataset.subjectId = data.subject_id;
     cell.dataset.subjectName = data.subject_name;
-    cell.dataset.teacherId = data.teacher_id || '';
     cell.appendChild(chip);
-    cell.appendChild(teacherSelect);
+
+    if (!breakLesson) {
+      const teacherSelect = document.createElement('select');
+      teacherSelect.className = 'timetable-teacher-select form-input';
+      teacherSelect.innerHTML = teacherOptions(data.teacher_id);
+      teacherSelect.addEventListener('change', () => {
+        cell.dataset.teacherId = teacherSelect.value;
+        updateSummary();
+      });
+      cell.dataset.teacherId = data.teacher_id || '';
+      cell.appendChild(teacherSelect);
+    }
+
     bindChipDrag(chip, cell);
   }
 
-  cells.forEach(cell => {
-    const key = cellKey(cell);
-    if (gridData[key]) renderCell(cell, gridData[key]);
-  });
-  document.querySelectorAll('#subject-palette .lesson-chip').forEach(chip => bindChipDrag(chip, null));
-
-  function updateSummary() {
-    const list = document.getElementById('saved-summary');
-    if (!list) return;
-    list.innerHTML = '';
-    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    cells.forEach(cell => {
-      if (!cell.dataset.subjectId) return;
-      const teacher = teachers.find(t => String(t.id) === String(cell.dataset.teacherId));
-      const li = document.createElement('li');
-      li.textContent = `${days[cell.dataset.weekday]} ${cell.dataset.start} — ${cell.dataset.subjectName} (${teacher ? teacher.name : 'No teacher'})`;
-      list.appendChild(li);
-    });
-  }
-  updateSummary();
-
-  cells.forEach(cell => {
+  function bindCell(cell) {
     cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
     cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
     cell.addEventListener('drop', e => {
@@ -480,7 +489,7 @@
       cell.classList.remove('drag-over');
       const fromKey = e.dataTransfer.getData('fromCell');
       if (fromKey) {
-        const fromCell = [...cells].find(c => cellKey(c) === fromKey);
+        const fromCell = [...getCells()].find(c => cellKey(c) === fromKey);
         if (fromCell && fromCell !== cell) renderCell(fromCell, null);
       }
       renderCell(cell, {
@@ -491,18 +500,102 @@
       updateSummary();
     });
     cell.addEventListener('dblclick', () => { renderCell(cell, null); updateSummary(); });
+  }
+
+  function syncPeriodRow(row) {
+    const start = row.querySelector('.period-start').value;
+    const end = row.querySelector('.period-end').value;
+    row.querySelectorAll('.timetable-cell').forEach(cell => {
+      cell.dataset.start = start;
+      cell.dataset.end = end;
+    });
+    updateSummary();
+  }
+
+  function bindPeriodRow(row) {
+    row.querySelector('.period-start')?.addEventListener('change', () => syncPeriodRow(row));
+    row.querySelector('.period-end')?.addEventListener('change', () => syncPeriodRow(row));
+    row.querySelector('.period-remove')?.addEventListener('click', () => {
+      const hasLessons = [...row.querySelectorAll('.timetable-cell')].some(c => c.dataset.subjectId);
+      if (hasLessons && !window.confirm('Remove this time row? Lessons in it will be deleted.')) return;
+      row.remove();
+      updateSummary();
+    });
+    row.querySelectorAll('.timetable-cell').forEach(bindCell);
+  }
+
+  function addMinutes(timeValue, minutes) {
+    if (!timeValue) return '09:00';
+    const [h, m] = timeValue.split(':').map(Number);
+    const total = h * 60 + m + minutes;
+    const nh = Math.floor(total / 60) % 24;
+    const nm = total % 60;
+    return String(nh).padStart(2, '0') + ':' + String(nm).padStart(2, '0');
+  }
+
+  function addPeriodRow() {
+    const rows = gridBody.querySelectorAll('.period-row');
+    const last = rows[rows.length - 1];
+    const lastEnd = last?.querySelector('.period-end')?.value || '08:30';
+    const start = addMinutes(lastEnd, 15);
+    const end = addMinutes(start, 45);
+
+    const tr = document.createElement('tr');
+    tr.className = 'period-row';
+    let html = `
+      <td class="period-time-cell">
+        <label class="period-time-label">Start</label>
+        <input type="time" class="period-start form-input" value="${start}" step="300">
+        <label class="period-time-label">End</label>
+        <input type="time" class="period-end form-input" value="${end}" step="300">
+        <button type="button" class="period-remove" title="Remove this row" aria-label="Remove row">×</button>
+      </td>`;
+    weekdays.forEach(wd => {
+      html += `<td class="timetable-cell" data-weekday="${wd}" data-start="${start}" data-end="${end}"></td>`;
+    });
+    tr.innerHTML = html;
+    gridBody.appendChild(tr);
+    bindPeriodRow(tr);
+  }
+
+  document.querySelectorAll('.period-row').forEach(bindPeriodRow);
+  getCells().forEach(cell => {
+    const key = cellKey(cell);
+    if (gridData[key]) renderCell(cell, gridData[key]);
   });
+  document.querySelectorAll('#subject-palette .lesson-chip').forEach(chip => bindChipDrag(chip, null));
+
+  function updateSummary() {
+    const list = document.getElementById('saved-summary');
+    if (!list) return;
+    list.innerHTML = '';
+    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    getCells().forEach(cell => {
+      if (!cell.dataset.subjectId) return;
+      const teacher = teachers.find(t => String(t.id) === String(cell.dataset.teacherId));
+      const li = document.createElement('li');
+      const teacherLabel = isBreakSubject(cell.dataset.subjectName)
+        ? 'Break'
+        : (teacher ? teacher.name : 'No teacher');
+      li.textContent = `${days[cell.dataset.weekday]} ${cell.dataset.start} — ${cell.dataset.subjectName} (${teacherLabel})`;
+      list.appendChild(li);
+    });
+  }
+  updateSummary();
+
+  document.getElementById('add-period-row')?.addEventListener('click', addPeriodRow);
 
   document.getElementById('save-timetable')?.addEventListener('click', async () => {
     const slots = [];
-    cells.forEach(cell => {
+    getCells().forEach(cell => {
       if (!cell.dataset.subjectId) return;
+      const breakLesson = isBreakSubject(cell.dataset.subjectName);
       slots.push({
         weekday: parseInt(cell.dataset.weekday, 10),
         start_time: cell.dataset.start,
         end_time: cell.dataset.end,
         subject_id: parseInt(cell.dataset.subjectId, 10),
-        teacher_id: cell.dataset.teacherId ? parseInt(cell.dataset.teacherId, 10) : null,
+        teacher_id: breakLesson ? null : (cell.dataset.teacherId ? parseInt(cell.dataset.teacherId, 10) : null),
       });
     });
     const status = document.getElementById('save-status');
@@ -513,6 +606,7 @@
       slots,
     });
     status.textContent = ok ? 'Timetable saved.' : 'Could not save — try again.';
+    if (ok) window.location.reload();
   });
 
   document.getElementById('archive-timetable')?.addEventListener('click', async () => {
@@ -532,7 +626,7 @@
     if (!ok) { status.textContent = data.error || 'Could not add subject.'; return; }
     status.textContent = `Added ${data.subject.name}.`;
     const chip = document.createElement('div');
-    chip.className = 'lesson-chip';
+    chip.className = 'lesson-chip' + (isBreakSubject(data.subject.name) ? ' break-chip' : '');
     chip.draggable = true;
     chip.dataset.subjectId = data.subject.id;
     chip.dataset.subjectName = data.subject.name;
