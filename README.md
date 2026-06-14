@@ -1248,53 +1248,55 @@ As any user, I want the site to meet WCAG AA standards for colour contrast, keyb
 ---
 ## Wireframes
 
-The wireframes are built as static HTML/CSS pages at the repository root and are being
-integrated into Django templates under `templates/pages/` for the Heroku deployment.
-Each page represents a key screen and uses the shared stylesheet (`css/base.css`).
+### Main wireframe pack (start here)
 
-**Full wireframe pack (PDF):** [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf)
+**Primary assessor wireframes:** [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf)
 
-**Interactive wireframes (Balsamiq):** [ESA wireframes — Balsamiq Cloud](https://balsamiq.cloud/so6babk/pveanf2)
+Full wireframe pack — 18 screens with detailed annotation boxes explaining every feature, field, button, and role permission. Click the PDF link above to open it in GitHub or any browser (no extra setup required).
+
+**Other wireframe assets (supplementary):**
+
+| Asset | Link | Notes |
+|-------|------|--------|
+| **Main PDF pack** | [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf) | **Primary** — full feature descriptions in callout boxes |
+| Balsamiq (interactive) | [ESA wireframes — Balsamiq Cloud](https://balsamiq.cloud/so6babk/pveanf2) | Early sketch flows |
+| Legacy root HTML | `*.html` at repo root | Simplified layout prototypes from early design |
+| Older gallery | [`docs/wireframes.html`](docs/wireframes.html) | Earlier single-file gallery |
 
 **Site map / user flow:**
 
 ![ESA wireframe site map — homepage through role portals to messaging](docs/wireframe-site-map.png)
 
-To preview the static HTML wireframes locally:
-
-```bash
-python3 -m http.server 8080
-```
-
-Then open http://127.0.0.1:8080/ in a browser.
-
 ### Wireframe inventory
 
-| Page | File | Description |
-|------|------|-------------|
-| Landing / module index | `index.html` | Public-facing landing page with a module overview table listing all platform features. |
-| Subscription plans | `subscription.html` | Pricing page with Free, Standard, and Premium tiers. Schools must subscribe before setup. Includes feature comparison table and how-it-works steps. |
-| Login | `login.html` | Login form with email and password fields and role-aware redirect logic. |
-| Registration | `register.html` | Registration form with name, email, password, and role selection. |
-| Super Admin dashboard | `dashboard-super-admin.html` | Platform-level overview with school count, user count, revenue metrics. |
-| School Admin dashboard | `dashboard-school-admin.html` | School-level overview with student/teacher counts, attendance, fee status. |
-| Teacher dashboard | `dashboard-teacher.html` | Teacher workspace with today's timetable and class-level metrics. |
-| Student dashboard | `dashboard-student.html` | Student portal with lessons, homework deadlines, and Hifz summary. |
-| Parent dashboard | `dashboard-parent.html` | Parent portal with child selector, attendance, homework, and fees. |
-| Analytics | `analytics.html` | School-wide analytics with placeholder charts. |
-| Timetable | `timetable.html` | Weekly timetable grid (Monday–Friday) with time slots. |
-| Attendance register | `attendance.html` | Class register with present/late/absent toggles per student. |
-| Hifz progress tracker | `hifz-progress.html` | Per-student Hifz tracker with status indicators and sign-off details. |
-| Qur'an annotation | `quran-annotation.html` | Recitation session with audio player, annotations, and upload area. |
-| Worksheets / homework | `worksheets.html` | Assignment list with submission upload and teacher feedback. |
-| Exams and results | `exams.html` | Exam list with per-student scores and finalise sign-off button. |
-| Payments / fees | `payments.html` | Fee list with pay button and payment history. |
-| Behaviour log | `behaviour.html` | Incident log table with filters and log-incident form. |
-| Staff messaging | `messages.html` | Messaging interface with conversation list and compose area. |
+All screens below are documented in detail in **[`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf)** (main pack). Root-level `*.html` files are legacy layout stubs.
+
+| Page | Main pack section | Legacy file | Description |
+|------|-------------------|-------------|-------------|
+| Landing | §1 | `index.html` | Public marketing page with hero, feature cards, Register / Log in CTAs. |
+| Subscription plans | §2 | `subscription.html` | Free / Standard / Premium tiers; Stripe subscribe flow. |
+| Login & register | §3 | `login.html`, `register.html` | Shared auth; school pick, role, class, parent link code. |
+| Super Admin dashboard | §4 | `dashboard-super-admin.html` | Platform KPIs and all-schools table. |
+| School Admin dashboard | §5 | `dashboard-school-admin.html` | School KPIs, teachers, timetable, LMS, fees setup. |
+| Teacher dashboard | §6 | `dashboard-teacher.html` | Today's lessons, pending sign-off queues. |
+| Student dashboard | §7 | `dashboard-student.html` | Homework, Hifz juz table, read-only modules. |
+| Parent dashboard | §8 | `dashboard-parent.html` | Linked children, fees, reports, Hifz progress. |
+| Timetable | §9 | `timetable.html` | Weekly grid; School Admin drag-drop builder. |
+| Attendance register | §10 | `attendance.html` | Present / Late / Absent; school-wide student list. |
+| Homework / worksheets | §11 | `worksheets.html` | Assignments, submit, teacher sign-off / reject. |
+| Exams | §12 | `exams.html` | MCQ + written; publish, mark, finalise results. |
+| Hifz juz sign-off | §13 | `hifz-progress.html` | Juz 1–30 sign-off (not surah tracker). |
+| Qur'an mushaf viewer | §14 | `quran-annotation.html` | PDF mushaf, highlights, per-page notes, audio. |
+| Behaviour log | §15 | `behaviour.html` | Commendations and incidents. |
+| Messaging | §16 | `messages.html` | Inbox, threads, tenant-scoped replies. |
+| Fees & payments | §17 | `payments.html` | Outstanding fees, Pay now (Stripe), receipts. |
+| Analytics | §18 | `analytics.html` | School KPIs and chart placeholders. |
 
 ### Wireframe design overview
 
-The wireframe pack follows a **public → auth → role portal → feature module** hierarchy. Marketing pages (`index.html`, `subscription.html`) use a single-column layout with top navigation. Signed-in screens share a **left sidebar** and main workspace so each role sees only relevant modules. Feature pages (timetable, attendance, payments, messaging) reuse the same shell as their role dashboard for consistent navigation. Status pills, KPI cards, and data tables are structural placeholders — they map directly to Django templates under `templates/pages/` on the live Heroku deployment.
+The **main pack** at [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf) follows a **public → auth → role portal → feature module** hierarchy with annotated callouts on every screen. Marketing pages use a single-column layout; signed-in screens share a **left sidebar** and main workspace so each role sees only relevant modules. Status pills, KPI cards, and data tables map directly to Django templates under `templates/pages/` on the live Heroku deployment.
+
+Legacy static HTML at the repo root (`*.html`) and [`docs/wireframes.html`](docs/wireframes.html) are earlier prototypes with less feature detail.
 
 ---
 ## Design
