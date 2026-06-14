@@ -4,7 +4,6 @@ from django import forms
 from students.models import StudentProfile
 
 from .models import QuranAnnotation, QuranSession
-from .services import SURAH_NAMES, build_ayah_text
 
 
 class QuranSessionForm(forms.ModelForm):
@@ -12,25 +11,24 @@ class QuranSessionForm(forms.ModelForm):
 
     class Meta:
         model = QuranSession
-        fields = ('student', 'surah_number', 'ayah_start', 'ayah_end')
+        fields = ('student',)
 
     def __init__(self, school, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['student'].queryset = StudentProfile.objects.filter(
             school=school, is_active=True,
         ).order_by('last_name', 'first_name')
-        self.fields['surah_number'].widget = forms.Select(
-            choices=[(k, f'{k} — {v}') for k, v in SURAH_NAMES.items()],
-        )
+        self.fields['student'].label = 'Student'
 
     def save(self, commit=True, *, school=None, teacher=None):
         instance = super().save(commit=False)
         instance.school = school
         instance.teacher = teacher
-        instance.surah_name = SURAH_NAMES.get(instance.surah_number, f'Surah {instance.surah_number}')
-        instance.ayah_text = build_ayah_text(
-            instance.surah_number, instance.ayah_start, instance.ayah_end,
-        )
+        instance.surah_name = 'Mushaf'
+        instance.surah_number = 1
+        instance.ayah_start = 1
+        instance.ayah_end = 1
+        instance.ayah_text = ''
         if commit:
             instance.save()
         return instance
@@ -51,5 +49,5 @@ class StudentAudioForm(forms.Form):
 
 
 class TeacherFeedbackAudioForm(forms.Form):
-    teacher_feedback_audio = forms.FileField()
+    teacher_feedback_audio = forms.FileField(required=False)
     teacher_notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3}))
