@@ -25,7 +25,10 @@ from messaging.models import (
 from parents.models import ParentProfile, StudentParentLink
 from schools.models import School
 from students.models import StudentProfile
+from teachers.models import TeacherProfile
 from pages.seed_helpers import upsert_user
+
+User = get_user_model()
 
 SCHOOL_NAME = 'Al-Noor Academy'
 TEST_PARENT_USERNAME = 'test_parent'
