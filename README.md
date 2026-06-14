@@ -973,7 +973,31 @@ Activate the virtual environment and run `pip install -r requirements.txt` again
 
 #### Assessor and demo logins
 
-Demo accounts are created by `seed_rbac_users` and `ensure_platform_seed`. Use these on local or Heroku after seeding:
+Demo accounts are created by `ensure_platform_seed` (runs on every Heroku deploy). **Passwords for registered and bulk accounts are preserved across deploys** — only `schooladmin`, `super`, and `parent_demo` are reset each boot.
+
+### Al-Noor Academy — permanent logins
+
+| Role | Username / email | Password | Notes |
+|------|------------------|----------|--------|
+| School admin | `schooladmin` | `admin1234` | Resets each deploy |
+| **Your parent** | `msadekhussain@outlook.com` | `Parent2026!` | Linked to **Y7A-001** (Amina Hassan pattern student) |
+| **Your teacher** | `msadekhussain2001@gmail.com` | `Teacher2026!` | Maths on **7A** timetable; class teacher for 7A |
+| Super admin | `super` | `super1234` | Platform-wide |
+| Demo parent | `parent_demo` | `demo1234` | Resets each deploy |
+| Example parent | `test_parent` | `test1234` | Messaging/LMS demos |
+| Example student | `test_student` | `test1234` | Enrolled in **7A** |
+| Bulk parent (7A #1) | `parent_7a_01` | `parent1234` | Paired with `student_7a_01` |
+| Bulk student (7A #1) | `student_7a_01` | `student1234` | Class **7A**, admission `Y7A-001` |
+
+**Full school seed** (`seed_alnoor_full_school`): classes **7A, 7B, 8A, 8B, 9A, 9B, 10A, 10B, 11A, 11B** — each with **30 students + 30 parents** (realistic names) and a **ready Spring term timetable**. Re-run is safe: skips bulk seed if `Y7A-001` exists; always syncs your outlook/gmail accounts.
+
+```bash
+python manage.py seed_alnoor_full_school
+# Heroku:
+heroku run python manage.py seed_alnoor_full_school -a esa-project
+```
+
+Use these on local or Heroku after seeding:
 
 | Role | Username | Password | Dashboard |
 |------|----------|----------|-----------|

@@ -4,7 +4,7 @@ Run: python manage.py seed_alnoor_examples
 Use mr_mohammed to exercise teacher flows; test_parent and test_student for family flows.
 """
 from django.contrib.auth import get_user_model
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from academics.models import ClassEnrollment, ClassGroup
@@ -25,9 +25,7 @@ from messaging.models import (
 from parents.models import ParentProfile, StudentParentLink
 from schools.models import School
 from students.models import StudentProfile
-from teachers.models import TeacherProfile
-
-User = get_user_model()
+from pages.seed_helpers import upsert_user
 
 SCHOOL_NAME = 'Al-Noor Academy'
 TEST_PARENT_USERNAME = 'test_parent'
@@ -42,45 +40,49 @@ class Command(BaseCommand):
         from django.core.management import call_command
 
         if not User.objects.filter(username='mr_mohammed').exists():
-            call_command('seed_alnoor_demo')
+            from students.models import StudentProfile
+            school = School.objects.filter(name=SCHOOL_NAME).first()
+            if not school or not StudentProfile.objects.filter(
+                school=school, admission_number='Y7A-001',
+            ).exists():
+                call_command('seed_alnoor_demo')
 
         school = School.objects.get(name=SCHOOL_NAME)
         teacher_user = User.objects.get(username='mr_mohammed')
         teacher_profile = TeacherProfile.objects.get(user=teacher_user)
-        class_group = ClassGroup.objects.get(school=school, name='Year 7')
+        class_group = (
+            ClassGroup.objects.filter(school=school, name='7A').first()
+            or ClassGroup.objects.filter(school=school, name='Year 7').first()
+        )
+        if not class_group:
+            raise CommandError('No Year 7 class found — run seed_alnoor_full_school first.')
         super_user = User.objects.filter(username='super', role='super_admin').first()
         school_admin = User.objects.filter(username='schooladmin', school=school).first()
 
-        parent_user, _ = User.objects.get_or_create(
-            username=TEST_PARENT_USERNAME,
-            defaults={'email': 'fatima.hassan@alnoor.example'},
+        parent_user, _ = upsert_user(
+            TEST_PARENT_USERNAME,
+            email='fatima.hassan@alnoor.example',
+            role='parent',
+            password=TEST_PASSWORD,
+            school=school,
+            first_name='Fatima',
+            last_name='Hassan',
         )
-        parent_user.email = 'fatima.hassan@alnoor.example'
-        parent_user.first_name = 'Fatima'
-        parent_user.last_name = 'Hassan'
-        parent_user.role = 'parent'
-        parent_user.school = school
-        parent_user.set_password(TEST_PASSWORD)
-        parent_user.is_active = True
-        parent_user.save()
 
         parent_profile, _ = ParentProfile.objects.get_or_create(
             user=parent_user,
             defaults={'school': school},
         )
 
-        student_user, _ = User.objects.get_or_create(
-            username=TEST_STUDENT_USERNAME,
-            defaults={'email': 'amina.hassan@alnoor.example'},
+        student_user, _ = upsert_user(
+            TEST_STUDENT_USERNAME,
+            email='amina.hassan@alnoor.example',
+            role='student',
+            password=TEST_PASSWORD,
+            school=school,
+            first_name='Amina',
+            last_name='Hassan',
         )
-        student_user.email = 'amina.hassan@alnoor.example'
-        student_user.first_name = 'Amina'
-        student_user.last_name = 'Hassan'
-        student_user.role = 'student'
-        student_user.school = school
-        student_user.set_password(TEST_PASSWORD)
-        student_user.is_active = True
-        student_user.save()
 
         student_profile, _ = StudentProfile.objects.get_or_create(
             user=student_user,

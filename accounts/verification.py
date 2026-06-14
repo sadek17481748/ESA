@@ -17,7 +17,9 @@ from .models import EmailVerificationCode
 EXEMPT_EMAIL_DOMAINS = ('esa.demo', 'alnoor.example')
 EXEMPT_USERNAMES = frozenset({
     'super', 'schooladmin', 'parent_demo', 'teacher_demo', 'student_demo',
-    'test_parent', 'test_student',
+    'test_parent', 'test_student', 'mr_mohammed',
+    'msadekhussain@outlook.com',
+    'msadekhussain2001@gmail.com',
 })
 
 

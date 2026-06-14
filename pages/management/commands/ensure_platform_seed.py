@@ -1,12 +1,14 @@
 """
 Ensure demo school and login accounts exist (Heroku / fresh DB).
-Creates Al-Noor Academy plus schooladmin and parent_demo — passwords reset each run.
+Preserves user passwords and data across deploys — only resets public demo logins.
 """
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from parents.models import ParentProfile
 from schools.models import School
+
+from pages.seed_helpers import PUBLIC_DEMO_USERNAMES, upsert_user
 
 User = get_user_model()
 
@@ -20,7 +22,7 @@ DEMO_LOGINS = (
 
 
 class Command(BaseCommand):
-    help = 'Seeds Al-Noor Academy and demo school admin + parent logins'
+    help = 'Seeds Al-Noor Academy — idempotent, preserves registered accounts on deploy'
 
     def handle(self, *args, **options):
         school, school_created = School.objects.get_or_create(
@@ -33,19 +35,16 @@ class Command(BaseCommand):
             self.stdout.write(f'School exists: {DEMO_SCHOOL_NAME}')
 
         for username, role, password, first, last, email in DEMO_LOGINS:
-            user, created = User.objects.get_or_create(
-                username=username,
-                defaults={'email': email},
+            user, created = upsert_user(
+                username,
+                email=email,
+                role=role,
+                password=password,
+                school=school,
+                first_name=first,
+                last_name=last,
+                force_reset_password=username in PUBLIC_DEMO_USERNAMES,
             )
-            user.email = email
-            user.first_name = first
-            user.last_name = last
-            user.role = role
-            user.school = school
-            user.set_password(password)
-            user.is_active = True
-            user.email_verified = True
-            user.save()
             action = 'Created' if created else 'Updated'
             self.stdout.write(f'{action} {username} ({role})')
 
@@ -55,27 +54,28 @@ class Command(BaseCommand):
                     defaults={'school': school},
                 )
 
-        super_user, super_created = User.objects.get_or_create(
-            username='super',
-            defaults={'email': 'super@esa.demo'},
+        super_user, super_created = upsert_user(
+            'super',
+            email='super@esa.demo',
+            role='super_admin',
+            password='super1234',
+            school=None,
+            first_name='Super',
+            last_name='Admin',
+            force_reset_password=True,
         )
-        super_user.email = 'super@esa.demo'
-        super_user.first_name = 'Super'
-        super_user.last_name = 'Admin'
-        super_user.role = 'super_admin'
-        super_user.school = None
-        super_user.set_password('super1234')
-        super_user.is_active = True
-        super_user.email_verified = True
-        super_user.save()
         self.stdout.write(f"{'Created' if super_created else 'Updated'} super (super_admin)")
 
-        self.stdout.write(self.style.SUCCESS(
-            'Demo logins — super / super1234 · schooladmin / admin1234 · parent_demo / demo1234'
-        ))
-
         from django.core.management import call_command
-        call_command('seed_alnoor_demo')
+        from students.models import StudentProfile
+
+        if StudentProfile.objects.filter(school=school, admission_number='Y7A-001').exists():
+            self.stdout.write('Full school already seeded — syncing personal accounts.')
+        call_command('seed_alnoor_full_school')
         call_command('seed_alnoor_examples')
-        # Timetable samples for Al-Noor (schooladmin / admin1234)
-        call_command('seed_timetable_samples', school=DEMO_SCHOOL_NAME)
+
+        self.stdout.write(self.style.SUCCESS(
+            'Demo logins — super / super1234 · schooladmin / admin1234 · '
+            'parent_demo / demo1234 · msadekhussain@outlook.com / Parent2026! · '
+            'msadekhussain2001@gmail.com / Teacher2026!'
+        ))

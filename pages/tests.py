@@ -476,6 +476,20 @@ class TeacherTimetablePortalTests(TestCase):
         self.assertIn('Break', names)
         self.assertEqual(names[0], 'Break')
 
+    def test_full_school_seed_creates_y7a_student(self):
+        from django.core.management import call_command
+        from students.models import StudentProfile
+
+        call_command('seed_alnoor_full_school')
+        school = School.objects.get(name='Al-Noor Academy')
+        self.assertTrue(
+            StudentProfile.objects.filter(school=school, admission_number='Y7A-001').exists()
+        )
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        self.assertTrue(User.objects.filter(username='msadekhussain@outlook.com', role='parent').exists())
+        self.assertTrue(User.objects.filter(username='msadekhussain2001@gmail.com', role='teacher').exists())
+
     def test_teacher_register_link_from_timetable_slot(self):
         self.client.force_login(self.teacher_user)
         url = (

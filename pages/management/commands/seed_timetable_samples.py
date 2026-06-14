@@ -5,6 +5,8 @@ Run automatically for the registered school-admin school on Heroku boot.
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
+from students.models import StudentProfile
+
 from academics.models import ClassGroup, YearGroup
 from schools.models import School
 from teachers.models import TeacherProfile
@@ -65,6 +67,10 @@ def seed_timetable_samples_for_school(school, stdout=None):
         write(f'Skip {school.name} — sample classes already exist')
         return
 
+    if StudentProfile.objects.filter(school=school, admission_number='Y7A-001').exists():
+        write(f'Skip {school.name} — full school seed already applied')
+        return
+
     ensure_school_subjects(school)
     subjects = {s.name: s for s in list_school_subjects(school)}
     teacher_profiles = {}
@@ -82,7 +88,8 @@ def seed_timetable_samples_for_school(school, stdout=None):
         user.role = 'teacher'
         user.school = school
         user.email_verified = True
-        user.set_password('teacher1234')
+        if created:
+            user.set_password('teacher1234')
         user.save()
         profile, _ = TeacherProfile.objects.get_or_create(
             user=user,

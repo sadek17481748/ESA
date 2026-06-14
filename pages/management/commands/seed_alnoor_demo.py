@@ -15,6 +15,7 @@ from students.models import StudentProfile
 from teachers.models import TeacherProfile
 
 from pages.timetable_service import ensure_school_subjects, get_or_create_default_timetable
+from pages.seed_helpers import upsert_user
 
 User = get_user_model()
 
@@ -25,24 +26,27 @@ class Command(BaseCommand):
     help = 'Seeds Year 7 class with 30 students, 30 parents, and Mr Mohammed teacher'
 
     def handle(self, *args, **options):
+        from students.models import StudentProfile
+
         school, _ = School.objects.get_or_create(
             name=SCHOOL_NAME,
             defaults={'contact_email': 'admin@alnoor.example'},
         )
+        if StudentProfile.objects.filter(school=school, admission_number='Y7A-001').exists():
+            self.stdout.write('Skip seed_alnoor_demo — full school seed already applied.')
+            return
+
         ensure_school_subjects(school)
 
-        teacher_user, _ = User.objects.get_or_create(
-            username='mr_mohammed',
-            defaults={'email': 'mohammed@alnoor.example'},
+        teacher_user, _ = upsert_user(
+            'mr_mohammed',
+            email='mohammed@alnoor.example',
+            role='teacher',
+            password='teacher1234',
+            school=school,
+            first_name='Mohammed',
+            last_name='Hussain',
         )
-        teacher_user.email = 'mohammed@alnoor.example'
-        teacher_user.first_name = 'Mohammed'
-        teacher_user.last_name = 'Hussain'
-        teacher_user.role = 'teacher'
-        teacher_user.school = school
-        teacher_user.set_password('teacher1234')
-        teacher_user.is_active = True
-        teacher_user.save()
 
         teacher_profile, _ = TeacherProfile.objects.get_or_create(
             user=teacher_user,
@@ -68,18 +72,15 @@ class Command(BaseCommand):
 
         for i in range(1, 31):
             uname = f'parent_alnoor_{i:02d}'
-            parent_user, created = User.objects.get_or_create(
-                username=uname,
-                defaults={'email': f'parent{i}@alnoor.example'},
+            parent_user, _ = upsert_user(
+                uname,
+                email=f'parent{i}@alnoor.example',
+                role='parent',
+                password='parent1234',
+                school=school,
+                first_name='Parent',
+                last_name=f'Family {i}',
             )
-            parent_user.email = f'parent{i}@alnoor.example'
-            parent_user.first_name = 'Parent'
-            parent_user.last_name = f'Family {i}'
-            parent_user.role = 'parent'
-            parent_user.school = school
-            parent_user.set_password('parent1234')
-            parent_user.is_active = True
-            parent_user.save()
 
             parent_profile, _ = ParentProfile.objects.get_or_create(
                 user=parent_user,
@@ -87,18 +88,15 @@ class Command(BaseCommand):
             )
 
             student_uname = f'student_alnoor_{i:02d}'
-            student_user, _ = User.objects.get_or_create(
-                username=student_uname,
-                defaults={'email': f'student{i}@alnoor.example'},
+            student_user, _ = upsert_user(
+                student_uname,
+                email=f'student{i}@alnoor.example',
+                role='student',
+                password='student1234',
+                school=school,
+                first_name='Student',
+                last_name=f'Al-Noor {i}',
             )
-            student_user.email = f'student{i}@alnoor.example'
-            student_user.first_name = f'Student'
-            student_user.last_name = f'Al-Noor {i}'
-            student_user.role = 'student'
-            student_user.school = school
-            student_user.set_password('student1234')
-            student_user.is_active = True
-            student_user.save()
 
             student_profile, _ = StudentProfile.objects.get_or_create(
                 user=student_user,
