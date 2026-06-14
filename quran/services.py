@@ -65,6 +65,45 @@ def mark_session_reviewed(session, teacher_profile, notes=''):
     return session
 
 
+def save_page_markup(*, session, para_number, page_number, note='', highlights=None):
+    """Persist note + highlight regions for one mushaf page."""
+    from .models import QuranSessionPage
+
+    if highlights is None:
+        highlights = []
+    cleaned = []
+    for item in highlights:
+        if not isinstance(item, dict):
+            continue
+        try:
+            cleaned.append({
+                'x': max(0.0, min(1.0, float(item.get('x', 0)))),
+                'y': max(0.0, min(1.0, float(item.get('y', 0)))),
+                'w': max(0.0, min(1.0, float(item.get('w', 0)))),
+                'h': max(0.0, min(1.0, float(item.get('h', 0)))),
+                'color': str(item.get('color', '#fff59d'))[:20],
+            })
+        except (TypeError, ValueError):
+            continue
+
+    page, _ = QuranSessionPage.objects.update_or_create(
+        session=session,
+        para_number=para_number,
+        page_number=page_number,
+        defaults={'note': note, 'highlights': cleaned},
+    )
+    return page
+
+
+def get_page_markup(session, para_number, page_number):
+    from .models import QuranSessionPage
+    return QuranSessionPage.objects.filter(
+        session=session,
+        para_number=para_number,
+        page_number=page_number,
+    ).first()
+
+
 def add_annotation(*, session, teacher_profile, ayah_number, tag, timestamp_seconds, comment=''):
     if session.teacher_id != teacher_profile.id:
         raise PermissionError('Only the session teacher can add annotations.')
