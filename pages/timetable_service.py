@@ -149,13 +149,8 @@ def rename_timetable(timetable, *, name, notes=None):
 
 
 def user_can_edit_timetable(user, timetable, teacher_profile=None):
-    if user.role == 'school_admin':
-        return True
-    if user.role != 'teacher' or not teacher_profile:
-        return False
-    if timetable.class_group_id is None:
-        return True
-    return timetable.class_group.teacher_id == teacher_profile.pk
+    """Only school admins build timetables; teachers follow assigned slots."""
+    return user.role == 'school_admin'
 
 
 def build_timetable_grid(timetable):
