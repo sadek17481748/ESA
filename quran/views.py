@@ -1,8 +1,11 @@
-"""quran/views.py — Qur'an recitation sessions and annotations."""
+"""quran/views.py — Qur'an mushaf sessions with page notes and highlights."""
+import json
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 from pages.decorators import role_required
 from pages.enrollment_service import student_profile_for_user
@@ -10,13 +13,13 @@ from pages.portal import build_portal_context
 from parents.models import StudentParentLink
 
 from .forms import (
-    QuranAnnotationForm,
     QuranSessionForm,
     StudentAudioForm,
     TeacherFeedbackAudioForm,
 )
 from .models import QuranSession
-from .services import add_annotation, mark_session_reviewed
+from .mushaf import MUSHAF_PARA_COUNT, para_pdf_url
+from .services import get_page_markup, mark_session_reviewed, save_page_markup
 
 
 def _ctx(request, title, meta=''):
@@ -46,13 +49,41 @@ def _sessions_for_user(user):
     return QuranSession.objects.none()
 
 
+def _session_allowed(user, session):
+    if user.role == 'teacher' and hasattr(user, 'teacher_profile'):
+        return session.teacher_id == user.teacher_profile.id
+    if user.role == 'student' and hasattr(user, 'student_profile'):
+        return session.student_id == user.student_profile.id
+    if user.role == 'parent' and hasattr(user, 'parent_profile'):
+        return StudentParentLink.objects.filter(
+            parent=user.parent_profile, student=session.student,
+        ).exists()
+    if user.role == 'school_admin':
+        return session.school_id == user.school_id
+    return False
+
+
+def _parse_page_params(request):
+    try:
+        para = int(request.GET.get('para', 1))
+    except (TypeError, ValueError):
+        para = 1
+    try:
+        page = int(request.GET.get('page', 1))
+    except (TypeError, ValueError):
+        page = 1
+    para = max(1, min(MUSHAF_PARA_COUNT, para))
+    page = max(1, page)
+    return para, page
+
+
 @login_required
 def quran_list(request):
     sessions = _sessions_for_user(request.user)
     ctx = _ctx(
         request,
-        'Qur’an annotation',
-        'Ayah display, mistake tags, timestamps, and audio feedback.',
+        'Qur’an sessions',
+        'Open the mushaf, add page notes, and highlight like a word processor.',
     )
     ctx['sessions'] = sessions
     ctx['can_create'] = request.user.role == 'teacher'
@@ -70,7 +101,7 @@ def quran_create_session(request):
             return redirect('quran:session_detail', session_id=session.pk)
     else:
         form = QuranSessionForm(request.user.school)
-    ctx = _ctx(request, 'New recitation session', 'Select student and ayah range.')
+    ctx = _ctx(request, 'New Qur’an session', 'Pick a student — then turn pages in the mushaf.')
     ctx['form'] = form
     return render(request, 'quran/session_form.html', ctx)
 
@@ -78,41 +109,43 @@ def quran_create_session(request):
 @login_required
 def quran_session_detail(request, session_id):
     session = get_object_or_404(
-        QuranSession.objects.select_related('student', 'teacher').prefetch_related('annotations'),
+        QuranSession.objects.select_related('student', 'teacher'),
         pk=session_id,
     )
-    user = request.user
-    allowed = False
-    if user.role == 'teacher' and hasattr(user, 'teacher_profile'):
-        allowed = session.teacher_id == user.teacher_profile.id
-    elif user.role == 'student' and hasattr(user, 'student_profile'):
-        allowed = session.student_id == user.student_profile.id
-    elif user.role == 'parent' and hasattr(user, 'parent_profile'):
-        allowed = StudentParentLink.objects.filter(
-            parent=user.parent_profile, student=session.student,
-        ).exists()
-    elif user.role == 'school_admin':
-        allowed = session.school_id == user.school_id
-    if not allowed:
+    if not _session_allowed(request.user, session):
         return redirect('pages:dashboard')
 
-    annotation_form = None
-    audio_form = None
-    feedback_form = None
-    is_teacher = user.role == 'teacher' and session.teacher_id == user.teacher_profile.id
-    is_student = user.role == 'student' and session.student_id == user.student_profile.id
+    para, page = _parse_page_params(request)
+    markup = get_page_markup(session, para, page)
 
-    if is_teacher:
-        annotation_form = QuranAnnotationForm()
-        feedback_form = TeacherFeedbackAudioForm()
-    if is_student:
-        audio_form = StudentAudioForm()
+    is_teacher = (
+        request.user.role == 'teacher'
+        and hasattr(request.user, 'teacher_profile')
+        and session.teacher_id == request.user.teacher_profile.id
+    )
+    is_student = (
+        request.user.role == 'student'
+        and hasattr(request.user, 'student_profile')
+        and session.student_id == request.user.student_profile.id
+    )
 
-    ctx = _ctx(request, f'{session.surah_name}', session.ayah_text[:80])
+    audio_form = StudentAudioForm() if is_student else None
+    feedback_form = TeacherFeedbackAudioForm() if is_teacher else None
+
+    ctx = _ctx(
+        request,
+        session.display_title,
+        f'Juz {para} · page {page} — notes and highlights save for this student only.',
+    )
     ctx.update({
         'session': session,
-        'annotations': session.annotations.all(),
-        'annotation_form': annotation_form,
+        'para_number': para,
+        'page_number': page,
+        'para_count': MUSHAF_PARA_COUNT,
+        'pdf_url': para_pdf_url(para),
+        'page_note': markup.note if markup else '',
+        'page_highlights_json': json.dumps(markup.highlights if markup else []),
+        'can_edit': is_teacher,
         'audio_form': audio_form,
         'feedback_form': feedback_form,
         'is_teacher': is_teacher,
@@ -121,27 +154,48 @@ def quran_session_detail(request, session_id):
     return render(request, 'quran/session_detail.html', ctx)
 
 
+@login_required
+@require_GET
+def quran_page_data(request, session_id):
+    session = get_object_or_404(QuranSession, pk=session_id)
+    if not _session_allowed(request.user, session):
+        return JsonResponse({'error': 'Not allowed'}, status=403)
+    para, page = _parse_page_params(request)
+    markup = get_page_markup(session, para, page)
+    return JsonResponse({
+        'para_number': para,
+        'page_number': page,
+        'note': markup.note if markup else '',
+        'highlights': markup.highlights if markup else [],
+    })
+
+
 @role_required('teacher')
 @require_POST
-def quran_add_annotation(request, session_id):
+def quran_save_page(request, session_id):
     session = get_object_or_404(QuranSession, pk=session_id, teacher=request.user.teacher_profile)
-    form = QuranAnnotationForm(request.POST)
-    if form.is_valid():
-        try:
-            add_annotation(
-                session=session,
-                teacher_profile=request.user.teacher_profile,
-                ayah_number=form.cleaned_data['ayah_number'],
-                tag=form.cleaned_data['tag'],
-                timestamp_seconds=form.cleaned_data['timestamp_seconds'],
-                comment=form.cleaned_data.get('comment', ''),
-            )
-            messages.success(request, 'Annotation added.')
-        except PermissionError as exc:
-            messages.error(request, str(exc))
-    else:
-        messages.error(request, 'Could not save annotation — check the form.')
-    return redirect('quran:session_detail', session_id=session.pk)
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    try:
+        para = int(payload.get('para_number', 1))
+        page = int(payload.get('page_number', 1))
+    except (TypeError, ValueError):
+        return JsonResponse({'error': 'Invalid page'}, status=400)
+
+    para = max(1, min(MUSHAF_PARA_COUNT, para))
+    page = max(1, page)
+
+    save_page_markup(
+        session=session,
+        para_number=para,
+        page_number=page,
+        note=(payload.get('note') or '')[:5000],
+        highlights=payload.get('highlights', []),
+    )
+    return JsonResponse({'ok': True})
 
 
 @login_required
