@@ -1,7 +1,7 @@
 """pages/attendance_service.py — portal attendance registers and overview."""
 from datetime import date
 
-from django.db.models import Count, Q
+from django.db.models import Count
 
 from academics.models import ClassEnrollment, ClassGroup
 from attendance.models import AttendanceMark, AttendanceSession
@@ -67,6 +67,76 @@ def build_class_register(class_group, session_date):
         'rows': rows,
         'student_count': len(rows),
     }
+
+
+def school_students(school):
+    """All active students in a school — teachers are not limited to one year group."""
+    return StudentProfile.objects.filter(
+        school=school,
+        is_active=True,
+    ).order_by('last_name', 'first_name')
+
+
+def build_teacher_register(school, lesson_class_group, session_date):
+    """
+    School-wide register for a lesson context.
+    Each row shows the student's mark from their own enrolled class session today.
+    """
+    rows = []
+    for student in school_students(school):
+        enrolled_class = student_class_group_for(student)
+        mark = None
+        if enrolled_class:
+            session = get_session(enrolled_class, session_date)
+            if session:
+                mark = marks_for_session(session).get(student.pk)
+        rows.append({
+            'student': student,
+            'class_group': enrolled_class,
+            'status': mark.status if mark else AttendanceMark.STATUS_PRESENT,
+            'note': mark.note if mark else '',
+            'has_mark': mark is not None,
+        })
+    return {
+        'class_group': lesson_class_group,
+        'session': None,
+        'session_date': session_date,
+        'rows': rows,
+        'student_count': len(rows),
+    }
+
+
+def save_teacher_register(school, session_date, taken_by, marks_payload):
+    """
+    Save marks for any school student — each mark is stored on that student's
+    enrolled class session for the date (so parents see the correct register).
+    """
+    created = 0
+    for student_id, data in marks_payload.items():
+        try:
+            sid = int(student_id)
+        except (TypeError, ValueError):
+            continue
+        student = StudentProfile.objects.filter(pk=sid, school=school, is_active=True).first()
+        if not student:
+            continue
+        enrolled_class = student_class_group_for(student)
+        if not enrolled_class:
+            continue
+        status = data.get('status', AttendanceMark.STATUS_PRESENT)
+        if status not in dict(AttendanceMark.STATUS_CHOICES):
+            status = AttendanceMark.STATUS_PRESENT
+        session = get_or_create_session(school, enrolled_class, session_date, taken_by)
+        AttendanceMark.objects.update_or_create(
+            session=session,
+            student=student,
+            defaults={
+                'status': status,
+                'note': (data.get('note') or '')[:200],
+            },
+        )
+        created += 1
+    return created
 
 
 def save_class_register(school, class_group, session_date, taken_by, marks_payload):
@@ -141,7 +211,7 @@ def build_school_attendance_overview(school, session_date):
 
 
 def teacher_classes(school, teacher_profile):
-    """Homeroom classes plus any class this teacher is assigned on the timetable."""
+    """Classes where this teacher has an active timetable slot (school-admin assigned)."""
     if not teacher_profile:
         return ClassGroup.objects.none()
     from timetable.models import TimetableSlot
@@ -152,16 +222,15 @@ def teacher_classes(school, teacher_profile):
         timetable__is_active=True,
     ).values_list('class_group_id', flat=True)
     return ClassGroup.objects.filter(
-        Q(school=school) & (Q(teacher=teacher_profile) | Q(pk__in=slot_class_ids)),
+        school=school,
+        pk__in=slot_class_ids,
     ).select_related('teacher', 'teacher__user').order_by('name').distinct()
 
 
 def teacher_can_access_class(teacher_profile, class_group):
-    """Homeroom teacher or assigned on an active timetable slot for this class."""
+    """True when school admin assigned this teacher to a slot for the class."""
     if not teacher_profile or not class_group:
         return False
-    if class_group.teacher_id == teacher_profile.pk:
-        return True
     from timetable.models import TimetableSlot
 
     return TimetableSlot.objects.filter(
