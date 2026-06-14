@@ -303,31 +303,67 @@ Use the [Demo walkthrough](#demo-walkthrough) for logins and what each role shou
 ---
 ## Technical overview
 
-### Why PostgreSQL is the technical centre of this work
+ESA is a **full-stack web application**: users interact with **Django** pages in the browser, Django reads and writes data in **PostgreSQL**, and services like **Stripe** and **email** handle payments and notifications. Everything is scoped to a **school (tenant)** so each institution only sees its own students, fees, and records.
 
-PostgreSQL is a core part of ESA, not an afterthought:
+### How the pieces fit together
 
-- **Connection:** the app reads `DATABASE_URL` from the environment (`core/settings.py`, `.env.example`). In development this points at a local Postgres instance; on Heroku it uses the managed Postgres add-on URL. Without `DATABASE_URL`, Django falls back to SQLite for quick local runs.
-- **Integrity:** foreign keys tie students to schools, fee items to parents, exam answers to results, Qur'an annotations to sessions, and payments to fee rows. Multi-table writes (checkout success, exam finalisation, attendance sessions) are verified in `psql` and Django admin during development.
-- **Tenant isolation:** every school-scoped model filters on `school_id` so Al-Noor Academy data never appears for another tenant. Automated tests in `accounts`, `students`, and `core_app` assert this.
-- **Meaningful aggregations:** analytics and school dashboards use `COUNT`, `SUM`, `GROUP BY`, and joins against real tables — SQL competence surfaced through the UI.
-- **Automated tests** use SQLite or in-memory backends where possible so `python manage.py test` runs quickly without Postgres on CI machines. For marking and demos, the app still runs against PostgreSQL as described in [Development](#development).
+1. The user opens a page (e.g. `/payments/` or `/quran/`) in the browser.
+2. **Django** receives the request, checks who is logged in and their **role**, and loads or saves the right rows from the database.
+3. Django renders an **HTML template** and sends it back. Forms and buttons trigger new requests (GET to view, POST to submit).
+4. For fees, Django redirects to **Stripe Checkout**; when payment succeeds, a webhook updates the fee row in PostgreSQL.
 
-### Role of Django
+The portal uses **session login** (cookie in the browser). The REST API under `/api/` uses **JWT tokens** for programmatic access — useful for tests and future mobile clients.
 
-Django provides the web layer between the user and PostgreSQL:
+For a diagram of how entities relate (students, classes, fees, sessions), see [Data model and ERD](#data-model-and-erd-entity-relationships).
 
-| Layer | What Django does in ESA |
-|-------|-------------------------|
-| **Routing** | Maps paths like `/`, `/payments/`, `/quran/`, `/api/students/` to views in `core/urls.py` and per-app `urls.py` files |
-| **HTTP verbs** | Distinguishes GET (show page) from POST (submit form, pay fee, finalise exam) |
-| **Sessions / auth** | Session middleware loads the current user from the cookie; `EmailVerificationMiddleware` blocks unverified accounts |
-| **Templates** | Jinja-style Django templates under `templates/` — one response per page |
-| **Apps** | Splits features into `accounts`, `payments`, `quran`, `exams`, `messaging`, etc., so the codebase stays readable |
-| **ORM** | Maps Python models to Postgres tables; migrations keep live schema in sync |
-| **DRF + JWT** | `/api/*` endpoints for programmatic clients; portal uses session login |
+### PostgreSQL — the database
 
-For a visual entity–relationship diagram, see [Data model and ERD](#data-model-and-erd-entity-relationships) under Design.
+PostgreSQL holds **all persistent data** for the platform.
+
+| What it stores | Examples |
+|----------------|----------|
+| **Schools (tenants)** | Al-Noor Academy and every other school on the platform |
+| **Users and roles** | Teachers, parents, students, admins — each linked to one school |
+| **Academic data** | Classes, timetables, attendance marks, behaviour logs |
+| **Learning** | Homework submissions, exam answers and results, LMS materials, Qur'an session notes |
+| **Progress** | Hifz juz sign-offs, teacher reports |
+| **Comms** | School messages, support cases, in-app notifications |
+| **Payments** | Fee items, Stripe payment records, subscription plan |
+
+**Connection:** the app reads `DATABASE_URL` from the environment (`core/settings.py`, `.env.example`). Local development uses a Postgres instance on your machine; Heroku uses the managed Postgres add-on. If `DATABASE_URL` is not set, Django falls back to SQLite for a quick run only.
+
+**Tenant isolation:** almost every table includes a `school_id`. Queries filter by the logged-in user's school so one madrasah never sees another's data. Automated tests check this.
+
+**Migrations:** Django migration files in each app (`*/migrations/`) apply schema changes safely when you deploy or run `python manage.py migrate`.
+
+### Django — the web application
+
+Django is the **main application framework**. It handles routing, authentication, business logic, and HTML rendering.
+
+| Part | What it does in ESA |
+|------|---------------------|
+| **URLs** | Maps paths (`/attendance/`, `/api/students/`, etc.) to Python view functions in `core/urls.py` and each app's `urls.py` |
+| **Views** | Run the logic for a page — load data, validate forms, enforce role checks, return a response |
+| **Models (ORM)** | Python classes that map to database tables; create/read/update/delete without writing raw SQL |
+| **Templates** | HTML files under `templates/` filled with data from views (dashboards, forms, tables) |
+| **Apps** | Feature modules — `accounts`, `payments`, `quran`, `exams`, `messaging`, `hifz`, etc. — keep the codebase organised |
+| **Middleware** | Runs on every request — e.g. session auth, email-verification gate for new accounts |
+| **Admin** | `/admin/` — staff interface to inspect database rows during development |
+| **REST API (DRF)** | `/api/*` — JSON endpoints for auth, students, homework, exams; used by tests and external clients |
+
+**Static files** (CSS, JavaScript, mushaf PDFs) live under `static/` and `css/`. The production UI is server-rendered Django templates, not a separate React app. Early wireframe HTML at the repo root (`*.html`) is a design prototype only.
+
+### External services
+
+| Service | What it does in ESA |
+|---------|---------------------|
+| **Stripe** | Parent fee checkout and school subscription upgrades; test card `4242 4242 4242 4242` in sandbox mode |
+| **Stripe Connect** | Routes fee payments to each school's connected bank account (school admin onboarding) |
+| **Gmail / SMTP** | Sends verification codes, password resets, and optional message notifications (`EMAIL_*` in settings) |
+| **Heroku** | Hosts the live app, Postgres, and environment config; deploys from the `main` branch |
+| **GitHub** | Source control and issue/project board for bugs and sprint tracking |
+
+Setup details for Stripe, email, and deployment are in [Development](#development) and [Deployment](#deployment).
 
 ---
 ## Overview
