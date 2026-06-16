@@ -4,11 +4,17 @@ Weekly leaderboard data for the public homepage.
 """
 from datetime import timedelta
 
-from django.db.models import Count, F, Q
+from django.contrib.auth import get_user_model
+from django.db.models import Count, F, IntegerField, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
+from attendance.models import AttendanceMark, AttendanceSession
+from homework.models import Submission
 from schools.models import School
 from students.models import StudentProfile
+
+User = get_user_model()
 
 
 def _week_start():
@@ -23,26 +29,33 @@ def get_students_of_the_week(limit=10):
     since = _week_start()
     since_date = since.date()
 
+    homework_sq = (
+        Submission.objects.filter(
+            student_id=OuterRef('pk'),
+            submitted_at__gte=since,
+            status__in=(Submission.STATUS_SUBMITTED, Submission.STATUS_APPROVED),
+        )
+        .values('student_id')
+        .annotate(c=Count('id'))
+        .values('c')[:1]
+    )
+    attendance_sq = (
+        AttendanceMark.objects.filter(
+            student_id=OuterRef('pk'),
+            session__session_date__gte=since_date,
+            status__in=('present', 'late'),
+        )
+        .values('student_id')
+        .annotate(c=Count('id'))
+        .values('c')[:1]
+    )
+
     rows = (
         StudentProfile.objects.filter(is_active=True)
         .select_related('school')
         .annotate(
-            homework_pts=Count(
-                'submissions',
-                filter=Q(
-                    submissions__submitted_at__gte=since,
-                    submissions__status__in=('submitted', 'approved'),
-                ),
-                distinct=True,
-            ),
-            attendance_pts=Count(
-                'attendance_marks',
-                filter=Q(
-                    attendance_marks__session__session_date__gte=since_date,
-                    attendance_marks__status__in=('present', 'late'),
-                ),
-                distinct=True,
-            ),
+            homework_pts=Coalesce(Subquery(homework_sq, output_field=IntegerField()), 0),
+            attendance_pts=Coalesce(Subquery(attendance_sq, output_field=IntegerField()), 0),
         )
         .annotate(week_score=F('homework_pts') * 3 + F('attendance_pts'))
         .order_by('-week_score', 'last_name', 'first_name')[:limit]
@@ -70,20 +83,35 @@ def get_schools_of_the_week(limit=10):
     since = _week_start()
     since_date = since.date()
 
+    # Separate subqueries avoid a multi-join Count explosion on large tenants.
+    new_users_sq = (
+        User.objects.filter(school_id=OuterRef('pk'), date_joined__gte=since)
+        .values('school_id')
+        .annotate(c=Count('id'))
+        .values('c')[:1]
+    )
+    weekly_sessions_sq = (
+        AttendanceSession.objects.filter(
+            school_id=OuterRef('pk'),
+            session_date__gte=since_date,
+        )
+        .values('school_id')
+        .annotate(c=Count('id'))
+        .values('c')[:1]
+    )
+    student_total_sq = (
+        StudentProfile.objects.filter(school_id=OuterRef('pk'))
+        .values('school_id')
+        .annotate(c=Count('id'))
+        .values('c')[:1]
+    )
+
     rows = (
         School.objects.filter(status=School.STATUS_ACTIVE)
         .annotate(
-            new_users=Count(
-                'users',
-                filter=Q(users__date_joined__gte=since),
-                distinct=True,
-            ),
-            weekly_sessions=Count(
-                'attendance_sessions',
-                filter=Q(attendance_sessions__session_date__gte=since_date),
-                distinct=True,
-            ),
-            student_total=Count('students', distinct=True),
+            new_users=Coalesce(Subquery(new_users_sq, output_field=IntegerField()), 0),
+            weekly_sessions=Coalesce(Subquery(weekly_sessions_sq, output_field=IntegerField()), 0),
+            student_total=Coalesce(Subquery(student_total_sq, output_field=IntegerField()), 0),
         )
         .annotate(
             week_score=F('new_users') * 5 + F('weekly_sessions') * 2 + F('student_total'),
