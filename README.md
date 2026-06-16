@@ -228,7 +228,7 @@ Visual evidence of the live ESA portal on **Heroku** — same style as my [learn
 
 **How to read this section:** desktop captures from Safari on macOS at full browser width. More screens and mobile widths will be added to `docs/images/preview/` as they are captured.
 
-**Captured so far (18 screens):** home, register school, login, verify email, school overview, analytics, subscription, school fees, teachers, add teacher, timetable, attendance, LMS, messages, find student, teacher workspace, super admin overview, super admin messages.
+**Captured so far:** 18 feature screens in `docs/images/preview/` plus **5 responsive tests** in `docs/images/validation/`.
 
 ### Public pages
 
@@ -402,15 +402,58 @@ Parent fee table, Stripe Pay now, receipts — `demo_parent` / `Demo2026!`
 
 ### Responsive testing (cross-device)
 
-Optional extra evidence from [responsivetesttool.com](http://responsivetesttool.com) at the live URL — same approach as bookly.
+Home page (`/`) tested on the **live Heroku URL** using [Website Responsive Testing Tool](http://responsivetesttool.com) and Safari window resizing on macOS. Screenshots saved to [`docs/images/validation/`](docs/images/validation/).
 
-| Device preset | Screenshot |
-|---------------|------------|
-| iPhone / mobile (~375px) | ![Responsive — mobile](docs/images/validation/responsive-mobile.png) |
-| Tablet (~768px) | ![Responsive — tablet](docs/images/validation/responsive-tablet.png) |
-| Laptop / desktop (~1024px+) | ![Responsive — desktop](docs/images/validation/responsive-desktop.png) |
+#### Mobile — iPhone X (375px width)
 
-Detailed methodology: [How responsiveness was tested](#how-responsiveness-was-tested).
+Hero text and CTAs stack in one column; navigation links wrap; stat cards reflow.
+
+![Responsive — iPhone X 375px](docs/images/validation/responsive-mobile-iphone-x.png)
+
+#### Tablet — iPad 10″ (768px width)
+
+Two-column hero collapses; three feature cards stay in a row; nav remains readable.
+
+![Responsive — iPad 768px](docs/images/validation/responsive-tablet-ipad-768.png)
+
+#### Laptop — full browser width (~1440px)
+
+Default desktop layout: hero copy left, stat cards right, horizontal top nav.
+
+![Responsive — desktop full width](docs/images/validation/responsive-desktop-full.png)
+
+#### Laptop — window narrowed (manual resize)
+
+Browser dragged narrower — content reflows before the 768px breakpoint; buttons and cards adjust without horizontal page scroll.
+
+![Responsive — laptop window narrowed](docs/images/validation/responsive-laptop-narrow.png)
+
+#### Laptop — width adjusted again (narrower)
+
+Further resize — feature cards compress; confirms `flex-wrap` and `minmax` grids adapt between breakpoints.
+
+![Responsive — laptop narrower still](docs/images/validation/responsive-laptop-narrower.png)
+
+#### How we made the site responsive (code steps)
+
+All portal and marketing pages share one stylesheet: **`css/base.css`** (linked from Django templates and wireframes).
+
+| Step | What we did | Where in code |
+|------|-------------|---------------|
+| **1. Viewport meta tag** | Tells mobile browsers to use device width, not a zoomed-out desktop layout | `templates/base/marketing.html`, `templates/base/dashboard.html` — `<meta name="viewport" content="width=device-width, initial-scale=1">` |
+| **2. Fluid typography** | Headings scale with screen size instead of fixed pixels | `.hero h1 { font-size: clamp(1.85rem, 4vw, 2.75rem); }` |
+| **3. CSS Grid + Flexbox layouts** | Marketing hero uses CSS Grid; dashboards use Flexbox shell | `.hero { grid-template-columns: 1.4fr 1fr; }` · `.app-shell { display: flex; }` |
+| **4. Auto-fill card grids** | KPI and pricing cards reflow to fewer columns on narrow screens | `.grid-cards`, `.pricing-grid` — `repeat(auto-fill, minmax(200px, 1fr))` |
+| **5. Wrapped buttons and nav** | CTAs and header links wrap instead of overflowing | `.hero-actions { flex-wrap: wrap; }` · `.site-nav { flex-wrap: wrap; }` |
+| **6. Breakpoint @ 768px** | Home hero → single column; stat cards wrap; carousel height capped | `@media (max-width: 768px)` — `.hero`, `.hero-stats`, `.carousel-viewport` |
+| **7. Breakpoint @ 900px** | Portal sidebar stacks above main; timetable builder stacks; message tables become cards | `@media (max-width: 900px)` — `.app-shell`, `.timetable-toolbar`, `.msg-mobile-table` |
+| **8. Scrollable tables** | Wide data tables scroll inside a container on small screens | `.table-wrap { overflow-x: auto; }` |
+| **9. Single-column auth forms** | Login/register centred with max width | `.main-single { max-width: 560px; }` |
+| **10. Manual + tool testing** | Chrome DevTools during development; formal evidence from responsivetesttool.com at live URL | Screenshots in `docs/images/validation/` |
+
+**Priority devices:** laptop and tablet for school staff (timetable builder, registers, LMS). Phone is a **sanity check** — layout stacks and remains usable; not every admin feature is optimised for 320px.
+
+Full test matrix and page checklist: [How responsiveness was tested](#how-responsiveness-was-tested).
 
 ---
 ## Navigating the website
@@ -1074,10 +1117,10 @@ Chrome DevTools device mode is used for **quick checks during development** (tog
 
 | Folder | Contents |
 |--------|----------|
-| `docs/images/validation/` | Responsiveness screenshots (tablet + laptop presets), Lighthouse, W3C validation |
+| `docs/images/validation/` | **Responsive testing** — iPhone X, iPad 768px, desktop, narrowed laptop (see [Responsive testing](#responsive-testing-cross-device) at top of README) |
+| `docs/images/validation/` | Lighthouse and W3C validation (when captured) |
 | `docs/images/manual-testing/` | Feature flow screenshots at desktop width |
-
-If a screenshot is not yet in the repo, re-run the same preset on the live URL and save the image to `docs/images/validation/` with the device name in the filename (e.g. `ipad-768-timetable-builder.png`).
+| `docs/images/preview/` | Role and feature page gallery |
 
 ### Accessibility
 
