@@ -1709,7 +1709,7 @@ source .venv/bin/activate
 python manage.py test
 ```
 
-Tests cover accounts, RBAC, payments, Qur'an, exams, messaging, and portal pages. Many tests call `ensure_platform_seed` in `setUp` so demo users exist. A feature → test mapping is in the [Automated testing](#automated-testing) section below.
+Tests cover accounts, RBAC, payments, Qur'an, exams, messaging, Hifz, homework, and portal pages. Many tests call `ensure_platform_seed` in `setUp` so demo users exist. The full list of **82 tests** with explanations is in [Automated testing](#automated-testing) below.
 
 #### How I committed changes to GitHub (workflow used)
 
@@ -2542,33 +2542,188 @@ Planned and executed checks for foundation, RBAC, Stripe, Qur'an, exams, and sig
 
 ### Automated testing
 
-Run the Django test suite:
+Automated tests are small Python scripts that check the app **without a human clicking through every screen**. Django runs them in a **temporary test database** (your real data is not touched). If something breaks — for example a parent seeing another school's fees — the test fails and tells you which check failed.
+
+**Run all tests locally:**
 
 ```bash
+source .venv/bin/activate
 python manage.py test
 ```
 
-Tests are added incrementally alongside features.
+**Run one app's tests only** (faster while fixing something):
+
+```bash
+python manage.py test pages
+python manage.py test payments
+```
+
+At the time of writing there are **82 automated tests** across 14 test files. They do **not** replace manual testing (Stripe checkout in a browser, mobile layout, etc.) but they catch regressions quickly after every code change.
+
+#### Full automated test inventory
+
+| # | Test name | What it checks | File |
+|---|-----------|----------------|------|
+| **Portal — registration & login** ||||
+| 1 | `test_register_page_shows_school_picker` | Register page lists schools (e.g. Al-Noor Academy) | `pages/tests.py` |
+| 2 | `test_register_page_without_schools_prompts_school_signup` | Empty database shows “register your school first” message | `pages/tests.py` |
+| 3 | `test_register_parent_creates_user_and_logs_in` | Parent registration creates account and logs in | `pages/tests.py` |
+| 4 | `test_register_student_creates_profile` | Student registration creates student profile | `pages/tests.py` |
+| 5 | `test_register_school_adds_to_parent_picker` | New school appears on register dropdown | `pages/tests.py` |
+| 6 | `test_register_school_rejects_duplicate_name` | Cannot register two schools with the same name | `pages/tests.py` |
+| 7 | `test_register_rejects_duplicate_username` | Second user with same username is rejected | `pages/tests.py` |
+| 8 | `test_student_registration_enrols_in_class` | Student picks a class and is enrolled | `pages/tests.py` |
+| 9 | `test_school_admin_can_log_in_after_register_and_logout` | School admin can log in after registering | `pages/tests.py` |
+| 10 | `test_login_redirects_to_dashboard` | Successful login sends user to their dashboard | `pages/tests.py` |
+| 11 | `test_login_page_has_no_demo_credentials` | Login page does not show passwords on screen | `pages/tests.py` |
+| 12 | `test_logout_redirects_to_home` | Log out returns to home page | `pages/tests.py` |
+| **Portal — dashboards & public pages** ||||
+| 13 | `test_home_shows_marketing_sections_for_guests` | Home page shows marketing content when logged out | `pages/tests.py` |
+| 14 | `test_home_shows_dashboard_prompt_when_logged_in` | Logged-in user sees welcome back, not marketing | `pages/tests.py` |
+| 15 | `test_super_admin_dashboard_loads` | Super Admin dashboard returns 200 | `pages/tests.py` |
+| 16 | `test_parent_cannot_access_super_admin_dashboard` | Parent blocked from Super Admin area | `pages/tests.py` |
+| 17 | `test_super_login_lands_on_super_admin_dashboard` | Super Admin login goes to correct dashboard | `pages/tests.py` |
+| 18 | `test_security_page_is_public` | `/security/` loads without login | `pages/tests.py` |
+| 19 | `test_wireframes_page_is_public` | `/wireframes/` loads without login | `pages/tests.py` |
+| 20 | `test_school_admin_subscription_keeps_sidebar_and_school_name` | Subscription page keeps school branding | `pages/tests.py` |
+| **Portal — school admin & timetable** ||||
+| 21 | `test_school_admin_can_add_teacher` | School admin form creates a teacher account | `pages/tests.py` |
+| 22 | `test_school_admin_can_add_class` | School admin can create a new class (e.g. 7A) | `pages/tests.py` |
+| 23 | `test_teacher_cannot_add_class` | Teacher cannot create classes | `pages/tests.py` |
+| 24 | `test_timetable_save_creates_slots` | Saving timetable JSON creates time slots in DB | `pages/tests.py` |
+| 25 | `test_create_timetable_and_subject` | School admin can create timetable and subject | `pages/tests.py` |
+| 26 | `test_teacher_dashboard_shows_assigned_lesson` | Teacher overview shows today's lesson | `pages/tests.py` |
+| 27 | `test_teacher_timetable_page_read_only` | Teacher cannot edit timetable grid | `pages/tests.py` |
+| 28 | `test_break_subject_always_available` | “Break” appears in subject palette | `pages/tests.py` |
+| 29 | `test_teacher_register_link_from_timetable_slot` | Timetable slot links to attendance register | `pages/tests.py` |
+| 30 | `test_teacher_without_timetable_slot_cannot_access_class` | Teacher blocked from classes they don't teach | `pages/tests.py` |
+| **Portal — attendance** ||||
+| 31 | `test_teacher_register_lists_all_school_students` | Register shows all students in school | `pages/tests.py` |
+| 32 | `test_teacher_can_save_register` | Present/Late/Absent saves to database | `pages/tests.py` |
+| 33 | `test_school_admin_attendance_overview` | School admin attendance page loads | `pages/tests.py` |
+| **Email verification & password reset** ||||
+| 34 | `test_demo_email_exempt` | `@esa.demo` emails skip verification (for demos) | `accounts/tests_auth.py` |
+| 35 | `test_real_email_requires_verification` | Real email addresses must verify | `accounts/tests_auth.py` |
+| 36 | `test_reserved_demo_email_blocked_on_register` | Public cannot register with `@esa.demo` | `accounts/tests_auth.py` |
+| 37 | `test_verification_code_flow` | 6-digit code sent and accepted | `accounts/tests_auth.py` |
+| 38 | `test_password_reset_sends_email` | Password reset form sends email | `accounts/tests_auth.py` |
+| 39 | `test_parent_links_with_code` | Parent link code connects child correctly | `accounts/tests_auth.py` |
+| **Tenant isolation (schools stay separate)** ||||
+| 40 | `test_school_admin_only_sees_own_school` | School admin API only returns their school | `accounts/tests.py` |
+| 41 | `test_teacher_only_sees_own_school_students` | Teacher student API filtered by school | `students/tests.py` |
+| **Payments & subscriptions** ||||
+| 42 | `test_amount_display_formats_pence` | £250 stored as 25000 pence displays correctly | `payments/tests.py` |
+| 43 | `test_school_admin_sees_fee_manager` | School admin fee page loads with student names | `payments/tests.py` |
+| 44 | `test_parent_cannot_access_school_fees` | Parent redirected away from admin fee manager | `payments/tests.py` |
+| 45 | `test_school_admin_redirected_from_parent_fee_list` | School admin uses admin fee page, not parent view | `payments/tests.py` |
+| 46 | `test_create_fee_for_all_students` | Admin creates fee; amount saved in pence | `payments/tests.py` |
+| 47 | `test_mark_fee_paid` | Admin can mark fee as paid manually | `payments/tests.py` |
+| 48 | `test_apply_subscription_updates_tier` | Stripe session metadata upgrades school tier | `payments/tests.py` |
+| 49 | `test_apply_subscription_idempotent` | Same Stripe session cannot upgrade twice | `payments/tests.py` |
+| **Exams** ||||
+| 50 | `test_mcq_auto_mark` | MCQ answers scored automatically | `exams/tests.py` |
+| 51 | `test_finalise_makes_official` | Teacher finalise locks result as official | `exams/tests.py` |
+| 52 | `test_parent_sees_only_finalised` | Only finalised results count as official | `exams/tests.py` |
+| **Qur'an mushaf sessions** ||||
+| 53 | `test_save_page_markup` | Page notes and highlights save to database | `quran/tests.py` |
+| 54 | `test_teacher_can_create_mushaf_session` | Teacher creates session for a student | `quran/tests.py` |
+| 55 | `test_teacher_can_save_page_via_api` | Save endpoint stores page data | `quran/tests.py` |
+| 56 | `test_build_ayah_text_includes_arabic` | Ayah text helper returns Arabic characters | `quran/tests.py` |
+| 57 | `test_teacher_can_add_annotation` | Teacher adds tajweed annotation | `quran/tests.py` |
+| 58 | `test_mark_session_reviewed` | Session moves to “reviewed” status | `quran/tests.py` |
+| **Hifz juz sign-off** ||||
+| 59 | `test_teacher_sign_off_sends_parent_message` | Sign-off creates record and messages parent | `hifz/tests.py` |
+| 60 | `test_duplicate_sign_off_rejected` | Same student + juz cannot be signed off twice | `hifz/tests.py` |
+| 61 | `test_parent_sees_sign_offs` | Parent Hifz page shows signed-off juz | `hifz/tests.py` |
+| **Homework sign-off** ||||
+| 62 | `test_other_teacher_cannot_sign_off` | Wrong teacher cannot approve submission | `homework/tests.py` |
+| 63 | `test_assigning_teacher_can_approve` | Assigning teacher can approve homework | `homework/tests.py` |
+| 64 | `test_student_can_submit` | Student can submit homework via API | `homework/tests.py` |
+| **Messaging & reports** ||||
+| 65 | `test_parent_opens_support_case` | Parent can open support ticket | `messaging/tests.py` |
+| 66 | `test_super_admin_sees_support_queue` | Super Admin sees support cases | `messaging/tests.py` |
+| 67 | `test_parent_messages_teacher` | Parent can message teacher | `messaging/tests.py` |
+| 68 | `test_teacher_creates_report_for_student` | Teacher structured report saves | `messaging/tests.py` |
+| 69 | `test_school_admin_inbox_shows_parent_with_child_name` | Admin inbox shows parent + child context | `messaging/tests.py` |
+| 70 | `test_school_admin_student_search` | Find student search works | `messaging/tests.py` |
+| **LMS (learning materials)** ||||
+| 71 | `test_school_admin_creates_subject_and_track` | Admin creates subject and track | `lms/tests.py` |
+| 72 | `test_teacher_assigns_track_and_student_sees_progress` | Track assigned; student sees progress | `lms/tests.py` |
+| **Subjects validation** ||||
+| 73 | `test_hifz_without_lead_teacher_rejected` | Hifz subject needs a lead teacher | `subjects/tests.py` |
+| **Homepage & email delivery** ||||
+| 74 | `test_homepage_shows_leaderboard_sections` | Guest home shows leaderboard sections | `core_app/tests.py` |
+| 75 | `test_logged_in_home_skips_leaderboards` | Logged-in users skip leaderboard promo | `core_app/tests.py` |
+| 76 | `test_send_platform_email_delivers_to_inbox` | Platform email reaches test inbox | `core_app/tests.py` |
+| **Seed commands (demo data)** ||||
+| 77 | `test_ensure_platform_seed_creates_demo_logins` | `ensure_platform_seed` creates demo users | `pages/tests.py` |
+| 78 | `test_alnoor_seed_creates_30_students_and_parents` | Al-Noor seed creates expected student count | `pages/tests.py` |
+| 79 | `test_full_school_seed_creates_y7a_student` | Full school seed includes 7A student | `pages/tests.py` |
+| **Example / integration accounts** ||||
+| 80 | `test_test_accounts_exist_with_examples` | Test parent/student accounts exist after seed | `pages/tests_examples.py` |
+| 81 | `test_test_parent_can_open_inbox` | Test parent inbox loads | `pages/tests_examples.py` |
+| 82 | `test_test_student_sees_lms_progress` | Test student sees LMS progress | `pages/tests_examples.py` |
+
+#### How each group of tests works (plain English)
+
+**Portal tests (`pages/tests.py`)** — These pretend to be a browser. Django's test client sends HTTP requests (GET/POST) to your URLs and checks the response: status code 200, redirect to the right page, or HTML contains expected text. Many tests call `ensure_platform_seed` first so demo users like `schooladmin` and `teacher_demo` exist. **Constraint:** these tests do not open Chrome or test JavaScript — they only check server responses.
+
+**Email tests (`accounts/tests_auth.py`)** — Real emails are not sent during tests. Django switches to a **fake inbox** (`locmem` email backend) so tests can count messages and read the verification code. **Constraint:** this proves the code *would* send an email; it does not test Gmail delivery on Heroku.
+
+**Tenant isolation (`accounts/tests.py`, `students/tests.py`)** — These create two schools and prove a teacher in School A cannot list students from School B via the API. This is critical for multi-tenant safety. **Constraint:** tests use the API layer; every portal page is not re-tested individually for isolation.
+
+**Payments (`payments/tests.py`)** — Fee amounts are stored in **pence** (25000 = £250). Tests check display formatting, who can open which fee page, and that subscription tier updates from a **fake Stripe session** dictionary (not a real Stripe API call). **Constraint:** clicking “Pay now” and completing Stripe Checkout in a browser is still manual testing.
+
+**Exams (`exams/tests.py`)** — Tests build a small exam in code (MCQ + written), save student answers, run auto-marking, and finalise. They prove draft scores stay hidden until finalise. **Constraint:** does not test the full exam builder HTML form — only the service layer.
+
+**Qur'an (`quran/tests.py`)** — Tests page notes, highlights, session creation, and review status. PDF rendering in the browser is not tested — only that data saves correctly. **Constraint:** no test loads actual mushaf PDF files (too heavy for CI).
+
+**Hifz (`hifz/tests.py`)** — Teacher signs off a juz; test checks database row, parent message, duplicate blocked, parent can view. Uses seeded Al-Noor data.
+
+**Homework (`homework/tests.py`)** — Uses the **REST API** with `APIClient` and JWT-style `force_authenticate`. Proves only the assigning teacher can sign off. **Constraint:** file upload submissions not covered.
+
+**Messaging (`messaging/tests.py`)** — Creates conversations between parent, teacher, and super admin. Checks inbox content and student search.
+
+**LMS (`lms/tests.py`)** — School admin creates subject/track; teacher assigns to class; student sees progress.
+
+**Seeds (`pages/tests.py`, `pages/tests_examples.py`)** — Management commands (`ensure_platform_seed`, Al-Noor seed) are run inside tests to prove demo data is created. **Constraint:** slowest tests; run full suite before deploy, not on every tiny edit.
+
+#### What automated tests do not cover
+
+| Area | Why manual testing is still needed |
+|------|-----------------------------------|
+| Stripe Checkout in browser | Tests use fake session data, not real card payment |
+| Mobile / tablet layout | No browser automation (Selenium/Playwright) |
+| Mushaf PDF display & zoom | PDF.js runs in browser only |
+| Heroku deploy & env vars | Tests run locally with test database |
+| Email on production Gmail | Locmem inbox only in tests |
+| Performance under load | No load testing |
+
+#### Apps with no automated tests yet
+
+These files exist but are placeholders: `attendance/tests.py`, `timetable/tests.py`, `notifications/tests.py`, `audit/tests.py`, `parents/tests.py`, `teachers/tests.py`, `schools/tests.py`, `academics/tests.py`. Attendance and timetable behaviour is partly covered by `pages/tests.py` portal tests instead.
 
 ### Testing summary table
 
 | Category | Automated | Manual | Status |
 |----------|-----------|--------|--------|
-| Authentication (JWT, register, session login) | `accounts` tests (partial) | Rows 1–3, 8–9, 11, 13 | In progress |
-| RBAC (role-based API access) | — | Rows 6–7, 19 | In progress |
-| Tenant isolation (cross-school blocked) | `accounts`, `students`, `core_app` tests | Rows 4–6, 10, 19–20 | In progress |
-| Student / teacher / class APIs | `students` tests | Rows 6, 19–20 | In progress |
-| Audit logging (login/logout) | — | Row 11 | In progress |
-| Payments (Stripe Checkout) | `payments` tests (model) | Rows 12, 14–18 | In progress |
-| Attendance CRUD | — | — | Not started |
-| Homework assign / submit / review | — | — | Not started |
-| Hifz sign-off flow | — | — | Not started |
-| Exam create / finalise | `exams` tests | Rows 42, manual exam walkthrough | Implemented |
-| Qur'an sessions / annotations | `quran` tests | Teacher annotate + student upload | Implemented |
-| Email verification / password reset | `accounts.tests_auth` | Register + verify flow | Implemented |
-| Notifications delivery | | | |
-| Messaging (send / receive) | | | |
-| Analytics dashboard metrics | | | |
+| Authentication (register, login, logout) | `pages`, `accounts/tests_auth` | Rows 1–3, 8–9, 11, 13 | Implemented |
+| RBAC (role dashboards, blocked access) | `pages` | Rows 6–7, 19 | Implemented |
+| Tenant isolation (cross-school blocked) | `accounts`, `students` | Rows 4–6, 10, 19–20 | Implemented |
+| Email verification & password reset | `accounts/tests_auth` | Register + verify flow | Implemented |
+| Payments (fees, subscriptions) | `payments` | Rows 12, 14–18 | Implemented (Stripe UI manual) |
+| Attendance register | `pages` | Rows 21–22, 61 | Implemented |
+| Homework assign / submit / sign-off | `homework` | Worksheet walkthrough | Implemented |
+| Hifz juz sign-off | `hifz` | Hifz parent message check | Implemented |
+| Exam create / mark / finalise | `exams` | Rows 42, exam walkthrough | Implemented |
+| Qur'an sessions / mushaf markup | `quran` | Teacher annotate + student view | Implemented |
+| Messaging & reports | `messaging` | Inbox screenshots | Implemented |
+| LMS tracks & progress | `lms` | LMS hub walkthrough | Implemented |
+| Timetable builder | `pages` | Rows 23–24, 56 | Implemented |
+| Seed / demo data | `pages`, `pages/tests_examples` | Demo walkthrough | Implemented |
+| Notifications API | — | Row 35 | Partial (manual API) |
+| Analytics dashboard metrics | — | Analytics page | Manual only |
+| Stripe Checkout (browser) | — | Pay now flow | Manual only |
 
 ### Bugs encountered during development
 
