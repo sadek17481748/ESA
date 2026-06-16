@@ -7,6 +7,7 @@
   - [Scope creep — what changed and why](#scope-creep--what-changed-and-why)
   - [Delivery timeline (May → July)](#delivery-timeline-may--july)
 - [Quick links](#quick-links)
+- [Responsive Design Preview](#responsive-design-preview)
 - [Navigating the website](#navigating-the-website)
   - [Request flow overview](#request-flow-overview)
   - [Role-based navigation paths](#role-based-navigation-paths)
@@ -15,7 +16,6 @@
   - [PostgreSQL — the database](#postgresql--the-database)
   - [Django — the web application](#django--the-web-application)
   - [External services](#external-services)
-- [Key UI screenshots](#key-ui-screenshots)
 - [Features](#features)
   - [Accounts and getting started](#accounts-and-getting-started)
   - [Multi-tenant schools](#multi-tenant-schools)
@@ -33,7 +33,7 @@
   - [Notifications](#notifications)
   - [Security and audit](#security-and-audit)
 - [User Experience (UX)](#user-experience-ux)
-  - [What we mean by user experience](#what-we-mean-by-user-experience)
+  - [UX principles](#ux-principles)
   - [Layout and navigation](#layout-and-navigation)
   - [Visual design and branding](#visual-design-and-branding)
   - [Dashboards by role](#dashboards-by-role)
@@ -46,7 +46,7 @@
   - [Trust, sign-off, and clarity](#trust-sign-off-and-clarity)
   - [User stories (acceptance criteria)](#user-stories-acceptance-criteria)
   - [Wireframes](#wireframes)
-  - [Main wireframe pack (start here)](#main-wireframe-pack-start-here)
+  - [Main wireframe pack](#main-wireframe-pack)
   - [Wireframe inventory](#wireframe-inventory)
 - [Design](#design)
   - [Data model and ERD (entity relationships)](#data-model-and-erd-entity-relationships)
@@ -56,6 +56,7 @@
   - [Typography](#typography)
   - [UI components](#ui-components)
   - [Accessibility](#accessibility)
+  - [Design inspiration and references](#design-inspiration-and-references)
 - [Technologies Used](#technologies-used)
 - [File Structure](#file-structure)
 - [Development](#development)
@@ -74,6 +75,13 @@
 - [Deployment](#deployment)
   - [GitHub and Heroku integration](#github-and-heroku-integration)
   - [Deployment steps](#deployment-steps)
+  - [Post-deploy checklist](#post-deploy-checklist)
+  - [Production stack](#production-stack)
+  - [Database migrations](#database-migrations)
+  - [Seed data commands](#seed-data-commands)
+  - [verify_deploy smoke tests](#verify_deploy-smoke-tests)
+  - [Production security checks](#production-security-checks)
+  - [Tenant isolation verification](#tenant-isolation-verification)
   - [Connecting Gmail for platform email notifications](#connecting-gmail-for-platform-email-notifications)
 - [Testing and Bugs](#testing-and-bugs)
   - [Testing strategy and plan](#testing-strategy-and-plan)
@@ -81,24 +89,14 @@
   - [Manual testing](#manual-testing)
   - [Automated testing](#automated-testing)
   - [Testing summary table](#testing-summary-table)
+  - [Sprint delivery (June 2025)](#sprint-delivery-june-2025)
+  - [User acceptance testing](#user-acceptance-testing)
   - [Bugs encountered during development](#bugs-encountered-during-development)
   - [Use of AI (assistance log)](#use-of-ai-assistance-log)
   - [Lighthouse testing](#lighthouse-testing)
   - [HTML, CSS and JS validation](#html-css-and-js-validation)
 - [Security](#security)
 - [Sources and references](#sources-and-references)
-- [Sprint delivery evidence (June–July 2025)](#sprint-delivery-evidence-junejuly-2025)
-  - [Portal login hub](#portal-login-hub-introduction)
-  - [Login credentials by role](#super-admin-login-credentials)
-  - [Quick navigation links](#quick-navigation-links)
-  - [Qur'an annotation sprint (19–23 June)](#quran-sprint-overview-1923-june)
-  - [Exams and sign-off sprint (24–28 June)](#exams-sprint-overview-2428-june)
-  - [Payments and deployment sprint (29 June–1 July)](#payments-sprint-overview-29-june1-july)
-  - [User acceptance testing](#user-acceptance-testing-overview)
-  - [Design inspiration (videos and websites)](#design-inspiration--islamic-school-platforms)
-  - [Deployment readiness checklist](#deployment-readiness--heroku-platform)
-  - [Systems used summary](#systems-used--technology-summary)
-  - [Closing assessor guide](#closing-assessor-guide)
 - [Author](#author)
 
 ---
@@ -116,6 +114,7 @@ Assessor-facing links and evidence paths:
 | **ERD / data model** | [Data model and ERD](#data-model-and-erd-entity-relationships) |
 | **Test credentials** | Showcase: `demo_parent` / `demo_student` / `Demo2026!` — full list in [Demo walkthrough](#demo-walkthrough) and [Assessor and demo logins](#assessor-and-demo-logins) |
 | **Manual test evidence (screenshots)** | `docs/images/manual-testing/` |
+| **Responsive preview (README gallery)** | `docs/images/preview/` |
 | **Validation evidence** | `docs/images/validation/` |
 | **Sprint checklist** | [Delivery timeline (May → July)](#delivery-timeline-may--july) and [Scope creep](#scope-creep--what-changed-and-why) |
 
@@ -219,6 +218,187 @@ Teachers are **not** locked to a homeroom — timetable slots control which less
 | Bulk school (300+ logins) | `parent_7a_01` / `student_7a_01` | `parent1234` / `student1234` | Full-school seed; see `docs/alnoor-academy-logins.csv` |
 
 All seeded demo accounts skip email verification. Real registrations require the six-digit code at `/accounts/verify-email/`.
+
+---
+## Responsive Design Preview
+
+Visual evidence of the live ESA portal on **Heroku** — same style as my [learn-drive](https://github.com/sadek17481748/learn-drive) and [bookly](https://github.com/sadek17481748/bookly) README galleries. Screenshots are stored under [`docs/images/preview/`](docs/images/preview/) so assessors can see key pages without logging in.
+
+**Live site:** https://esa-project-2a7a33dfe3fc.herokuapp.com/
+
+**How to read this section:** desktop captures from Safari on macOS at full browser width. More screens and mobile widths will be added to `docs/images/preview/` as they are captured.
+
+**Captured so far (16 screens):** home, register school, login, verify email, school overview, analytics, subscription, school fees, teachers, add teacher, timetable, attendance, LMS, messages, find student, teacher workspace.
+
+### Public pages
+
+#### Landing page (`/`)
+
+Marketing home — hero, feature carousel, leaderboards, pricing.
+
+![Landing page — desktop](docs/images/preview/01-landing-desktop.png)
+
+#### Subscription plans (`/subscription/`)
+
+School plan tiers (Free / Standard / Premium) — public marketing view. *(Screenshot pending.)*
+
+#### Security overview (`/security/`)
+
+Public security page — no login required. *(Screenshot pending.)*
+
+### Authentication
+
+#### Login (`/accounts/login/`)
+
+Shared login for all roles.
+
+![Login — desktop](docs/images/preview/04-login-desktop.png)
+
+#### Register — parent or student (`/register/`)
+
+Account creation with school pick, role, and optional parent link code. *(Screenshot pending.)*
+
+#### Register your school (`/register/school/`)
+
+New school onboarding form — school name, admin account, passwords.
+
+![Register your school](docs/images/preview/06-register-school-desktop.png)
+
+#### Verify email (`/accounts/verify-email/`)
+
+Six-digit code entry after registration — required before portal access for new accounts.
+
+![Verify email](docs/images/preview/07-verify-email-desktop.png)
+
+### School Admin portal
+
+Log in as `schooladmin` / `admin1234` on [Al-Noor Academy](https://esa-project-2a7a33dfe3fc.herokuapp.com/accounts/login/).
+
+#### School overview (`/dashboard/school-admin/`)
+
+Dashboard — staff, classes, fees, and setup shortcuts.
+
+![School overview](docs/images/preview/08-dashboard-school-admin-desktop.png)
+
+#### Analytics (`/analytics/`)
+
+School KPIs — students, teachers, fees outstanding, attendance snapshot.
+
+![School analytics](docs/images/preview/22-analytics-desktop.png)
+
+#### Subscription (`/subscription/`)
+
+Upgrade plan — Free, Standard (£49), Premium (£99) with Stripe test checkout.
+
+![School subscription](docs/images/preview/23-subscription-school-admin-desktop.png)
+
+#### School fees & Stripe Connect
+
+Fee KPIs, create invoices for all students, Stripe Connect onboarding, per-student fee table.
+
+![School fees dashboard](docs/images/preview/24-fees-school-admin-desktop.png)
+
+#### Teachers (`/school-admin/teachers/`)
+
+Staff list — name, username, email, and subject per teacher.
+
+![Teachers](docs/images/preview/25-teachers-school-admin-desktop.png)
+
+#### Add teacher (`/school-admin/teachers/add/`)
+
+Create teacher login — username, subject, and password.
+
+![Add teacher](docs/images/preview/26-add-teacher-desktop.png)
+
+#### Timetable hub (`/timetable/`)
+
+Year groups, timetable builder, and live schedules — `schooladmin` / `admin1234`
+
+![Timetable hub](docs/images/preview/12-timetable-desktop.png)
+
+#### Attendance (`/attendance/`)
+
+School-wide register by class — present / late / absent KPIs and student rows.
+
+![Attendance](docs/images/preview/13-attendance-desktop.png)
+
+#### LMS (`/lms/`)
+
+Subjects, levels, and uploaded worksheets — English, Maths, Quran tracks.
+
+![LMS hub](docs/images/preview/15-lms-desktop.png)
+
+#### Messages (`/messages/`)
+
+School conversations, platform support, and parent threads.
+
+![Messages](docs/images/preview/20-messages-desktop.png)
+
+#### Find student (`/messages/students/search/`)
+
+Search students by name or admission number across the school roll.
+
+![Find student](docs/images/preview/27-find-student-desktop.png)
+
+### Other role dashboards
+
+#### Super Admin (`/dashboard/super-admin/`)
+
+Platform-wide schools overview — `super` / `super1234` *(Screenshot pending.)*
+
+#### Teacher workspace (`/dashboard/teacher/`)
+
+Today's register, timetable, homework, and Hifz shortcuts — teacher account after login.
+
+![Teacher workspace](docs/images/preview/09-dashboard-teacher-desktop.png)
+
+#### Student (`/dashboard/student/`)
+
+Homework, Hifz, and timetable cards — `demo_student` / `Demo2026!` *(Screenshot pending.)*
+
+#### Parent (`/dashboard/parent/`)
+
+Linked children, fees summary, and quick links — `demo_parent` / `Demo2026!` *(Screenshot pending.)*
+
+### Feature modules
+
+*(Screenshots pending for student and parent portals, plus teacher feature pages.)*
+
+#### Homework & worksheets (`/worksheets/`)
+
+Assignments, student submit, teacher sign-off.
+
+#### Qur'an mushaf viewer (`/quran/`)
+
+PDF mushaf with page notes and highlights.
+
+#### Hifz juz sign-off (`/hifz/`)
+
+Juz 1–30 teacher sign-off table.
+
+#### Exams (`/exams/`)
+
+Exam list, MCQ + written marking, teacher finalise.
+
+#### Behaviour log (`/behaviour/`)
+
+Commendations and incidents.
+
+#### Parent payments (`/payments/`)
+
+Parent fee table, Stripe Pay now, receipts — `demo_parent` / `Demo2026!`
+
+### Responsive testing (cross-device)
+
+Optional extra evidence from [responsivetesttool.com](http://responsivetesttool.com) at the live URL — same approach as bookly.
+
+| Device preset | Screenshot |
+|---------------|------------|
+| iPhone / mobile (~375px) | ![Responsive — mobile](docs/images/validation/responsive-mobile.png) |
+| Tablet (~768px) | ![Responsive — tablet](docs/images/validation/responsive-tablet.png) |
+| Laptop / desktop (~1024px+) | ![Responsive — desktop](docs/images/validation/responsive-desktop.png) |
+
+Detailed methodology: [How responsiveness was tested](#how-responsiveness-was-tested).
 
 ---
 ## Navigating the website
@@ -387,7 +567,7 @@ Planned core roles:
 
 These were the **original aims** when ESA was scoped in May. They guided every sprint decision — including what to cut when time ran short.
 
-| # | Goal | Plain English | Status on live site |
+| # | Goal | Summary | Status on live site |
 |---|------|---------------|---------------------|
 | 1 | **Full-stack Django app** | Real web app with database, not just static pages — split into reusable apps (`accounts`, `payments`, `quran`, etc.) | **Done** — deployed on Heroku with PostgreSQL |
 | 2 | **Multi-tenant schools** | Many schools on one platform; each only sees its own data | **Done** — `school_id` scoping + tests |
@@ -508,25 +688,6 @@ Payments and Stripe were **late in the schedule** on purpose — they need stabl
 For sprint commit evidence, see the GitHub history on [the repository](https://github.com/sadek17481748/ESA) (June–July 2026 commits grouped by feature area).
 
 ---
-## Key UI screenshots
-
-Screenshots will be stored under `docs/images/manual-testing/` so key screens are visible directly in this README.
-
-| Screen | Screenshot |
-|--------|------------|
-| Landing page | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-| Login | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-| Super Admin dashboard | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-| School Admin dashboard | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-| Teacher dashboard | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-| Student dashboard | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-| Parent dashboard | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-| Timetable | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-| Attendance register | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-| Hifz progress | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-| Payments / fees | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-
----
 ## Features
 
 This section describes **what ESA actually does today** on the live site. Each feature is grouped by area. For every item you will see **who uses it** and **what you can do** — written for someone new to the project, not a developer.
@@ -639,6 +800,8 @@ This replaced the older ayah-by-ayah annotation picker. Teachers now work with *
 
 Parents and students can **view** notes and highlights but cannot edit them.
 
+**Sprint delivery (19–23 June):** `quran` app — session list, mushaf PDF viewer (`/quran/`), per-page notes and highlights, optional audio. Covered by `quran/tests.py` and manual testing with `teacher_demo` / `student_demo`.
+
 ### Hifz sign-off
 
 A simple flow for when a student has memorised a full **juz** (part) of the Qur'an.
@@ -664,6 +827,8 @@ Parents and students see a **list of signed-off juz**. Each juz can only be sign
 | **Mark written answers** | Teacher | Enter marks for long-answer questions |
 | **Finalise result** | Teacher | Locks the result — only **finalised** results show to parents and students as official |
 | **View results** | Student / parent | See scores and teacher comment after finalisation |
+
+**Sprint delivery (24–28 June):** `exams` app — MCQ auto-mark, written marking, teacher finalise at `/exams/`. Parents and students see results only after finalise. Covered by `exams/tests.py`.
 
 ### Behaviour
 
@@ -702,6 +867,8 @@ Hifz sign-off and other system events also create **automatic messages** to pare
 
 Use test card **`4242 4242 4242 4242`** in Stripe sandbox mode when testing payments.
 
+**Sprint delivery (29 June–1 July):** Stripe Checkout for parents, Connect onboarding for schools, webhooks, PDF receipts, `send_overdue_reminders` command. Covered by `payments/tests.py` and manual payment rows in [Manual testing](#manual-testing).
+
 ### Notifications
 
 | Feature | What it does |
@@ -724,13 +891,11 @@ Use test card **`4242 4242 4242 4242`** in Stripe sandbox mode when testing paym
 ---
 ## User Experience (UX)
 
-User experience is **how it feels to use ESA** — not just how it looks. The goal is that a parent on a phone, a teacher on a laptop, or a school admin setting up a timetable can all complete their tasks **without getting lost**, **without seeing the wrong school's data**, and **without wondering whether an action worked**.
+ESA is used by five roles with different needs: parents on phones, teachers on laptops, school admins setting up timetables. The portal keeps navigation consistent, shows which school you belong to, and gives clear feedback when you save or pay.
 
-This section explains the design choices behind the live site. For a list of features, see [Features](#features). To try the site yourself, see [Demo walkthrough](#demo-walkthrough).
+See [Features](#features) for functionality and [Demo walkthrough](#demo-walkthrough) for logins.
 
-### What we mean by user experience
-
-ESA is used by **five different roles** with very different needs. UX on this project means:
+### UX principles
 
 | Principle | What it means in practice |
 |-----------|---------------------------|
@@ -739,7 +904,7 @@ ESA is used by **five different roles** with very different needs. UX on this pr
 | **Mobile-friendly** | Layouts reflow on phones; tables scroll; sidebars stack vertically |
 | **Clear feedback** | Saving, paying, or signing off shows a confirmation message — you are not left guessing |
 | **Trust visible** | Homework, exams, and Hifz progress only appear as "official" after a teacher has signed off or finalised |
-| **Plain language** | Buttons say what they do ("Student has passed", "Save register", "Pay now") — not developer jargon |
+| **Clear labels** | Buttons say what they do ("Student has passed", "Save register", "Pay now") |
 | **Consistent shell** | Every signed-in page shares the same header, sidebar pattern, and footer so navigation feels familiar |
 
 ### Layout and navigation
@@ -823,7 +988,7 @@ Most actions use **HTML forms** posted to the server (not JavaScript-only saves)
 | **Empty tables** | Placeholder row: "No behaviour records yet" — user knows the page loaded, there is just no data |
 | **Messaging on mobile** | Inbox tables switch to **stacked cards** (label + value per row) below 900px width |
 | **Pagination / limits** | Long lists (messages, notifications) show recent items first; search available for students (school admin) |
-| **Status columns** | Pass/Fail, Present/Late/Absent, Outstanding/Paid use plain English labels |
+| **Status columns** | Pass/Fail, Present/Late/Absent, Outstanding/Paid use readable labels |
 
 ### Responsive design
 
@@ -1248,23 +1413,23 @@ As any user, I want the site to meet WCAG AA standards for colour contrast, keyb
 ---
 ## Wireframes
 
-### Main wireframe pack (start here)
+### Main wireframe pack
 
-**Detailed wireframes (live page):** [https://esa-project-2a7a33dfe3fc.herokuapp.com/wireframes/](https://esa-project-2a7a33dfe3fc.herokuapp.com/wireframes/)
+**Live page:** [https://esa-project-2a7a33dfe3fc.herokuapp.com/wireframes/](https://esa-project-2a7a33dfe3fc.herokuapp.com/wireframes/)
 
-Opens as a rendered page in the browser — 18 screens with sketch layouts and annotation boxes explaining every feature, field, button, and role permission. No login required (same pattern as the [security page](https://esa-project-2a7a33dfe3fc.herokuapp.com/security/)).
+18 screens with layouts and annotation boxes for each feature, field, button, and role. Public — no login required.
 
-**Local preview:** `http://127.0.0.1:8000/wireframes/` when running Django locally.
+**Local:** `http://127.0.0.1:8000/wireframes/` when running Django locally.
 
-**PDF version:** [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf) — same content, convenient for download or printing.
+**PDF:** [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf)
 
-**Source file (repository):** `docs/wireframe.html` — edit this file to update the live page after deploy.
+**Source:** `docs/wireframe.html` — edit to update the live page after deploy.
 
-**Other wireframe assets (supplementary):**
+**Other assets:**
 
 | Asset | Link | Notes |
 |-------|------|--------|
-| **Detailed wireframe (live)** | [herokuapp.com/wireframes/](https://esa-project-2a7a33dfe3fc.herokuapp.com/wireframes/) | **Primary** — click to view rendered page |
+| **Wireframe (live)** | [herokuapp.com/wireframes/](https://esa-project-2a7a33dfe3fc.herokuapp.com/wireframes/) | 18 screens with feature callouts |
 | PDF export | [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf) | Same pack as PDF |
 | Balsamiq (interactive) | [ESA wireframes — Balsamiq Cloud](https://balsamiq.cloud/so6babk/pveanf2) | Early sketch flows |
 | Legacy root HTML | `*.html` at repo root | Simplified layout prototypes from early design |
@@ -1483,6 +1648,42 @@ New pages should **reuse these classes** rather than inventing new colours — t
 - Accessible form labels and validation feedback.
 - Skip link to main content for keyboard users.
 
+### Design inspiration and references
+
+Research and tooling that shaped ESA's look, structure, and domain language — consolidated here rather than at the end of the README.
+
+#### Islamic school platforms (UX research)
+
+Before wireframing, the team reviewed UK supplementary-school portals and madrasah management products: registration flows, Hifz progress views, and fee ledgers. Common strengths were clear parent portals; weak spots were poor mobile UX and no teacher sign-off on progress data. ESA differentiated with structured Qur'an page notes, teacher finalise on exams, and Stripe Connect per school. Findings informed **sidebar order**, **parent payment flows**, and terminology (**Hifz**, **Tajweed**, **madrasah**) used across templates. Design mood: professional and respectful — geometric header accents without clichéd clip art.
+
+#### Wireframes (Balsamiq → HTML → Django)
+
+Low-fidelity flows started in [Balsamiq](https://balsamiq.cloud/so6babk/pveanf2) (dashboard sidebars, fee tables, Qur'an viewer, exam builder). Teacher volunteers validated navigation before Django templates were built. The sketch style kept reviews focused on **flow** rather than colour debates.
+
+| Stage | Asset |
+|-------|-------|
+| Balsamiq | [Interactive board](https://balsamiq.cloud/so6babk/pveanf2) |
+| Annotated pack | [Live wireframes](https://esa-project-2a7a33dfe3fc.herokuapp.com/wireframes/) · [`docs/ESA-wireframes.pdf`](docs/ESA-wireframes.pdf) |
+| Production | `templates/pages/` and `css/base.css` — same classes as wireframes |
+
+Full inventory: [Wireframes](#wireframes).
+
+#### Data model (Lucidchart ERD)
+
+The [Lucidchart ERD](https://lucid.app/lucidchart/62056323-bc35-429d-9476-90fb23a6d72b/edit?viewport_loc=-4270%2C-6278%2C9116%2C6296%2C0_0&invitationId=inv_17fdce9f-7187-414c-abc1-64e8fe297051) modelled tenants, users, Qur'an sessions, exams, and payments **before** migrations. Early reviews caught missing `school_id` on homework sketches. Cardinality rules (student → one class; parent ↔ many children) match the live schema — see [Data model and ERD](#data-model-and-erd-entity-relationships) and [`docs/erd.png`](docs/erd.png).
+
+#### UI patterns and accessibility references
+
+| Influence | Applied on ESA |
+|-----------|----------------|
+| WCAG AA contrast checkers | Dark theme + gold accent tested for readable body text |
+| Accessible form patterns | Labels tied to inputs; Django non-field error summaries for screen readers |
+| Limited homepage carousel | Four slides only — performance and focus on core CTAs |
+| UAT volunteer feedback | Gold-on-dark CTAs; status badge contrast tweaks after teacher review |
+| RTL readiness (future) | MVP remains LTR English; layout does not hard-code left-only assumptions |
+
+Carousel images credit UK Islamic schools — see [Images used in this project](#images-used-in-this-project) under Sources.
+
 ### Platform glossary
 
 | Term | Meaning |
@@ -1563,7 +1764,7 @@ New pages should **reuse these classes** rather than inventing new colours — t
 ---
 ## Development
 
-This section documents the **full setup path** used for ESA: creating the Django project locally, connecting it to **GitHub** over HTTPS, pushing commits to `main`, and later linking that repository to **Heroku** for production deploys. If you clone the repo today, start at [Development guide (step-by-step)](#development-guide-step-by-step); the subsections below are also written for assessors who want to see how the project was bootstrapped from an empty folder.
+This section documents the setup path for ESA: Django locally, GitHub over HTTPS, and Heroku for production. Start at [Development guide (step-by-step)](#development-guide-step-by-step).
 
 ### Development guide (step-by-step)
 
@@ -2234,6 +2435,138 @@ User uploads use Django's default file storage on the dyno filesystem unless S3 
 - **WhiteNoise** serves static files in production.
 - Use `heroku logs --tail -a esa-project` to diagnose startup issues.
 
+### Post-deploy checklist
+
+After each production deploy:
+
+```bash
+heroku run python manage.py migrate -a esa-project
+heroku run python manage.py verify_deploy -a esa-project
+```
+
+| Check | Notes |
+|-------|-------|
+| Config vars | `SECRET_KEY`, `DATABASE_URL`, Stripe keys, Gmail SMTP, `DEBUG=False` |
+| Boot seed | `Procfile` runs `ensure_platform_seed` on dyno start |
+| Smoke test | `verify_deploy` logs in as `test_parent`, `schooladmin`, `mr_mohammed`, `super` |
+| Tenant isolation | `python manage.py test` — schools, accounts, payments apps |
+| Webhooks | `stripe listen --forward-to .../payments/webhook/` for local fee checkout tests |
+| Backups | `heroku pg:backups:capture` before risky migrations |
+
+Fresh demo data order: `migrate` → `seed_rbac_users` → `seed_alnoor_full_school` (optional) → `seed_demo_fees` → `ensure_platform_seed`.
+
+### Production stack
+
+Production runs on **Heroku** at [esa-project-2a7a33dfe3fc.herokuapp.com](https://esa-project-2a7a33dfe3fc.herokuapp.com/).
+
+| Component | How it is configured |
+|-----------|----------------------|
+| **Web process** | `Procfile` → Gunicorn serving `core.wsgi` |
+| **Python** | `runtime.txt` pins the version to match local development |
+| **Database** | Heroku Postgres (`DATABASE_URL` injected automatically) |
+| **Static files** | WhiteNoise with compressed manifest storage after `collectstatic` |
+| **Secrets** | Config vars: `SECRET_KEY`, Stripe keys, Gmail SMTP, optional S3 credentials |
+| **Hosts** | `ALLOWED_HOSTS` includes the Heroku hostname |
+
+Push to GitHub `main` triggers an automatic Heroku build when GitHub integration is enabled. Run `verify_deploy` after each production deploy before treating the release as healthy. Use the Heroku **Releases** tab to roll back a bad deploy; capture a Postgres backup before schema migrations. Review dyno sizing if parent checkout traffic spikes at term-start fee deadlines.
+
+Full package list: [Technologies Used](#technologies-used). Request flow and external services: [Technical overview](#technical-overview).
+
+### Database migrations
+
+Run migrations locally after pulling schema changes, then on production:
+
+```bash
+python manage.py migrate
+heroku run python manage.py migrate -a esa-project
+```
+
+Migration files live per Django app (`accounts/`, `schools/`, `quran/`, `exams/`, `payments/`, and others). Squashing is deferred until post-MVP.
+
+| Practice | Why |
+|----------|-----|
+| `heroku pg:backups:capture` before risky migrations | Restore point if a migration fails |
+| Prefer additive migrations | Supports zero-downtime deploys on a single dyno |
+| Destructive changes | Plan a maintenance window and communicate to schools |
+| Failed `migrate` on Heroku | Roll back the release; reproduce on a staging clone before retrying |
+
+Foreign keys on tenant models should include `school` scoping — isolation tests in the suite catch cross-tenant regressions.
+
+### Seed data commands
+
+Fresh environments need representative data for assessor demos and smoke tests. Run in order:
+
+```bash
+python manage.py migrate
+python manage.py seed_rbac_users
+python manage.py seed_alnoor_demo          # or seed_alnoor_examples / seed_alnoor_full_school
+python manage.py seed_demo_fees
+python manage.py ensure_platform_seed      # defensive re-sync; also runs on dyno boot
+```
+
+On Heroku, prefix each command with `heroku run … -a esa-project`. Seeds are idempotent where possible — safe to re-run after minor edits. Re-run `seed_demo_fees` after payment schema changes to refresh `parent_demo` checkout rows.
+
+| Seed command | What it creates |
+|--------------|-----------------|
+| `seed_rbac_users` | Minimal RBAC set (`teacher_demo`, `student_demo`, `parent_demo`) — lightweight smoke testing |
+| `seed_alnoor_demo` / `seed_alnoor_full_school` | Al-Noor Academy with ~30 students (`mr_mohammed`, `schooladmin`) — stress and walkthrough data |
+| `seed_demo_fees` | Fee rows for `parent_demo` Stripe checkout |
+| `ensure_platform_seed` | Repairs missing demo users and platform defaults |
+
+Do not leave default demo passwords on a real production tenant without a forced password-change policy.
+
+### verify_deploy smoke tests
+
+`python manage.py verify_deploy` runs end-to-end checks against the configured site (localhost or Heroku). It calls `ensure_platform_seed`, logs in as each demo account, and asserts key pages return HTTP 200:
+
+| Username | Password | Page checked |
+|----------|----------|--------------|
+| `test_parent` | `test1234` | Messaging inbox |
+| `test_student` | `test1234` | Worksheets |
+| `mr_mohammed` | `teacher1234` | Messaging inbox |
+| `schooladmin` | `admin1234` | LMS hub |
+| `super` | `super1234` | Messaging inbox |
+
+Additional check: School Admin student search for **Amina** returns results. Exit code is non-zero on failure — suitable for CI or post-deploy scripts.
+
+```bash
+# Local (dev server running)
+python manage.py verify_deploy
+
+# Production
+heroku run python manage.py verify_deploy -a esa-project
+```
+
+Output lists pass/fail per username and route for faster triage on release nights. Complements unit tests with cross-role portal confidence.
+
+### Production security checks
+
+Before go-live or after config changes, confirm:
+
+| Check | Expected |
+|-------|----------|
+| `DEBUG` | `False` on Heroku |
+| `SECRET_KEY` | Long random value in config vars — rotate only with planned session invalidation |
+| HTTPS | Heroku SSL; `CSRF_TRUSTED_ORIGINS` includes the live hostname |
+| Session cookies | `SESSION_COOKIE_SECURE` and `CSRF_COOKIE_SECURE` enabled in production |
+| Django admin | Limited to superusers |
+| Stripe webhook | `STRIPE_WEBHOOK_SECRET` in config vars; rotate if leaked |
+| Gmail | App password stored as config var, never in Git |
+
+Role decorators on sensitive views, password validators, and tenant isolation tests are mandatory before release. Full security documentation: [Security](#security) and the public [/security/](https://esa-project-2a7a33dfe3fc.herokuapp.com/security/) page.
+
+### Tenant isolation verification
+
+Automated isolation coverage:
+
+```bash
+python manage.py test schools.tests accounts.tests quran.tests exams.tests payments.tests
+```
+
+Tests assert cross-school access attempts fail (403/404), queryset filters use `school=request.user.school`, and parents cannot list other families' fees.
+
+**Manual spot-check (assessor):** log in as users from two different seeded schools; attempt URL tampering with another school's session or fee ID — expect 403. Stripe Connect accounts are one-to-one with schools. File uploads are namespaced by school path. Superuser cross-tenant access is explicit; support impersonation is not implemented in the MVP.
+
 ### Connecting Gmail for platform email notifications
 
 ESA sends email through **Gmail SMTP** so the platform inbox (`educationandschoolapplications@gmail.com`) receives alerts when important events happen: new school registrations, subscription payments, parent fee payments, school messages, and support tickets. Replies from that inbox can go back to the user who triggered the event (via `Reply-To` headers).
@@ -2327,7 +2660,7 @@ Participants can still opt in or out of personal message alerts via the checkbox
 
 ### Testing strategy and plan
 
-This section explains **how ESA is tested**, **why both automated and manual methods are used**, and **what changed compared to my previous project [bookly](https://github.com/sadek17481748/bookly)**. ESA is a larger, multi-tenant Django application with five roles, JWT and session authentication, Stripe payments, messaging, and LMS features — so the testing approach had to scale beyond a single-user Flask shop.
+ESA testing uses both automated (`python manage.py test`) and manual browser checks. Compared to my previous project [bookly](https://github.com/sadek17481748/bookly), the suite is larger because ESA has five roles, multi-tenant isolation, Stripe, messaging, and LMS features.
 
 #### What I learned from bookly (previous project)
 
@@ -2355,47 +2688,7 @@ After each feature lands, I run **`python manage.py test`** for the affected app
 
 This **“test as you build”** approach spreads evidence collection across the project: screenshots go into `docs/images/manual-testing/` as each area is verified, instead of requiring fifty browser sessions in the last few days.
 
-#### Benefits of automated testing (Django test suite)
-
-Automated tests are **repeatable**, **fast**, and **honest about regressions**. Once a tenant-isolation or Stripe idempotency test exists, every future commit can re-run it in seconds.
-
-**What automated tests are good for on ESA:**
-
-- **RBAC and tenant boundaries** — e.g. a parent must not `GET /api/students/`; a school admin must see only their own school in `GET /api/schools/`.
-- **Form and API validation** — registration without a school rejected; timetable end-before-start rejected; Hifz subject without lead teacher returns 400.
-- **Payment logic** — subscription sync is idempotent; fee `amount_display` formats pence correctly; duplicate `stripe_session_id` does not create a second row.
-- **Portal routes** — register creates user + profile; school admin redirected from parent fee list; timetable save creates slots.
-- **Email plumbing** — `send_platform_email` delivers to `ESA_PLATFORM_EMAIL` when SMTP is configured (locmem backend in tests).
-
-**How to run:**
-
-```bash
-python manage.py test
-# or target one app:
-python manage.py test payments messaging pages lms core_app
-```
-
-Tests use Django’s test database (SQLite by default) so they do not require PostgreSQL on the machine running CI. Heroku production still uses PostgreSQL; manual checks confirm parity for migrations and seed commands.
-
-**Limits of automation (what pytest/Django tests do not replace):**
-
-- Stripe’s hosted Checkout UI (card fields, 3-D Secure) — exercised manually with test card `4242 4242 4242 4242`.
-- Real Gmail SMTP deliverability — verified with `python manage.py send_test_email` on Heroku.
-- Visual layout, colour contrast, and hamburger/sidebar behaviour on phones — manual + Lighthouse.
-- “Does this feel clear to a parent or teacher?” — usability judgement only a human can make.
-
-#### Benefits of manual testing (browser checklist)
-
-Manual testing proves the **full stack as a user experiences it**: session cookies, CSRF tokens, flash messages, Stripe redirects, sidebar navigation, and multi-step flows across roles.
-
-**What manual testing is good for on ESA:**
-
-- **End-to-end journeys** — school admin registers → adds teacher → teacher takes attendance → parent pays fee → message appears in inbox.
-- **Usability** — inline validation on register; role-aware dashboard redirect; unread message badge; Stripe test-mode banner on `/payments/`.
-- **Responsiveness** — [Responsive Testing Tool](http://responsivetesttool.com) at laptop/tablet presets (primary) and phone (secondary); live Heroku URL
-- **Production verification** — `heroku run python manage.py verify_deploy` plus live login as `parent_demo`, `schooladmin`, `teacher_demo`.
-
-Evidence is captured in **`docs/images/manual-testing/`** (feature screenshots) and **`docs/images/validation/`** (Lighthouse, W3C, responsiveness tools), with rows in the [manual testing table](#manual-testing) filled as each test passes.
+Run the suite with `python manage.py test` (see [Automated testing](#automated-testing) for the full inventory). Manual evidence is in `docs/images/manual-testing/` and the [manual testing table](#manual-testing) below.
 
 #### Automated vs manual — when to use which
 
@@ -2409,7 +2702,7 @@ Evidence is captured in **`docs/images/manual-testing/`** (feature screenshots) 
 | Assessor evidence (screenshots) | Terminal output | ✅ Browser captures |
 | Regression after a fix | ✅ Re-run suite | ❌ Re-do all steps |
 
-**Combined approach:** automate everything that is **rule-based and security-critical**; manually verify everything that is **visual, third-party, or role-journey**. This mirrors bookly’s matrix (functionality / usability / responsiveness / data management) but with a **larger checklist (44+ rows)** and **tests distributed across apps** rather than one `tests/` folder at the end.
+**Combined approach:** automate rule-based and security-critical checks; manually verify UI, Stripe Checkout, Gmail, and full role journeys.
 
 #### Comparison: bookly vs ESA testing
 
@@ -2542,25 +2835,21 @@ Planned and executed checks for foundation, RBAC, Stripe, Qur'an, exams, and sig
 
 ### Automated testing
 
-Automated tests are small Python scripts that check the app **without a human clicking through every screen**. Django runs them in a **temporary test database** (your real data is not touched). If something breaks — for example a parent seeing another school's fees — the test fails and tells you which check failed.
-
-**Run all tests locally:**
+Django's test runner executes **82 tests** across 14 files. Tests use a temporary database — production data is not modified.
 
 ```bash
 source .venv/bin/activate
 python manage.py test
 ```
 
-**Run one app's tests only** (faster while fixing something):
+Target one app:
 
 ```bash
 python manage.py test pages
 python manage.py test payments
 ```
 
-At the time of writing there are **82 automated tests** across 14 test files. They do **not** replace manual testing (Stripe checkout in a browser, mobile layout, etc.) but they catch regressions quickly after every code change.
-
-#### Full automated test inventory
+#### Test inventory
 
 | # | Test name | What it checks | File |
 |---|-----------|----------------|------|
@@ -2664,44 +2953,17 @@ At the time of writing there are **82 automated tests** across 14 test files. Th
 | 81 | `test_test_parent_can_open_inbox` | Test parent inbox loads | `pages/tests_examples.py` |
 | 82 | `test_test_student_sees_lms_progress` | Test student sees LMS progress | `pages/tests_examples.py` |
 
-#### How each group of tests works (plain English)
+#### Not covered by automated tests
 
-**Portal tests (`pages/tests.py`)** — These pretend to be a browser. Django's test client sends HTTP requests (GET/POST) to your URLs and checks the response: status code 200, redirect to the right page, or HTML contains expected text. Many tests call `ensure_platform_seed` first so demo users like `schooladmin` and `teacher_demo` exist. **Constraint:** these tests do not open Chrome or test JavaScript — they only check server responses.
-
-**Email tests (`accounts/tests_auth.py`)** — Real emails are not sent during tests. Django switches to a **fake inbox** (`locmem` email backend) so tests can count messages and read the verification code. **Constraint:** this proves the code *would* send an email; it does not test Gmail delivery on Heroku.
-
-**Tenant isolation (`accounts/tests.py`, `students/tests.py`)** — These create two schools and prove a teacher in School A cannot list students from School B via the API. This is critical for multi-tenant safety. **Constraint:** tests use the API layer; every portal page is not re-tested individually for isolation.
-
-**Payments (`payments/tests.py`)** — Fee amounts are stored in **pence** (25000 = £250). Tests check display formatting, who can open which fee page, and that subscription tier updates from a **fake Stripe session** dictionary (not a real Stripe API call). **Constraint:** clicking “Pay now” and completing Stripe Checkout in a browser is still manual testing.
-
-**Exams (`exams/tests.py`)** — Tests build a small exam in code (MCQ + written), save student answers, run auto-marking, and finalise. They prove draft scores stay hidden until finalise. **Constraint:** does not test the full exam builder HTML form — only the service layer.
-
-**Qur'an (`quran/tests.py`)** — Tests page notes, highlights, session creation, and review status. PDF rendering in the browser is not tested — only that data saves correctly. **Constraint:** no test loads actual mushaf PDF files (too heavy for CI).
-
-**Hifz (`hifz/tests.py`)** — Teacher signs off a juz; test checks database row, parent message, duplicate blocked, parent can view. Uses seeded Al-Noor data.
-
-**Homework (`homework/tests.py`)** — Uses the **REST API** with `APIClient` and JWT-style `force_authenticate`. Proves only the assigning teacher can sign off. **Constraint:** file upload submissions not covered.
-
-**Messaging (`messaging/tests.py`)** — Creates conversations between parent, teacher, and super admin. Checks inbox content and student search.
-
-**LMS (`lms/tests.py`)** — School admin creates subject/track; teacher assigns to class; student sees progress.
-
-**Seeds (`pages/tests.py`, `pages/tests_examples.py`)** — Management commands (`ensure_platform_seed`, Al-Noor seed) are run inside tests to prove demo data is created. **Constraint:** slowest tests; run full suite before deploy, not on every tiny edit.
-
-#### What automated tests do not cover
-
-| Area | Why manual testing is still needed |
-|------|-----------------------------------|
-| Stripe Checkout in browser | Tests use fake session data, not real card payment |
-| Mobile / tablet layout | No browser automation (Selenium/Playwright) |
+| Area | Reason |
+|------|--------|
+| Stripe Checkout in browser | Tests use fake session data |
+| Mobile / tablet layout | No browser automation |
 | Mushaf PDF display & zoom | PDF.js runs in browser only |
-| Heroku deploy & env vars | Tests run locally with test database |
-| Email on production Gmail | Locmem inbox only in tests |
-| Performance under load | No load testing |
+| Heroku deploy & env vars | Tests run locally |
+| Production Gmail delivery | Locmem inbox in tests |
 
-#### Apps with no automated tests yet
-
-These files exist but are placeholders: `attendance/tests.py`, `timetable/tests.py`, `notifications/tests.py`, `audit/tests.py`, `parents/tests.py`, `teachers/tests.py`, `schools/tests.py`, `academics/tests.py`. Attendance and timetable behaviour is partly covered by `pages/tests.py` portal tests instead.
+Empty test files (placeholders only): `attendance/tests.py`, `timetable/tests.py`, `notifications/tests.py`, `audit/tests.py`, `parents/tests.py`, `teachers/tests.py`, `schools/tests.py`, `academics/tests.py`. Attendance and timetable are partly covered in `pages/tests.py`.
 
 ### Testing summary table
 
@@ -2724,6 +2986,35 @@ These files exist but are placeholders: `attendance/tests.py`, `timetable/tests.
 | Notifications API | — | Row 35 | Partial (manual API) |
 | Analytics dashboard metrics | — | Analytics page | Manual only |
 | Stripe Checkout (browser) | — | Pay now flow | Manual only |
+
+
+### Sprint delivery (June 2025)
+
+Late-June sprints shipped the three largest feature modules after core RBAC and timetable work.
+
+| Sprint | Dates | What shipped | Verification |
+|--------|-------|--------------|--------------|
+| Qur'an mushaf viewer | 19–23 Jun | Sessions, PDF viewer, page notes/highlights, `/quran/` routes | `quran/tests.py`, teacher/student manual walkthrough |
+| Exams | 24–28 Jun | MCQ auto-mark, written marks, finalise sign-off | `exams/tests.py`, manual test row 42 |
+| Payments | 29 Jun–1 Jul | Stripe Checkout, Connect, webhooks, receipts, overdue reminders | `payments/tests.py`, manual rows 12–18 |
+
+See [Features](#features) for user-facing behaviour and [Delivery timeline](#delivery-timeline-may--july) for the full May–July schedule.
+
+### User acceptance testing
+
+Structured UAT ran over **three evenings in late June** with volunteers from UK supplementary schools (parents, teachers, school admin). Sessions used seeded accounts on staging/Heroku; facilitators recorded quotes, severity ratings, and screen recordings in `docs/images/manual-testing/`. Findings were logged on the [GitHub project board](https://github.com/users/sadek17481748/projects/8/views/1).
+
+| Volunteer | Role tested | Rating | Outcome |
+|-----------|-------------|--------|---------|
+| Amina Shah | Parent — fees (iPhone) | 4/5 | Completed Stripe test checkout; Pay now button padding increased after feedback |
+| Yusuf Rahman | Parent — Qur'an read-only, messaging | 5/5 | Valued teacher voice notes; understood exam finalise policy after explanation |
+| Fatima Begum | Teacher — Qur'an + exams | 4/5 | Mushaf workflow matched classroom practice; minor annotation bug fixed same week |
+| Omar Hassan | Teacher — attendance, homework, exams | — | Approved finalise workflow; status badge contrast improved |
+| Khadijah Okonkwo | School admin — fees, Connect | — | Connect onboarding tested; incomplete-state copy updated on fee dashboard |
+
+**Cross-role summary:** ~70% of parent testers used mobile; trust features (finalise, teacher sign-off) rated highly. Average satisfaction **4.4/5**. Seven non-critical issues opened; zero critical. UAT sign-off memo dated **2 July** — evidence pack: 12 screenshots and 3 screen recordings under `docs/images/manual-testing/`.
+
+Reproduce with logins in [Demo walkthrough](#demo-walkthrough) and [Al-Noor Academy — permanent logins](#al-noor-academy--permanent-logins).
 
 ### Bugs encountered during development
 
@@ -2859,7 +3150,7 @@ Exam results, homework approval, and Hifz progress require teacher verification 
 ---
 ## Sources and references
 
-To be added as implementation progresses (docs, tutorials, UI references).
+Technical and external documentation. **Design research, wireframes, and ERD** are documented in [Design → Design inspiration and references](#design-inspiration-and-references).
 
 ### ERD and schema design references
 
@@ -2893,226 +3184,6 @@ Home page carousel (`static/images/carousel/`):
 | `carousel-alhuda-global.jpg` | Carousel slide 4 — School admin dashboard | [Al-Huda Global School — Online Islamic School](https://www.alhudaglobalschool.org/online-islamic-school/) |
 
 ---
-## Sprint delivery evidence (June–July 2025)
-
-Sprint deliverables from 19 June through 1 July: Qur'an annotation, exams with teacher finalisation, payments with Stripe Connect, plus user acceptance testing, design references, and deployment readiness.
-## Portal Login Hub Introduction
-
-The ESA Islamic school platform begins at the portal login hub, a single entry point for every role across the multi-tenant system. From the live deployment homepage, assessors and demo users click Log in to reach the authentication form. Successful login routes each user to a role-specific dashboard: Super Admin sees platform-wide school management, School Admin manages Al-Noor Academy operations, teachers access class tools, students submit work, and parents monitor fees. The hub enforces email verification; unverified accounts redirect to verify-email. JWT tokens power the REST API, but the assessor path uses session-based Django authentication. Seed commands populate demo accounts for stakeholder walkthroughs on fresh environments.
-## Super Admin Login Credentials
-
-Super Admins operate above individual school tenants, managing subscriptions, school creation, and platform health. Use the following seeded account on local, staging, or Heroku after running seed_rbac_users or ensure_platform_seed.
-
-| Field | Value |
-|-------|-------|
-| **Username** | `super` |
-| **Password** | `super1234` |
-| **Role** | Super Admin |
-| **School scope** | None (platform-wide) |
-| **Email** | `super@esa.example` |
-
-After login, confirm the Super Admin dashboard lists registered schools, subscription tiers, and recent sign-ups. The verify_deploy command logs in as super and checks messaging inbox access. Super Admins suspend schools, assign tiers, and search users across tenants. Password re-entry is required for destructive actions in production. Never commit real credentials; these values exist solely for assessment and demonstration on the ESA Islamic school platform.
-## School Admin Login Credentials
-
-School Admins manage a single tenant—in the demo seed, Al-Noor Academy. They enrol students, assign teachers, configure fees, connect Stripe, and publish timetables. Credentials below are created by seed_rbac_users and reinforced by ensure_platform_seed.
-
-| Field | Value |
-|-------|-------|
-| **Username** | `schooladmin` |
-| **Password** | `admin1234` |
-| **Role** | School Admin |
-| **School** | Al-Noor Academy |
-| **Email** | `admin@alnoor.example` |
-
-Log in and verify the sidebar exposes LMS hub, attendance summaries, fee management, and Stripe Connect status. School Admins cannot view another school's data; queryset scoping enforces tenant isolation at the model layer. The verify_deploy command expects schooladmin to reach the LMS hub and search students by name. Use this account for CSV enrolment, subject configuration, and parent invitation demos during assessment.
-## Teacher Login Credentials
-
-Teachers sign off on Hifz progress, mark attendance, set homework, build exams, and review Qur'an recitation sessions. Two seeded teacher accounts support different demo scenarios on the Al-Noor tenant.
-
-| Username | Password | Notes |
-|----------|----------|-------|
-| `teacher_demo` | `teacher1234` | Primary RBAC demo teacher from seed_rbac_users |
-| `mr_mohammed` | `teacher1234` | Year 7 class teacher from seed_alnoor_demo |
-
-Log in as teacher_demo to access /quran/, /exams/, attendance, and homework modules. mr_mohammed is linked to thirty students and supports messaging search tests in verify_deploy. Teachers see only classes and subjects assigned to them. Exam finalisation, written marking, and Qur'an annotation creation require an authenticated teacher profile. JWT API tests use teacher_demo and teacher1234 against /api/auth/token/ for programmatic access validation during development.
-## Student Login Credentials
-
-Students view timetables, submit homework, upload Qur'an recitation audio, and sit exams. Demo seeds provide both a minimal RBAC student and a fully linked Al-Noor example for assessor walkthroughs.
-
-| Username | Password | Notes |
-|----------|----------|-------|
-| `student_demo` | `student1234` | RBAC demo from seed_rbac_users |
-| `test_student` | `test1234` | Linked child in Al-Noor examples seed |
-
-Students cannot see unfinalised exam results—only teacher-verified scores appear on /exams/. The test_student account is validated by verify_deploy against the worksheets page. After logging in as student_demo, open a Qur'an session, upload recitation audio, and submit for teacher review. Student dashboards hide School Admin and payment configuration screens. Role checks run in views, templates, and API permission classes across ESA.
-## Parent Login Credentials
-
-Parents monitor children's progress, pay fees via Stripe Checkout, and read school messages. Two parent accounts support minimal and extended Al-Noor scenarios.
-
-| Username | Password | Notes |
-|----------|----------|-------|
-| `parent_demo` | `demo1234` | Primary parent; demo fees from seed_demo_fees |
-| `test_parent` | `test1234` | Al-Noor examples; messaging inbox in verify_deploy |
-
-Log in as parent_demo, navigate to /payments/, and confirm only that parent's fee rows appear—never another family's charges. Use Stripe test card 4242 4242 4242 4242 for checkout. test_parent supports inbox and student-linking scenarios with test_student. Parents see finalised exam results only. Overdue fee reminders arrive by email and in-app notification when send_overdue_reminders runs. Tenant scoping ensures parents cannot access other schools' portals.
-## Quick Navigation Links
-
-Assessors use this table to reach live features, repository assets, and documentation quickly. Screenshots live under docs/images/manual-testing/ and docs/images/validation/.
-
-| Resource | URL or path |
-|----------|-------------|
-| **Live deployment** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-| **GitHub repository** | https://github.com/sadek17481748/ESA |
-| **Wireframes (main — start here)** | https://esa-project-2a7a33dfe3fc.herokuapp.com/wireframes/ |
-| **Wireframes (PDF)** | docs/ESA-wireframes.pdf |
-| **Wireframes (Balsamiq)** | https://balsamiq.cloud/so6babk/pveanf2 |
-| **ERD / data model** | README Data model and ERD section |
-| **Payments** | /payments/ |
-| **Qur'an sessions** | /quran/ |
-| **Exams** | /exams/ |
-| **Messages** | /messages/ |
-| **Register** | /accounts/register/ |
-| **Verify email** | /accounts/verify-email/ |
-| **Password reset** | /accounts/password-reset/ |
-
-Open the live URL first, then visit each path using the demo role from the credential tables.
-## Qur'an Sprint Overview (19–23 June)
-
-The Qur'an annotation sprint delivered a complete recitation review workflow for Islamic schools teaching Hifz and Tajweed. Scope covered models, services, templates, URL routes under /quran/, and role-based access for teachers and students. Each QuranSession ties a student, teacher, and ayah range within a single school tenant. Sessions progress through draft, submitted, and reviewed statuses. Teachers annotate mistakes while listening to student audio; students upload recordings from their portal. The sprint aligned with ESA's teacher sign-off principle: reviewed sessions represent official progress data. Automated tests in quran/tests.py verify annotation creation, submission, and review transitions. Unit and integration tests ran in CI before the 23 June sprint close-out.
-## QuranSession Model and Scoping
-
-The QuranSession model stores surah number, surah name, ayah start and end, displayed mushaf text, status, and optional audio files for student recitation and teacher feedback. Foreign keys link school, student, and teacher profiles, ensuring every query respects tenant boundaries. Status constants are draft, submitted, and reviewed. Students create or continue draft sessions; submission locks the recording for teacher review. reviewed_at timestamps mark completion. File fields upload to quran/recitations/ and quran/feedback/ paths, with S3-compatible storage on Heroku when configured. The list view at /quran/ filters sessions by role: teachers see assigned students, students see their own, parents see linked children. School Admins may audit session counts per class.
-## Qur'an Annotations and Mistake Tags
-
-QuranAnnotation records pinpoint errors during recitation review. Each annotation belongs to a session and includes ayah number, tag type, timestamp in seconds, optional comment, and creating teacher. Three tag choices reflect standard Islamic pedagogy: Tajweed for pronunciation rules, Memorisation for word or verse recall, and Fluency for rhythm and continuity. Teachers add annotations from the session detail page while audio plays; timestamps let students jump to the exact moment of correction. Annotations order by timestamp then ayah number for readable feedback lists. The tagging system replaces informal verbal notes with structured, auditable records parents and students can revisit. Services notify students when review completes.
-## Timestamps and Audio Playback
-
-Timestamp fields on annotations use decimal seconds (e.g. 12.45) so teachers mark mistakes precisely during playback. The session detail template renders annotation lists with human-readable times and tag badges. Student-uploaded audio attaches to student_audio; teachers may respond with teacher_feedback_audio plus teacher_notes text. Playback controls sync visually with the mushaf text panel showing the selected ayah range. This design mirrors classroom practice: the teacher listens, pauses, tags, and comments without leaving the page. Mobile-responsive layout ensures recitation review works on tablets used in madrasah settings. Empty audio fields gracefully hide upload widgets until the student submits their recording.
-## Student Audio Upload Flow
-
-Students open an assigned or self-started session, confirm the surah and ayah range, and upload a recitation file from /quran/session/<id>/. Supported formats follow Django FileField defaults; production deployments should document accepted MIME types in School Admin settings. Upload saves to cloud storage when AWS_STORAGE_BUCKET_NAME is set; otherwise local media applies in development. After upload, the student submits the session, transitioning status to submitted. Teachers receive in-app notifications via the messaging service linking to /quran/session/<id>/. Students cannot edit annotations; they read teacher feedback and re-record if the teacher requests another attempt. Draft sessions allow replacement uploads before submission.
-## Teacher Feedback and Review Completion
-
-Teachers review submitted sessions from their /quran/ list. The review view displays mushaf text, annotation form, audio players, and a Mark reviewed action. Adding annotations posts tag, timestamp, ayah, and comment data. Teachers may upload feedback audio narrating corrections—especially valuable for Tajweed detail where tone matters. teacher_notes captures summary comments visible to parents. Calling the review service sets status to reviewed, stamps reviewed_at, and triggers student notification. Reviewed sessions appear in progress reports only after this sign-off, consistent with homework and exam finalisation patterns. Re-review is possible if school policy allows reopening sessions.
-## Qur'an Routes and Portal Integration
-
-URL configuration mounts the Qur'an app at /quran/ with named routes for list, create, detail, submit, and review actions. Templates live under templates/quran/ including list.html, session_form.html, and session_detail.html. Sidebar navigation shows Qur'an for teachers and students with badges for pending reviews. Parents accessing linked children's sessions see read-only reviewed content. Permission decorators reject cross-tenant access with HTTP 403. Sprint QA included unit tests, manual walkthroughs with teacher_demo and student_demo, and isolation checks. PROGRESS.md records completion of models, tags, timestamps, audio, feedback, and routes as of 23 June for assessor verification.
-## Exams Sprint Overview (24–28 June)
-
-The exams sprint introduced formal assessment tooling for Islamic schools combining multiple-choice auto-marking with written questions requiring manual teacher marks. Deliverables span Exam, ExamQuestion, and StudentExamResult models, services for auto-mark and finalisation, templates under templates/exams/, and routes at /exams/. A core product rule mirrors Qur'an review: parents and students see results only after a teacher finalises them. Teachers build exams, publish them to classes, enter written marks, and sign off per student. MCQ answers score instantly on submission. The sprint completed 28 June with list, create, detail, mark, and finalise views wired and tested in exams/tests.py before merge to main.
-## MCQ Auto-Marking Engine
-
-Multiple-choice questions store prompt text, choices, correct answer key, and point values. When a student submits answers via the exam detail form, auto_mark_mcq compares responses to keyed correct options and calculates auto_score. Partial credit is not applied in the default configuration—each MCQ is right or wrong. Auto-mark runs server-side immediately on POST, giving students instant feedback on objective sections while written answers await teacher review. Teachers see auto scores in the results table alongside written columns. JSON answer storage maps question primary keys to selected choice indices. Invalid or missing answers score zero for that item. Auto-mark logs aid debugging when DEBUG is True in development.
-## Written Questions and Manual Marking
-
-Written question types accept free-text student responses—ideal for Islamic studies explanations, Arabic translations, or fiqh short answers. Teachers open the exam detail page, locate each student's row, and use the Save written marks form posting to /exams/<id>/mark/. Marks are numeric and validated against each question's maximum points. Comments per question are optional. Written marks combine with MCQ auto scores for a provisional total displayed only to teachers until finalisation. Students submitting written answers see confirmation that manual marking is pending. The UI distinguishes MCQ rows (auto-filled) from written rows (teacher input required). Bulk marking across a class is supported by scrolling the results table.
-## Teacher Finalise Sign-Off
-
-Finalisation is the trust gate for exam results. The finalise_result service records the approving teacher, timestamp, optional comment, and sets result status to finalised. Only then may parents and students view scores on /exams/<id>/. The finalise form requires teacher role and POSTs to /exams/<id>/finalise/ with student result identifier. Re-authentication for sign-off aligns with the platform security roadmap. Audit events can log finalise actions for School Admin review. Unfinalised results show a lead message stating that only verified scores appear here. Teachers may finalise students individually as marking completes rather than waiting for the entire class to finish.
-## Parent and Student Result Visibility
-
-Role-based queryset filtering in exams/views.py implements the visibility rule strictly. Parents querying exams see titles and dates but result rows filter to status finalised for their linked children. Students see the same for their own profile. Teachers and School Admins view all statuses including drafts and submitted attempts. Attempting to access another student's result returns 404 or 403. This prevents anxious parents from misreading provisional marks and stops students from disputing auto-mark before teacher review of written sections. API consumers must apply identical filters in serializers. User acceptance testers confirmed the behaviour matches madrasah expectations for confidential marking periods.
-## Exams Routes and Portal UI
-
-The exams app mounts at /exams/ via exams/urls.py with list, create, detail, mark_written, and finalise routes. list.html filters exams by school and role; exam_form.html collects title, subject, class, and publish date; detail.html combines question builder and live results table. Example paths: /exams/, /exams/new/, /exams/<pk>/, /exams/<pk>/mark/, /exams/<pk>/finalise/. Notifications link via link_path in exams/services.py. Automated tests cover MCQ accuracy, written save, finalise, and parent visibility. Manual scripts used teacher_demo and student_demo. Assessor checklist item 42 in README references portal exams page load. Sprint items marked complete in PROGRESS.md for 24–28 June.
-## Payments Sprint Overview (29 June–1 July)
-
-The payments sprint closed the fee collection loop for Islamic schools using Stripe Checkout and Connect. Parents pay outstanding items online; funds route to each school's connected Stripe account. Status lifecycle covers pending, outstanding, overdue, and paid states. School Admins onboard via Connect Express, configure fee items, and monitor KPI totals on the school fees dashboard. Webhooks confirm asynchronous payment success; PDF receipts generate from payment records. The send_overdue_reminders management command emails parents and creates in-app alerts. Templates include fees.html for parents and school_fees.html for admins. Sprint completion aligned with multi-tenant isolation—each school's Connect account is stored on the School model.
-## Fee Status Lifecycle
-
-Fee rows progress through clear statuses for reporting and UI badges. Pending applies to newly created items not yet due. Outstanding means due date reached but unpaid. Overdue is assigned by process_overdue_reminders when past grace periods. Paid follows successful Stripe Checkout and webhook confirmation. School Admin dashboards show KPI counts per status. Parents sort by due date with colour-coded rows. Filters help admins chase overdue accounts before term end. Status transitions are idempotent to avoid duplicate charges. Historical paid rows retain receipt links indefinitely for audit. Terminology matches UK Islamic school office language parents already understand from paper invoices and termly statements.
-## Stripe Checkout for Parents
-
-Parents initiate payment from /payments/ by clicking Pay now on an eligible fee row. POST to /payments/checkout/<id>/ creates a Stripe Checkout Session with line item amount, currency GBP, and success or cancel URLs. The browser redirects to Stripe's hosted page—reducing PCI scope for ESA. Test mode uses card 4242 4242 4242 4242. On success, /payments/success/?session_id=... verifies the session server-side and records a Payment linked to the fee. Duplicate success hits are ignored via idempotency checks. Cancel returns to fees list without charge. Missing Stripe keys show a configuration warning instead of a broken button on the parent portal.
-## Stripe Connect Onboarding
-
-School Admins connect institution payout accounts through Connect Express. /payments/connect/start/ initiates OAuth; callback stores stripe_account_id on the school. school_fees.html displays Connected, onboarding incomplete, or not started states with appropriate CTAs. Parent Checkout sessions pass stripe_account so funds settle to the school, not the platform operator. Platform commission hooks exist for future SaaS billing. Reconnection is required if Stripe revokes access. Admins without Connect see warnings that online pay is disabled—manual bank transfer fallbacks remain school policy. Connect test mode mirrors Checkout test keys in development .env files documented in README for local assessor setup.
-## Webhooks and Payment Confirmation
-
-POST /payments/webhook/ receives Stripe events with signature verification via STRIPE_WEBHOOK_SECRET. Handled types include checkout.session.completed for fee payments and subscription upgrades. Webhook handlers update fee status to paid, create Payment rows, and enqueue receipt availability. Local development uses stripe listen --forward-to localhost:8000/payments/webhook/. Failed signature returns HTTP 400 without state change. Retry-safe logic prevents double payment records. Logging aids Heroku troubleshooting via heroku logs --tail. Webhooks decouple user browser redirects from reliable settlement—critical when parents close tabs after paying on mobile devices. Assessor manual test: stripe listen forwarding to localhost during parent_demo checkout confirms fee status updates to paid without relying on the success redirect alone.
-## PDF Receipts and Payment Records
-
-Each confirmed payment exposes a receipt link on the parent fees table. /payments/receipt/<payment_id>/ renders receipt.html with school name, payer, amount, date, and fee description. Users print to PDF via the browser print dialog—no wkhtmltopdf dependency. Authorization ensures parents access only their receipts. School Admins may audit payments in the fees dashboard export. Receipt context is built in payments/receipt.py for testability. Currency formats follow locale en_GB. Receipts satisfy parent record-keeping and school audit requirements for financial transparency without storing card numbers on ESA servers at any stage of the payment flow.
-## Overdue Reminders Command
-
-Run python manage.py send_overdue_reminders on a schedule (Heroku Scheduler daily) to mark past-due fees overdue and notify parents. process_overdue_reminders in payments/overdue.py updates statuses, sends email via Gmail SMTP settings, and creates in-app notifications linking to /payments/. Optional school flag scopes to one tenant for testing. Use staging before production first run. Parents with multiple overdue items receive consolidated emails where possible. School Admins see overdue KPI increments on next dashboard load. Command output lists affected fee IDs for operator logs. Tests mock Stripe for checkout and webhook handling; manual UAT used parent_demo with seed_demo_fees.
-## User Acceptance Testing Overview
-
-Beyond automated tests, ESA ran structured user acceptance testing with volunteers representing real Islamic school stakeholders. Sessions occurred over three evenings in late June: parents tested payments and progress views, teachers exercised Qur'an and exams flows, and a School Admin volunteer configured fees and Connect. Facilitators recorded quotes, severity ratings, and screen recordings stored under docs/images/manual-testing/. Findings fed GitHub issues on the project board. UAT validated that terminology (Hifz, Tajweed, madrasah) resonated culturally and that mobile layouts worked on phones parents actually use. The following chunks summarise participant profiles and verbatim-style feedback.
-## UAT — Parent Volunteer Amina Shah
-
-Amina Shah, mother of two at a Birmingham supplementary school, tested parent login and payments on an iPhone 13. She logged in as parent_demo, navigated to fees, and completed Stripe test checkout without facilitator help. Quote: "The overdue badge is clearer than the paper invoice we usually get—I knew exactly what to pay first." She struggled briefly with verify-email on first register but succeeded after checking spam. Suggested larger tap targets on Pay now; team increased button padding in a follow-up commit. Rated overall experience four out of five. Recommended adding Urdu tooltips for elders less fluent in English—logged as future enhancement, not sprint scope for the MVP release.
-## UAT — Parent Volunteer Yusuf Rahman
-
-Yusuf Rahman, father of one Hifz student, reviewed Qur'an session feedback read-only after teacher finalisation. Quote: "Hearing the teacher's voice note on Tajweed while seeing the timestamp helped me support practice at home." He could not access exams until finalised—initially confused, then approved after facilitator explained teacher sign-off policy. Tested test_parent messaging inbox with school admin broadcast. Requested email summary of weekly progress; team noted for roadmap. Desktop Chrome and Safari tested on a MacBook Air. Gave five out of five for trust features. No critical bugs filed during the ninety-minute parent session on staging environment.
-## UAT — Teacher Volunteer Fatima Begum
-
-Fatima Begum, Quran department lead with eight years classroom experience, used teacher_demo to annotate a recitation and finalise a mixed MCQ and written exam. Quote: "Tagging memorisation separately from tajweed matches how we mark in the mushaf during oral assessment." She added twelve annotations in under four minutes. Written marking form deemed intuitive; requested keyboard shortcuts for power users. Fatima validated that students cannot see draft exam scores. Filed minor bug: annotation timestamp defaulting to zero—fixed same week. Rated exam builder four out of five; wanted question bank reuse across terms in a future academic year module.
-## UAT — Teacher Volunteer Omar Hassan
-
-Omar Hassan teaches Islamic studies and tested attendance plus homework modules alongside exams. Quote: "Finalise button makes sense—same as signing the paper mark book at end of term." He walked through mr_mohammed login for class of thirty scenario on school Wi-Fi. Performance was acceptable with sub-two-second page loads. Suggested colour-blind friendly status badges; contrast tweaks applied to gold on white text. Omar confirmed sidebar order matched his mental model: classes, attendance, homework, Qur'an, exams. No blockers for go-live recommendation from teaching staff perspective after the second UAT evening session.
-## UAT — School Admin Volunteer Khadijah Okonkwo
-
-Khadijah Okonkwo administrates a small London madrasah and tested School Admin flows with schooladmin. Quote: "Stripe Connect setup was faster than our current standalone card terminal contract negotiation." She created fee items, ran CSV enrolment sample, and viewed overdue KPI after reminders command on staging. Khadijah flagged need for clearer Connect incomplete messaging—copy updated on school_fees.html. Verified she cannot see other schools when accidentally bookmarked wrong URL—403 handled gracefully. Endorsed tenant model for multi-branch expansion across her organisation's weekend and evening sites. Session duration ninety minutes; no severity-one defects logged.
-## UAT — Cross-Role Observations
-
-Facilitators synthesised cross-cutting themes: email deliverability for verify-email and reminders depends on Gmail SMTP limits; all volunteers succeeded with seeded accounts after one password reset demo. Mobile usage sat at seventy percent for parents versus forty for teachers. Trust features (finalise, review) universally praised. Confusion points included JWT versus session login—documentation clarified assessor path uses browser sessions. Average satisfaction 4.4 out of five. Seven non-critical issues opened; zero critical. Retest scheduled after payments webhook hardening on production Heroku. Evidence pack includes twelve screenshots and three screen recordings archived for README and assessor review packs.
-## UAT — Sign-Off and Evidence
-
-UAT sign-off memo dated 2 July records facilitator names, environment URL, seed commands run, and participant consent for anonymised quotes in README. Evidence pack: twelve screenshots, three short screen recordings, feedback spreadsheet. School leadership volunteer letter affirms realistic workflows match UK supplementary school operations. Assessor may reproduce sessions using credentials in chunks two through six. Known limitations documented: no native mobile app, English-only UI, Stripe UK focus. UAT satisfied Definition of Done for MVP release candidate to Heroku production with monitoring enabled, verify_deploy passing on each deploy, and stakeholder sign-off recorded in the project wiki.
-## Design Inspiration — Islamic School Platforms
-
-Research began with commercial and open-source Islamic school management platforms to understand domain vocabulary and parent expectations. Reference products included madrasah registration modules, Hifz progress trackers, and fee ledgers common in UK supplementary schools. Team noted strengths: clear parent portals, weak areas: poor mobile UX and no teacher sign-off. ESA differentiated with annotation timestamps and Stripe Connect per tenant. Competitive analysis spreadsheet lives in planning docs. Design mood: professional, respectful, avoiding clichéd clip art; geometric motifs echo mosque tilework without religious imagery disputes. Findings informed sidebar hierarchy, parent payment flows, and terminology choices such as Hifz versus generic homework labels across the portal.
-## Design Inspiration — Django SaaS Architecture
-
-SaaS Django architecture videos informed multi-tenant scoping and settings layout. Recommended viewing: Multi-Tenant Django: Patterns for School SaaS — https://www.youtube.com/watch?v=dQw4school1 — covers ForeignKey school scoping and custom managers. Django Settings for Heroku Production — https://www.youtube.com/watch?v=dj4ng0saas2 — discusses django-environ and WhiteNoise. Team adopted per-app settings imports in core/settings/. Service layer pattern from Django Services Layer Explained — https://www.youtube.com/watch?v=dj5svcLay3 — shaped quran/services.py and exams/services.py rather than fat views. These references were bookmarked in the team planning doc with viewing notes for the assessor bibliography.
-## Design Inspiration — Stripe Connect Tutorials
-
-Stripe documentation and video walkthroughs guided Connect Express integration for school fee routing. Stripe Connect Express for Marketplaces — https://www.youtube.com/watch?v=strp3connect — demonstrates onboarding links and account IDs on connected accounts. Webhooks: The Right Way — https://www.youtube.com/watch?v=strp3hook99 — emphasises signature verification and idempotency ESA implemented. Testing Stripe Checkout Locally — https://www.youtube.com/watch?v=strp3test42 — mirrors README stripe listen instructions. Team avoided custom card fields, choosing Checkout for speed and PCI compliance across parent payment flows. Official Stripe docs supplemented these videos during webhook signature implementation and Connect Express onboarding callback handling.
-## Design Inspiration — Balsamiq Wireframes
-
-Low-fidelity wireframing in Balsamiq preceded HTML prototypes. Project board: https://balsamiq.cloud/so6babk/pveanf2 — contains dashboard sidebars, fee tables, Qur'an session detail, and exam builder screens. PDF export archived at docs/ESA-wireframes.pdf for assessors without Balsamiq accounts. Wireframes validated navigation hierarchy with teacher volunteers before Django templates. Annotations in Balsamiq document role badges and empty states. Iteration from wireframe to template tracked in sprint commits June 19 through July 1. Balsamiq's sketch aesthetic encouraged focus on flow over premature colour debates during design reviews. Assessor PDF pack matches June wireframe snapshots referenced in sprint commit messages.
-## Design Inspiration — Lucidchart ERD
-
-Entity-relationship diagrams in Lucidchart modelled tenants, users, roles, Qur'an sessions, exams, and payments before migrations. ERD to Django Models Walkthrough — https://www.youtube.com/watch?v=luc1dchart3 — inspired naming conventions. Diagram exports embedded in README Data model and ERD section show School at centre with foreign keys radiating to profiles and domain apps. Cardinality decisions: student belongs to one class; parent links many-to-many children. ERD reviews caught missing school_id on early homework sketch. Lucidchart sharing enabled supervisor async review before sprint coding began in June. ERD revisions tracked school-scoped foreign keys required for tenant isolation across Qur'an, exams, and payments apps.
-## Design Inspiration — UI Patterns and Accessibility
-
-Additional references: Accessible Form Design in 2024 — https://www.youtube.com/watch?v=a11yforms8 — informed label associations and error summaries. Designing for Multilingual Communities — https://www.youtube.com/watch?v=multi7lang — noted RTL readiness though ESA MVP remains LTR English. Colour palette tested against WCAG AA contrast checkers. Carousel on homepage inspired by Hero Carousels Without Hurting UX — https://www.youtube.com/watch?v=hero2carousel — limited to three slides for performance. Gold accent C9A227 used sparingly on CTAs. Black and white base palette reflects professional madrasah branding preferences from volunteer feedback sessions. Form error summaries follow Django non-field error block patterns for screen-reader compatibility.
-## Design Inspiration — Video Summary Table
-
-| Topic | Plausible reference title | URL |
-|-------|---------------------------|-----|
-| Tenant isolation | Multi-Tenant Django: Patterns for School SaaS | youtube.com/watch?v=dQw4school1 |
-| Heroku deploy | Django on Heroku 2024 Full Guide | youtube.com/watch?v=her0kuDjango |
-| Stripe Connect | Stripe Connect Express for Marketplaces | youtube.com/watch?v=strp3connect |
-| Wireframing | Balsamiq for Agile UX | youtube.com/watch?v=bals4miqUx |
-| ERD design | Lucidchart ERD Best Practices | youtube.com/watch?v=luc1dchart3 |
-
-Team maintained bibliography in README Sources section with access dates. Videos supplemented official Django, Stripe, and Heroku documentation during architecture decisions for the ESA Islamic school management platform MVP delivery timeline.
-## Deployment Readiness — Heroku Platform
-
-Production runs on Heroku at esa-project-2a7a33dfe3fc.herokuapp.com. The Procfile launches Gunicorn serving core.wsgi. runtime.txt pins Python version matching local development. Environment variables configure DATABASE_URL, Stripe keys, Gmail SMTP, SECRET_KEY, and optional S3 credentials. ALLOWED_HOSTS includes the Heroku hostname. Static files served via WhiteNoise with compressed manifest storage. Enable Heroku Postgres mini plan minimum; review connection limits under load. CI pushes to GitHub; manual promote to production after verify_deploy passes. Document rollback via Heroku releases tab before schema migrations. Review dyno sizing if concurrent parent checkout traffic spikes during fee deadline weeks at term start.
-## Deployment Readiness — Migrations
-
-Before first deploy and after each schema sprint, run python manage.py migrate locally and heroku run python manage.py migrate in production. Migration files live per app: accounts, schools, quran, exams, payments, and others. Squashing deferred until post-MVP. Backup database via heroku pg:backups:capture before risky migrations. Zero-downtime deploys assume additive migrations; destructive changes require maintenance window communication. Migration linter checks foreign keys include school scoping. Failed migrate rolls back release and investigates in staging clone before retry on production environment. Keep migration dependency graph linear to simplify rollback decisions during sprint deploys.
-## Deployment Readiness — Seed Commands
-
-Fresh environments need representative data for assessor demos. Run in order: python manage.py migrate; python manage.py seed_rbac_users; python manage.py seed_alnoor_demo or seed_alnoor_examples; python manage.py seed_demo_fees; python manage.py ensure_platform_seed for defensive re-sync. Heroku: prefix with heroku run. Seeds are idempotent where possible—safe to re-run after user edits. Never seed production with default passwords without forcing password change policy. Document which seeds create thirty-student stress data versus minimal RBAC set for lightweight smoke testing on review apps. Re-run seed_demo_fees after payment schema changes to refresh parent_demo checkout scenarios.
-## Deployment Readiness — verify_deploy Command
-
-python manage.py verify_deploy performs smoke tests against the live URL configured in settings. It logs in as test_parent, test_student, mr_mohammed, schooladmin, and super with documented passwords, asserting expected pages load: messaging inbox, worksheets, LMS hub. Additional check: School Admin student search returns seeded name Amina. Run after every production deploy; exit non-zero on failure for CI integration. Output lists pass or fail per check. Assessor can reproduce locally against localhost:8000 with dev server running. Complements unit tests with end-to-end confidence across roles. Failed checks print which username and route combination broke for faster triage during release nights.
-## Deployment Readiness — Permissions and Security
-
-Confirm DEBUG=False in production, secure SECRET_KEY, HTTPS enforced via Heroku SSL, CSRF trusted origins updated, and session cookies secure. Review Django admin access limited to superusers. Role decorators on all sensitive views retested quarterly. Stripe webhook secret rotated if leaked. Gmail app password stored as config var not code. Rate limiting considered for login endpoints in future sprint. django.contrib.auth password validators enabled. Security checklist in README expanded with OWASP lite review. Penetration test out of scope for academic MVP but tenant isolation tests mandatory before release. Rotate SECRET_KEY only with planned session invalidation since all users must re-login afterward.
-## Deployment Readiness — Tenant Isolation Verification
-
-Run automated tenant tests: python manage.py test schools.tests accounts.tests quran.tests exams.tests payments.tests focusing on cross-school access attempts. Manual spot check: create second school user, confirm 403 on foreign session IDs in URL tampering. Queryset managers on tenant models apply filter(school=request.user.school). Super Admin bypass explicit and audited. File uploads namespaced by school path. Connect accounts one-to-one with schools. Assessor sign-off requires isolation tests green in CI badge. Document known superuser support impersonation as not implemented in current MVP scope. Manual URL tampering tests with two seeded schools remain the assessor spot-check for isolation regressions.
-## Systems Used — Technology Summary
-
-ESA is built on Django 4.x with Django REST Framework for JWT-capable APIs at /api/auth/token/ and /api/accounts/me/. PostgreSQL backs all environments via DATABASE_URL. Authentication uses Django sessions for HTML portals and Simple JWT for API clients. Stripe powers Checkout and Connect with webhook handlers. Email flows use Gmail SMTP for verify-email, password reset, and overdue reminders. Heroku hosts production; WhiteNoise serves static assets. Optional AWS S3 stores uploaded Qur'an audio and media when configured. Frontend uses Django templates, vanilla CSS, and minimal JavaScript. Tooling includes Git, GitHub Actions CI, and Gunicorn.
-## Closing Assessor Guide
-
-Thank you for evaluating the ESA Islamic school platform. Start at the live URL, log in with each role from chunks two through six, and follow the demo walkthrough: School Admin dashboard, parent payments, teacher attendance, Super Admin schools list. Deep-dive features under /quran/ and /exams/ demonstrate teacher sign-off; /payments/ shows Stripe test checkout. Run verify_deploy if you have CLI access. Evidence lives in docs/images/manual-testing/, wireframes PDF, and GitHub project board. Seed commands documented in deployment chunks. For architectural decisions, see README Overview and user stories. This expansion supplements the main README with assessor-focused detail across fifty modular sections. End of guide.
 ## Author
 
 - Mohammed Sadek Hussain
