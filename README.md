@@ -228,7 +228,7 @@ Visual evidence of the live ESA portal on **Heroku** — same style as my [learn
 
 **How to read this section:** desktop captures from Safari on macOS at full browser width. More screens and mobile widths will be added to `docs/images/preview/` as they are captured.
 
-**Captured so far (16 screens):** home, register school, login, verify email, school overview, analytics, subscription, school fees, teachers, add teacher, timetable, attendance, LMS, messages, find student, teacher workspace.
+**Captured so far (18 screens):** home, register school, login, verify email, school overview, analytics, subscription, school fees, teachers, add teacher, timetable, attendance, LMS, messages, find student, teacher workspace, super admin overview, super admin messages.
 
 ### Public pages
 
@@ -340,11 +340,23 @@ Search students by name or admission number across the school roll.
 
 ![Find student](docs/images/preview/27-find-student-desktop.png)
 
+### Super Admin portal
+
+Log in as `super` / `super1234`.
+
+#### Platform overview (`/dashboard/super-admin/`)
+
+Live KPIs — schools, users, MRR, subscriptions table, recent sign-ups, and audit activity.
+
+![Super Admin — platform overview](docs/images/preview/07-dashboard-super-admin-desktop.png)
+
+#### Support messages (`/messages/`)
+
+Platform support queue — parent cases with case numbers, subjects, and status.
+
+![Super Admin — support queue](docs/images/preview/28-super-admin-messages-desktop.png)
+
 ### Other role dashboards
-
-#### Super Admin (`/dashboard/super-admin/`)
-
-Platform-wide schools overview — `super` / `super1234` *(Screenshot pending.)*
 
 #### Teacher workspace (`/dashboard/teacher/`)
 
