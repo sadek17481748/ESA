@@ -5,7 +5,8 @@ Aggregates platform-wide metrics for the super admin dashboard.
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Sum
+from django.db.models import Count, IntegerField, OuterRef, Subquery, Sum
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from audit.models import AuditLog
@@ -30,18 +31,39 @@ def _format_gbp(pence):
     return f'£{pence / 100:,.2f}'
 
 
+def _count_subquery(model, fk_field='school_id'):
+    """Correlated subquery — avoids multi-join Count explosions on Heroku Postgres."""
+    return (
+        model.objects.filter(**{fk_field: OuterRef('pk')})
+        .values(fk_field)
+        .annotate(c=Count('id'))
+        .values('c')[:1]
+    )
+
+
 def build_super_admin_dashboard_context():
     now = timezone.now()
     live_cutoff = now - timedelta(minutes=30)
     week_ago = now - timedelta(days=7)
     month_ago = now - timedelta(days=30)
 
-    schools_qs = School.objects.annotate(
-        user_count=Count('users', distinct=True),
-        student_count=Count('students', distinct=True),
-        teacher_count=Count('teachers', distinct=True),
-        parent_count=Count('parents', distinct=True),
-    ).order_by('-created_at')
+    schools_qs = (
+        School.objects.annotate(
+            user_count=Coalesce(
+                Subquery(_count_subquery(User), output_field=IntegerField()), 0,
+            ),
+            student_count=Coalesce(
+                Subquery(_count_subquery(StudentProfile), output_field=IntegerField()), 0,
+            ),
+            teacher_count=Coalesce(
+                Subquery(_count_subquery(TeacherProfile), output_field=IntegerField()), 0,
+            ),
+            parent_count=Coalesce(
+                Subquery(_count_subquery(ParentProfile), output_field=IntegerField()), 0,
+            ),
+        )
+        .order_by('-created_at')
+    )
 
     schools = list(schools_qs)
     tier_counts = {tier: 0 for tier, _ in School.TIER_CHOICES}
