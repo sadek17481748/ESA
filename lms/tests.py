@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from academics.models import ClassGroup
 from lms.models import ClassTrackAssignment, CourseMaterial, CourseSubject, CourseTrack, StudentMaterialProgress
+from pages.enrollment_service import student_class_group
 from schools.models import School
 from students.models import StudentProfile
 
@@ -20,8 +21,8 @@ class LmsPortalTests(TestCase):
         self.admin = User.objects.get(username='schooladmin')
         self.teacher = User.objects.filter(username='mr_mohammed').first() or User.objects.get(username='teacher_demo')
         self.student_user = User.objects.filter(username='student_alnoor_01').first() or User.objects.get(username='student_demo')
-        self.class_group = ClassGroup.objects.filter(school=self.school).first()
         self.student = StudentProfile.objects.get(user=self.student_user)
+        self.class_group = student_class_group(self.student) or ClassGroup.objects.filter(school=self.school).first()
 
     def test_school_admin_creates_subject_and_track(self):
         self.client.force_login(self.admin)

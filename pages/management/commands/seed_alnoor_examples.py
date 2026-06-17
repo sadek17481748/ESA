@@ -43,7 +43,6 @@ class Command(BaseCommand):
         from django.core.management import call_command
 
         if not User.objects.filter(username='mr_mohammed').exists():
-            from students.models import StudentProfile
             school = School.objects.filter(name=SCHOOL_NAME).first()
             if not school or not StudentProfile.objects.filter(
                 school=school, admission_number='Y7A-001',

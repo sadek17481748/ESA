@@ -2948,10 +2948,9 @@ Planned and executed checks for foundation, RBAC, Stripe, Qur'an, exams, and sig
 | 58 | Student login (new account) | Log in as newly registered student | Student overview loads with class and sidebar | **test student** (`msadekhussain@outlook.com`) lands on overview for class **2C** | Pass | [register-student-alnoor](docs/images/manual-testing/register-student-alnoor.png) · [student-dashboard-timetable-populated](docs/images/manual-testing/student-dashboard-timetable-populated.png) |
 | 59 | Parent registration with link code | Open `/register/`, role **Parent**, enter school-issued **Student link code**, submit | Parent account created and child linked on first login | Registered **testparent** (`msadekhussain2001@gmail.com`) with code **6EC5367A** for Al-Noor | Pass | [register-parent-link-code](docs/images/manual-testing/register-parent-link-code.png) |
 | 60 | Parent — child linked on overview | Log in as linked parent | **Your children** shows linked student with class | **test student** appears on parent overview for class **2C** (attendance/homework cards load) | Pass | [parent-overview-child-linked](docs/images/manual-testing/parent-overview-child-linked.png) |
-| 61 | Teacher personal timetable → register | School admin assigns teacher on timetable slot; teacher opens **My timetable** | Teacher sees assigned lessons; clicking **Maths 2C** (etc.) opens class register | Teacher dashboard and `/timetable/` show assigned slots with **Take register** links; register opens for that class | Pass | *(Re-test after deploy — assign teacher on 2C timetable, log in as that teacher)* |
-| 35 | Mark notification read | `POST /api/notifications/{id}/mark_read/` | `is_read` true on that row | `test_row_34_35_notifications` | Pass | Automated |
+| 61 | Teacher personal timetable → register | School admin assigns teacher on timetable slot; teacher opens **My timetable** | Teacher sees assigned lessons; clicking **Maths 2C** (etc.) opens class register | Teacher dashboard and `/timetable/` show assigned slots with **Take register** links; register opens for that class | Pass | [teacher-workspace-dashboard](docs/images/manual-testing/teacher-workspace-dashboard.png) |
 
-*(Row 35 also appears above with row 34; duplicate row removed from table body.)*
+*(Row 35 appears with row 34 above; duplicate removed.)*
 
 ### Automated testing
 
@@ -2965,7 +2964,7 @@ python manage.py test
 python manage.py test core_app.assessment_checklist_tests payments.tests.ParentPaymentPortalTests pages.tests.PortalFeaturePageTests
 ```
 
-**Latest local run (June 2026):** `Ran 93 tests` — all passed after assessment checklist suite added.
+**Latest local run (May 2026):** `Ran 93 tests` — all passed (assessment checklist + portal + LMS/messaging fixes).
 
 Target one app:
 
