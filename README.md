@@ -3410,7 +3410,7 @@ Exam results, homework approval, and Hifz progress require teacher verification 
 ---
 ## Sources and references
 
-**70 sources** used while building ESA, YouTube tutorials, GitHub examples with similar patterns, and ed-tech products reviewed for UX. Each entry notes **what it informed** in this codebase. **Design research, wireframes, and ERD** are also covered in [Design → Design inspiration and references](#design-inspiration-and-references).
+**73 sources** used while building ESA, YouTube tutorials, GitHub examples with similar patterns, and ed-tech products reviewed for UX. Each entry notes **what it informed** in this codebase. **Design research, wireframes, and ERD** are also covered in [Design → Design inspiration and references](#design-inspiration-and-references).
 
 | Type | Count |
 |------|------:|
@@ -3424,159 +3424,159 @@ Exam results, homework approval, and Hifz progress require teacher verification 
 
 ---
 
-### LMS worksheet content (71–73)
+### LMS worksheet content
 
-| # | Source | Type | Used in ESA for |
-|---|--------|------|-----------------|
-| 71 | [Cluey Learning — Free Maths Worksheets](https://go.clueylearning.com.au/en/maths-worksheets/) | Worksheets | Year 2–10 maths PDFs in Al-Noor LMS **Maths** tracks |
-| 72 | [iSL Collective — English ESL worksheets](https://en.islcollective.com/english-esl-worksheets/search) | Worksheets | Grammar, spelling, and comprehension PDFs in **English** tracks |
-| 73 | [AhleSunnatPak — Sahih al-Bukhari (English)](https://uploads.ahlesunnatpak.com/books/Saheh%20Al-Bukhari/english/SahihAl-bukhariVol.3-Ahadith1773-2737.pdf) | Text | **Islamic Studies** — Bukhari Vol. 1–3 external links + reader excerpts |
-
----
-
-### Django & Python fundamentals (1–12)
-
-| # | Source | Type | Used in ESA for |
-|---|--------|------|-----------------|
-| 1 | [Corey Schafer — Django Tutorial for Beginners (playlist)](https://www.youtube.com/playlist?list=PL-osiE80TeTuHq0snFTqksI5LZEjDBeKt) | YouTube | Project layout, `manage.py`, apps, URL routing — basis for `core/`, `pages/`, `accounts/` |
-| 2 | [Corey Schafer — Django Models](https://www.youtube.com/watch?v=aukJJjhGGIY) | YouTube | ORM models in `accounts`, `schools`, `attendance`, `exams` |
-| 3 | [Corey Schafer — Django Views and URLs](https://www.youtube.com/watch?v=hlcFsK8sm_I) | YouTube | Function-based portal views in `pages/views.py` |
-| 4 | [Corey Schafer — Class-Based Views](https://www.youtube.com/watch?v=P5a3CSf9PiY) | YouTube | Patterns for DRF viewsets and generic list/detail views |
-| 5 | [Corey Schafer — User Registration & Login](https://www.youtube.com/watch?v=qJzZCqA-sMg) | YouTube | `/accounts/login/`, `/register/`, password validators |
-| 6 | [Dennis Ivy — Django CRUD Application (playlist)](https://www.youtube.com/playlist?list=PL4cUxeRECcu77sEKjNnWJtYjGwTdO4gf) | YouTube | CRUD for teachers, classes, fees, homework |
-| 7 | [Traversy Media — Python Django Crash Course](https://www.youtube.com/watch?v=e1IyzVyrLSU) | YouTube | Quick MVT refresher before multi-app structure |
-| 8 | [Tech With Tim — Django Tutorial](https://www.youtube.com/watch?v=6thQc40YhGw) | YouTube | Templates, static files, `{% extends %}` in `templates/base/` |
-| 9 | [freeCodeCamp — Django for Everybody (Dr. Chuck)](https://www.youtube.com/watch?v=o0XbH4Kk7AE) | YouTube | Forms, CSRF, session auth concepts |
-| 10 | [Django documentation](https://docs.djangoproject.com/) | Docs | Settings, middleware, migrations, admin — primary reference |
-| 11 | [Django — Writing your first Django app](https://docs.djangoproject.com/en/stable/intro/) | Docs | Polls tutorial structure adapted for `pages` app |
-| 12 | [Real Python — Django Tutorials](https://realpython.com/tutorials/django/) | Articles | Forms, `get_object_or_404`, testing patterns |
+| Source | Type | Used in ESA for |
+|--------|------|-----------------|
+| [Cluey Learning — Free Maths Worksheets](https://go.clueylearning.com.au/en/maths-worksheets/) | Worksheets | Year 2–10 maths PDFs in Al-Noor LMS **Maths** tracks |
+| [iSL Collective — English ESL worksheets](https://en.islcollective.com/english-esl-worksheets/search) | Worksheets | Grammar, spelling, and comprehension PDFs in **English** tracks |
+| [AhleSunnatPak — Sahih al-Bukhari (English)](https://uploads.ahlesunnatpak.com/books/Saheh%20Al-Bukhari/english/SahihAl-bukhariVol.3-Ahadith1773-2737.pdf) | Text | **Islamic Studies** — Bukhari Vol. 1–3 external links + reader excerpts |
 
 ---
 
-### Django REST Framework & API (13–18)
+### Django & Python fundamentals
 
-| # | Source | Type | Used in ESA for |
-|---|--------|------|-----------------|
-| 13 | [Django REST framework documentation](https://www.django-rest-framework.org/) | Docs | Serialisers, viewsets, permissions in `api/` |
-| 14 | [Very Academy — Django REST Framework (playlist)](https://www.youtube.com/playlist?list=PLbGui_ZYuxihapQLJsJYkKaXG0bcdSd0q) | YouTube | JWT-protected API endpoints, browsable API during dev |
-| 15 | [SimpleJWT documentation](https://django-rest-framework-simplejwt.readthedocs.io/) | Docs | `/api/token/`, refresh rotation in `core/settings.py` |
-| 16 | [Django REST — Authentication](https://www.django-rest-framework.org/api-guide/authentication/) | Docs | `IsAuthenticated` default + per-view permissions |
-| 17 | [Django REST — Serializers](https://www.django-rest-framework.org/api-guide/serializers/) | Docs | Nested student/parent serialisation |
-| 18 | [django-cors-headers (GitHub)](https://github.com/adamchainz/django-cors-headers) | GitHub | CORS config for future SPA / mobile clients |
-
----
-
-### Authentication, roles & security (19–26)
-
-| # | Source | Type | Used in ESA for |
-|---|--------|------|-----------------|
-| 19 | [Django — Customising authentication](https://docs.djangoproject.com/en/stable/topics/auth/customizing/) | Docs | Custom `User` model with `role` field in `accounts/` |
-| 20 | [Django — Password management](https://docs.djangoproject.com/en/stable/topics/auth/passwords/) | Docs | PBKDF2 hashing, validators on register |
-| 21 | [Django — Password reset](https://docs.djangoproject.com/en/stable/topics/auth/default/#django-contrib-auth-views-passwordresetview) | Docs | `/accounts/password-reset/` flow |
-| 22 | [Corey Schafer — Django Permissions](https://www.youtube.com/watch?v=Sd7CLcqwYXs) | YouTube | `@role_required` decorator pattern on portal views |
-| 23 | [OWASP — Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) | Article | `SESSION_COOKIE_SECURE`, logout, session expiry |
-| 24 | [OWASP — CSRF Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) | Article | `{% csrf_token %}` on all forms; webhook exempt pattern |
-| 25 | [Django — Deployment checklist (security)](https://docs.djangoproject.com/en/stable/howto/deployment/checklist/) | Docs | `SECURE_PROXY_SSL_HEADER`, `CSRF_TRUSTED_ORIGINS` on Heroku |
-| 26 | [ESA Security section](README.md#readme-security) | Docs | Assessor-facing summary of controls implemented |
+| Source | Type | Used in ESA for |
+|--------|------|-----------------|
+| [Corey Schafer — Django Tutorial for Beginners (playlist)](https://www.youtube.com/playlist?list=PL-osiE80TeTuHq0snFTqksI5LZEjDBeKt) | YouTube | Project layout, `manage.py`, apps, URL routing — basis for `core/`, `pages/`, `accounts/` |
+| [Corey Schafer — Django Models](https://www.youtube.com/watch?v=aukJJjhGGIY) | YouTube | ORM models in `accounts`, `schools`, `attendance`, `exams` |
+| [Corey Schafer — Django Views and URLs](https://www.youtube.com/watch?v=hlcFsK8sm_I) | YouTube | Function-based portal views in `pages/views.py` |
+| [Corey Schafer — Class-Based Views](https://www.youtube.com/watch?v=P5a3CSf9PiY) | YouTube | Patterns for DRF viewsets and generic list/detail views |
+| [Corey Schafer — User Registration & Login](https://www.youtube.com/watch?v=qJzZCqA-sMg) | YouTube | `/accounts/login/`, `/register/`, password validators |
+| [Dennis Ivy — Django CRUD Application (playlist)](https://www.youtube.com/playlist?list=PL4cUxeRECcu77sEKjNnWJtYjGwTdO4gf) | YouTube | CRUD for teachers, classes, fees, homework |
+| [Traversy Media — Python Django Crash Course](https://www.youtube.com/watch?v=e1IyzVyrLSU) | YouTube | Quick MVT refresher before multi-app structure |
+| [Tech With Tim — Django Tutorial](https://www.youtube.com/watch?v=6thQc40YhGw) | YouTube | Templates, static files, `{% extends %}` in `templates/base/` |
+| [freeCodeCamp — Django for Everybody (Dr. Chuck)](https://www.youtube.com/watch?v=o0XbH4Kk7AE) | YouTube | Forms, CSRF, session auth concepts |
+| [Django documentation](https://docs.djangoproject.com/) | Docs | Settings, middleware, migrations, admin — primary reference |
+| [Django — Writing your first Django app](https://docs.djangoproject.com/en/stable/intro/) | Docs | Polls tutorial structure adapted for `pages` app |
+| [Real Python — Django Tutorials](https://realpython.com/tutorials/django/) | Articles | Forms, `get_object_or_404`, testing patterns |
 
 ---
 
-### PostgreSQL, data modelling & multi-tenant patterns (27–35)
+### Django REST Framework & API
 
-| # | Source | Type | Used in ESA for |
-|---|--------|------|-----------------|
-| 27 | [PostgreSQL documentation](https://www.postgresql.org/docs/) | Docs | Indexes, constraints, local dev with Postgres |
-| 28 | [Heroku Postgres](https://devcenter.heroku.com/articles/heroku-postgresql) | Docs | Production database, `DATABASE_URL` via `dj-database-url` |
-| 29 | [ESA ERD — Lucidchart (editable)](https://lucid.app/lucidchart/62056323-bc35-429d-9476-90fb23a6d72b/edit?viewport_loc=-4270%2C-6278%2C9116%2C6296%2C0_0&invitationId=inv_17fdce9f-7187-414c-abc1-64e8fe297051) | Design | Tenant, user, exam, payment relationships before migrations |
-| 30 | Exported ERD image: [`docs/erd.png`](docs/erd.png) | Design | Cardinality reference for assessors |
-| 31 | [Django — Multi-database](https://docs.djangoproject.com/en/stable/topics/db/multi-db/) | Docs | Single DB with `school_id` scoping (shared-schema multi-tenancy) |
-| 32 | [django-tenants docs (reviewed)](https://django-tenants.readthedocs.io/) | Docs | Compared schema-per-tenant vs ESA’s `TenantMiddleware` approach |
-| 33 | [GitHub — TareqMonwer/Django-School-Management](https://github.com/TareqMonwer/Django-School-Management) | GitHub | Payments, admissions, class assignment — compared feature scope |
-| 34 | [GitHub — abhi-v-10/School-Management](https://github.com/abhi-v-10/School-Management) | GitHub | Five-role dashboards, parent–student linking, messaging patterns |
-| 35 | [Django — QuerySet optimisation](https://docs.djangoproject.com/en/stable/topics/db/optimization/) | Docs | `select_related` / subqueries on leaderboards and super-admin stats |
+| Source | Type | Used in ESA for |
+|--------|------|-----------------|
+| [Django REST framework documentation](https://www.django-rest-framework.org/) | Docs | Serialisers, viewsets, permissions in `api/` |
+| [Very Academy — Django REST Framework (playlist)](https://www.youtube.com/playlist?list=PLbGui_ZYuxihapQLJsJYkKaXG0bcdSd0q) | YouTube | JWT-protected API endpoints, browsable API during dev |
+| [SimpleJWT documentation](https://django-rest-framework-simplejwt.readthedocs.io/) | Docs | `/api/token/`, refresh rotation in `core/settings.py` |
+| [Django REST — Authentication](https://www.django-rest-framework.org/api-guide/authentication/) | Docs | `IsAuthenticated` default + per-view permissions |
+| [Django REST — Serializers](https://www.django-rest-framework.org/api-guide/serializers/) | Docs | Nested student/parent serialisation |
+| [django-cors-headers (GitHub)](https://github.com/adamchainz/django-cors-headers) | GitHub | CORS config for future SPA / mobile clients |
 
 ---
 
-### Stripe payments & subscriptions (36–41)
+### Authentication, roles & security
 
-| # | Source | Type | Used in ESA for |
-|---|--------|------|-----------------|
-| 36 | [Stripe — Checkout documentation](https://docs.stripe.com/payments/checkout) | Docs | Parent fee payments, school subscription upgrades |
-| 37 | [Stripe — Connect OAuth](https://docs.stripe.com/connect/oauth-reference) | Docs | Per-school Stripe Connect onboarding in fees module |
-| 38 | [Stripe — Webhooks](https://docs.stripe.com/webhooks) | Docs | `POST /payments/webhook/` signature verification |
-| 39 | [Stripe Python SDK](https://github.com/stripe/stripe-python) | GitHub | `stripe` package in `requirements.txt`, checkout sessions |
-| 40 | [Test a Stripe integration (Stripe Docs)](https://docs.stripe.com/testing) | Docs | Test cards, webhook CLI during development |
-| 41 | [TestDriven.io — Django Stripe Checkout](https://testdriven.io/blog/django-stripe-checkout/) | Article | Checkout redirect + success/cancel URL pattern |
-
----
-
-### Email, notifications & messaging (42–46)
-
-| # | Source | Type | Used in ESA for |
-|---|--------|------|-----------------|
-| 42 | [Django — Sending email](https://docs.djangoproject.com/en/stable/topics/email/) | Docs | SMTP via Gmail App Password; verification codes |
-| 43 | [Django — `send_mail` and HTML email](https://docs.djangoproject.com/en/stable/topics/email/#send-mail) | Docs | Six-digit verification, password reset messages |
-| 44 | [Real Python — Django Email](https://realpython.com/django-send-email/) | Article | `EMAIL_HOST`, TLS settings in `.env` / Heroku config |
-| 45 | [Django — Messaging framework (patterns)](https://docs.djangoproject.com/en/stable/ref/contrib/messages/) | Docs | Flash messages; thread UI modelled in `messaging/` app |
-| 46 | [Django — Signals](https://docs.djangoproject.com/en/stable/topics/signals/) | Docs | Post-save hooks for notifications and audit log entries |
+| Source | Type | Used in ESA for |
+|--------|------|-----------------|
+| [Django — Customising authentication](https://docs.djangoproject.com/en/stable/topics/auth/customizing/) | Docs | Custom `User` model with `role` field in `accounts/` |
+| [Django — Password management](https://docs.djangoproject.com/en/stable/topics/auth/passwords/) | Docs | PBKDF2 hashing, validators on register |
+| [Django — Password reset](https://docs.djangoproject.com/en/stable/topics/auth/default/#django-contrib-auth-views-passwordresetview) | Docs | `/accounts/password-reset/` flow |
+| [Corey Schafer — Django Permissions](https://www.youtube.com/watch?v=Sd7CLcqwYXs) | YouTube | `@role_required` decorator pattern on portal views |
+| [OWASP — Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) | Article | `SESSION_COOKIE_SECURE`, logout, session expiry |
+| [OWASP — CSRF Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) | Article | `{% csrf_token %}` on all forms; webhook exempt pattern |
+| [Django — Deployment checklist (security)](https://docs.djangoproject.com/en/stable/howto/deployment/checklist/) | Docs | `SECURE_PROXY_SSL_HEADER`, `CSRF_TRUSTED_ORIGINS` on Heroku |
+| [ESA Security section](README.md#readme-security) | Docs | Assessor-facing summary of controls implemented |
 
 ---
 
-### HTML, CSS, JavaScript & responsive UI (47–54)
+### PostgreSQL, data modelling & multi-tenant patterns
 
-| # | Source | Type | Used in ESA for |
-|---|--------|------|-----------------|
-| 47 | [MDN — HTML elements reference](https://developer.mozilla.org/en-US/docs/Web/HTML/Element) | Docs | Semantic markup in `templates/` |
-| 48 | [MDN — CSS Grid](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout) | Docs | Dashboard grids, timetable builder layout |
-| 49 | [MDN — CSS custom properties](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties) | Docs | `--bg`, `--gold`, `--muted` tokens in `css/base.css` |
-| 50 | [Kevin Powell — CSS responsive design (playlist)](https://www.youtube.com/playlist?list=PL4cUxeRECcu5yL6YSmQ6fNnpKrOsdG90) | YouTube | Breakpoints at 768px / 900px, mobile sidebar |
-| 51 | [Traversy Media — HTML Crash Course](https://www.youtube.com/watch?v=UB1O30fR-EE) | YouTube | Forms, labels, accessibility basics |
-| 52 | [Traversy Media — CSS Crash Course](https://www.youtube.com/watch?v=yfoY53QXEnI) | YouTube | Flexbox for `.app-shell`, `.sidebar`, cards |
-| 53 | [JSHint documentation](https://jshint.com/docs/) | Docs | Linting `static/js/quran_viewer.js` (see [JSHint](#jshint)) |
-| 54 | [W3C — Nu HTML Checker](https://validator.w3.org/nu/) & [CSS Validator](https://jigsaw.w3.org/css-validator/) | Tools | Validation evidence in [HTML, CSS and JS validation](#html-css-and-js-validation) |
-
----
-
-### Qur'an viewer, PDF.js & feature-specific code (55–59)
-
-| # | Source | Type | Used in ESA for |
-|---|--------|------|-----------------|
-| 55 | [Mozilla PDF.js](https://mozilla.github.io/pdf.js/) | Docs | Mushaf rendering in `static/js/quran_viewer.js` |
-| 56 | [PDF.js — Getting started](https://github.com/mozilla/pdf.js/wiki/Frequently-Asked-Questions) | GitHub | Canvas render, worker URL, page navigation |
-| 57 | [MDN — Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) | Docs | Highlight overlay coordinates on PDF pages |
-| 58 | [MDN — Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) | Docs | AJAX save for highlights and timetable grid |
-| 59 | [Django — Class-based views (forms)](https://docs.djangoproject.com/en/stable/topics/class-based-views/generic-editing/) | Docs | Hifz sign-off, exam finalise, homework approval views |
+| Source | Type | Used in ESA for |
+|--------|------|-----------------|
+| [PostgreSQL documentation](https://www.postgresql.org/docs/) | Docs | Indexes, constraints, local dev with Postgres |
+| [Heroku Postgres](https://devcenter.heroku.com/articles/heroku-postgresql) | Docs | Production database, `DATABASE_URL` via `dj-database-url` |
+| [ESA ERD — Lucidchart (editable)](https://lucid.app/lucidchart/62056323-bc35-429d-9476-90fb23a6d72b/edit?viewport_loc=-4270%2C-6278%2C9116%2C6296%2C0_0&invitationId=inv_17fdce9f-7187-414c-abc1-64e8fe297051) | Design | Tenant, user, exam, payment relationships before migrations |
+| Exported ERD image: [`docs/erd.png`](docs/erd.png) | Design | Cardinality reference for assessors |
+| [Django — Multi-database](https://docs.djangoproject.com/en/stable/topics/db/multi-db/) | Docs | Single DB with `school_id` scoping (shared-schema multi-tenancy) |
+| [django-tenants docs (reviewed)](https://django-tenants.readthedocs.io/) | Docs | Compared schema-per-tenant vs ESA’s `TenantMiddleware` approach |
+| [GitHub — TareqMonwer/Django-School-Management](https://github.com/TareqMonwer/Django-School-Management) | GitHub | Payments, admissions, class assignment — compared feature scope |
+| [GitHub — abhi-v-10/School-Management](https://github.com/abhi-v-10/School-Management) | GitHub | Five-role dashboards, parent–student linking, messaging patterns |
+| [Django — QuerySet optimisation](https://docs.djangoproject.com/en/stable/topics/db/optimization/) | Docs | `select_related` / subqueries on leaderboards and super-admin stats |
 
 ---
 
-### Deployment, Heroku & DevOps (60–65)
+### Stripe payments & subscriptions
 
-| # | Source | Type | Used in ESA for |
-|---|--------|------|-----------------|
-| 60 | [Heroku — Django deployment guide](https://devcenter.heroku.com/articles/django-app-configuration) | Docs | `Procfile`, `gunicorn`, `ALLOWED_HOSTS` |
-| 61 | [Heroku — Config Vars](https://devcenter.heroku.com/articles/config-vars) | Docs | Stripe keys, `DATABASE_URL`, email secrets |
-| 62 | [WhiteNoise documentation](https://whitenoise.readthedocs.io/) | Docs | Static file serving for `css/`, `static/` on Heroku |
-| 63 | [django-environ (GitHub)](https://github.com/joke2k/django-environ) | GitHub | `.env` loading in `core/settings.py` |
-| 64 | [Corey Schafer — Deploy Django to Heroku](https://www.youtube.com/watch?v=6DI_5Riuonw) | YouTube | Buildpack, collectstatic, release phase |
-| 65 | [GitHub Actions / Heroku deploy (Heroku Docs)](https://devcenter.heroku.com/articles/github-integration) | Docs | Auto-deploy from `main` branch |
+| Source | Type | Used in ESA for |
+|--------|------|-----------------|
+| [Stripe — Checkout documentation](https://docs.stripe.com/payments/checkout) | Docs | Parent fee payments, school subscription upgrades |
+| [Stripe — Connect OAuth](https://docs.stripe.com/connect/oauth-reference) | Docs | Per-school Stripe Connect onboarding in fees module |
+| [Stripe — Webhooks](https://docs.stripe.com/webhooks) | Docs | `POST /payments/webhook/` signature verification |
+| [Stripe Python SDK](https://github.com/stripe/stripe-python) | GitHub | `stripe` package in `requirements.txt`, checkout sessions |
+| [Test a Stripe integration (Stripe Docs)](https://docs.stripe.com/testing) | Docs | Test cards, webhook CLI during development |
+| [TestDriven.io — Django Stripe Checkout](https://testdriven.io/blog/django-stripe-checkout/) | Article | Checkout redirect + success/cancel URL pattern |
 
 ---
 
-### Testing, quality & project workflow (66–70)
+### Email, notifications & messaging
 
-| # | Source | Type | Used in ESA for |
-|---|--------|------|-----------------|
-| 66 | [Django — Testing tools](https://docs.djangoproject.com/en/stable/topics/testing/) | Docs | `python manage.py test` — tenant isolation, auth, payments |
-| 67 | [Google Lighthouse documentation](https://developer.chrome.com/docs/lighthouse/overview/) | Docs | Performance / a11y scores — [Lighthouse testing](#lighthouse-testing) |
-| 68 | [Chrome DevTools — Device mode](https://developer.chrome.com/docs/devtools/device-mode) | Docs | Responsive screenshots in `docs/images/validation/` |
-| 69 | [GitHub — Git documentation](https://docs.github.com/en/get-started/using-git) | Docs | Branching, commits, PR workflow |
-| 70 | [Prior project — bookly (Flask bookstore)](https://github.com/sadek17481748/bookly) | GitHub | README testing matrix, manual checklist, validation evidence structure reused for ESA |
+| Source | Type | Used in ESA for |
+|--------|------|-----------------|
+| [Django — Sending email](https://docs.djangoproject.com/en/stable/topics/email/) | Docs | SMTP via Gmail App Password; verification codes |
+| [Django — `send_mail` and HTML email](https://docs.djangoproject.com/en/stable/topics/email/#send-mail) | Docs | Six-digit verification, password reset messages |
+| [Real Python — Django Email](https://realpython.com/django-send-email/) | Article | `EMAIL_HOST`, TLS settings in `.env` / Heroku config |
+| [Django — Messaging framework (patterns)](https://docs.djangoproject.com/en/stable/ref/contrib/messages/) | Docs | Flash messages; thread UI modelled in `messaging/` app |
+| [Django — Signals](https://docs.djangoproject.com/en/stable/topics/signals/) | Docs | Post-save hooks for notifications and audit log entries |
+
+---
+
+### HTML, CSS, JavaScript & responsive UI
+
+| Source | Type | Used in ESA for |
+|--------|------|-----------------|
+| [MDN — HTML elements reference](https://developer.mozilla.org/en-US/docs/Web/HTML/Element) | Docs | Semantic markup in `templates/` |
+| [MDN — CSS Grid](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout) | Docs | Dashboard grids, timetable builder layout |
+| [MDN — CSS custom properties](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties) | Docs | `--bg`, `--gold`, `--muted` tokens in `css/base.css` |
+| [Kevin Powell — CSS responsive design (playlist)](https://www.youtube.com/playlist?list=PL4cUxeRECcu5yL6YSmQ6fNnpKrOsdG90) | YouTube | Breakpoints at 768px / 900px, mobile sidebar |
+| [Traversy Media — HTML Crash Course](https://www.youtube.com/watch?v=UB1O30fR-EE) | YouTube | Forms, labels, accessibility basics |
+| [Traversy Media — CSS Crash Course](https://www.youtube.com/watch?v=yfoY53QXEnI) | YouTube | Flexbox for `.app-shell`, `.sidebar`, cards |
+| [JSHint documentation](https://jshint.com/docs/) | Docs | Linting `static/js/quran_viewer.js` (see [JSHint](#jshint)) |
+| [W3C — Nu HTML Checker](https://validator.w3.org/nu/) & [CSS Validator](https://jigsaw.w3.org/css-validator/) | Tools | Validation evidence in [HTML, CSS and JS validation](#html-css-and-js-validation) |
+
+---
+
+### Qur'an viewer, PDF.js & feature-specific code
+
+| Source | Type | Used in ESA for |
+|--------|------|-----------------|
+| [Mozilla PDF.js](https://mozilla.github.io/pdf.js/) | Docs | Mushaf rendering in `static/js/quran_viewer.js` |
+| [PDF.js — Getting started](https://github.com/mozilla/pdf.js/wiki/Frequently-Asked-Questions) | GitHub | Canvas render, worker URL, page navigation |
+| [MDN — Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) | Docs | Highlight overlay coordinates on PDF pages |
+| [MDN — Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) | Docs | AJAX save for highlights and timetable grid |
+| [Django — Class-based views (forms)](https://docs.djangoproject.com/en/stable/topics/class-based-views/generic-editing/) | Docs | Hifz sign-off, exam finalise, homework approval views |
+
+---
+
+### Deployment, Heroku & DevOps
+
+| Source | Type | Used in ESA for |
+|--------|------|-----------------|
+| [Heroku — Django deployment guide](https://devcenter.heroku.com/articles/django-app-configuration) | Docs | `Procfile`, `gunicorn`, `ALLOWED_HOSTS` |
+| [Heroku — Config Vars](https://devcenter.heroku.com/articles/config-vars) | Docs | Stripe keys, `DATABASE_URL`, email secrets |
+| [WhiteNoise documentation](https://whitenoise.readthedocs.io/) | Docs | Static file serving for `css/`, `static/` on Heroku |
+| [django-environ (GitHub)](https://github.com/joke2k/django-environ) | GitHub | `.env` loading in `core/settings.py` |
+| [Corey Schafer — Deploy Django to Heroku](https://www.youtube.com/watch?v=6DI_5Riuonw) | YouTube | Buildpack, collectstatic, release phase |
+| [GitHub Actions / Heroku deploy (Heroku Docs)](https://devcenter.heroku.com/articles/github-integration) | Docs | Auto-deploy from `main` branch |
+
+---
+
+### Testing, quality & project workflow
+
+| Source | Type | Used in ESA for |
+|--------|------|-----------------|
+| [Django — Testing tools](https://docs.djangoproject.com/en/stable/topics/testing/) | Docs | `python manage.py test` — tenant isolation, auth, payments |
+| [Google Lighthouse documentation](https://developer.chrome.com/docs/lighthouse/overview/) | Docs | Performance / a11y scores — [Lighthouse testing](#lighthouse-testing) |
+| [Chrome DevTools — Device mode](https://developer.chrome.com/docs/devtools/device-mode) | Docs | Responsive screenshots in `docs/images/validation/` |
+| [GitHub — Git documentation](https://docs.github.com/en/get-started/using-git) | Docs | Branching, commits, PR workflow |
+| [Prior project — bookly (Flask bookstore)](https://github.com/sadek17481748/bookly) | GitHub | README testing matrix, manual checklist, validation evidence structure reused for ESA |
 
 ---
 
 ### Ed-tech & Islamic school UX research (cross-referenced)
 
-These informed **terminology, sidebar order, and parent flows** — detailed write-up in [Design inspiration and references](#design-inspiration-and-references). They are counted within the research phase rather than as separate numbered code sources:
+These informed **terminology, sidebar order, and parent flows** — detailed write-up in [Design inspiration and references](#design-inspiration-and-references):
 
 - UK supplementary-school portals and madrasah management products (registration, Hifz views, fee ledgers)
 - [Balsamiq wireframe board](https://balsamiq.cloud/so6babk/pveanf2) — low-fidelity flows before Django templates
@@ -3596,4 +3596,10 @@ Home page carousel (`static/images/carousel/`):
 ---
 ## Author
 
-- Mohammed Sadek Hussain
+**Mohammed Sadek Hussain**  
+New City College — **Level 5 Website Application Development, Project 4** (Pass Criteria 4)
+
+This submission is the full-stack Django assessment project: multi-tenant school portal, RBAC, Stripe payments, and documented testing evidence. **Security testing** covers tenant isolation (automated API tests), session and JWT auth, CSRF on forms, Stripe webhook signature checks, HTTPS on Heroku, and OWASP-aligned session/CSRF guidance — see [Security](#security) and rows 1–12 in [Manual testing](#manual-testing).
+
+- GitHub: [sadek17481748/ESA](https://github.com/sadek17481748/ESA)
+- Live app: [esa-project on Heroku](https://esa-project-2a7a33dfe3fc.herokuapp.com/)
