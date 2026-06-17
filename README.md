@@ -73,6 +73,7 @@
   - [Automated tests](#automated-tests-local)
   - [How I committed changes to GitHub](#how-i-committed-changes-to-github-workflow-used)
 - [Deployment](#deployment)
+  - [Terminal usage in this project](#terminal-usage-in-this-project)
   - [GitHub and Heroku integration](#github-and-heroku-integration)
   - [Deployment steps](#deployment-steps)
   - [Post-deploy checklist](#post-deploy-checklist)
@@ -2376,6 +2377,77 @@ ESA is deployed on **Heroku** with a managed **PostgreSQL** database. The live a
 
 Source code is hosted on GitHub and connected to Heroku for automatic deploys when `main` is pushed. You can also deploy manually with the Heroku CLI.
 
+### Terminal usage in this project
+
+ESA was built almost entirely from the **terminal** (VS Code integrated terminal on macOS, plus the Heroku CLI). The same shell is used for local development, Git, tests, and production fixes — not only the first deploy.
+
+#### Local development
+
+| Task | Typical command |
+|------|-----------------|
+| Activate virtualenv | `source .venv/bin/activate` |
+| Install dependencies | `pip install -r requirements.txt` |
+| Apply database schema | `python manage.py migrate` |
+| Run the site locally | `python manage.py runserver` → http://127.0.0.1:8000/ |
+| Seed demo users | `python manage.py seed_rbac_users` |
+| Full Al-Noor data (optional) | `python manage.py seed_alnoor_full_school` |
+| Run automated tests | `python manage.py test` |
+| Preview static wireframes | `python3 -m http.server 8080` |
+
+#### Git — two remotes, one codebase
+
+| Task | Command |
+|------|---------|
+| Check what changed | `git status` · `git diff` |
+| Save work | `git add …` · `git commit -m "…"` |
+| Push assessor repo (GitHub) | `git push origin main` |
+| Push live app directly (Heroku) | `git push heroku main` |
+| List remotes | `git remote -v` |
+
+**How this project used it:** day-to-day commits went to **GitHub** (`origin`) for assessors and version history. When GitHub auto-deploy lagged or credentials blocked a push, **`git push heroku main`** put the same `main` branch on production immediately. README and evidence stay on GitHub; application code and seeds are what matter on Heroku.
+
+#### Heroku CLI — making the site live (and live again)
+
+| Task | Command |
+|------|---------|
+| Log in | `heroku login` |
+| Attach app remote | `heroku git:remote -a esa-project` |
+| Deploy latest code | `git push heroku main` (or push `origin` and wait for auto-deploy) |
+| Watch boot errors | `heroku logs --tail -a esa-project` |
+| Run command on production dyno | `heroku run python manage.py … -a esa-project` |
+| Set secrets (not in Git) | `heroku config:set KEY=value -a esa-project` |
+| View config | `heroku config -a esa-project` |
+| Restart dyno | `heroku ps:restart -a esa-project` |
+
+**Bringing the website back after “Application error”:** during development the live app once failed on boot because a **heavy seed** ran on every dyno start and exceeded Heroku’s boot timeout. The fix was done in the terminal:
+
+1. `heroku logs --tail -a esa-project` — read the traceback (often migrate/seed or missing `SECRET_KEY`).
+2. Slim down `Procfile` to **migrate + fast `ensure_platform_seed` + gunicorn** (not full school seed on every boot).
+3. `git push heroku main` — redeploy the fixed `Procfile`.
+4. `heroku run python manage.py migrate -a esa-project` — if schema was behind.
+5. `heroku run python manage.py ensure_platform_seed -a esa-project` — restore demo logins without timing out.
+6. `heroku run python manage.py verify_deploy -a esa-project` — smoke-test parent, teacher, school admin, super logins.
+
+Heavier seeds are **manual one-offs**, not on every restart:
+
+```bash
+heroku run python manage.py seed_alnoor_full_school -a esa-project
+heroku run python manage.py seed_alnoor_worksheets --assign-classes -a esa-project
+heroku run python manage.py seed_showcase_account -a esa-project
+```
+
+#### Other terminal tools used
+
+| Tool | Purpose |
+|------|---------|
+| **Stripe CLI** | `stripe listen --forward-to localhost:8000/payments/webhook/` — test fee webhooks locally |
+| **PostgreSQL** | `psql` / `createdb` for local Postgres; Heroku injects `DATABASE_URL` in production |
+| **Homebrew** | `brew install heroku` — install Heroku CLI on macOS |
+| **Django shell** | `python manage.py shell` — promote users, inspect tenant data |
+| **Email test** | `python manage.py send_test_email` (local or `heroku run …`) |
+
+**Typical “site is down” checklist:** `heroku logs --tail` → fix code or `Procfile` → `git push heroku main` → `heroku run migrate` → `ensure_platform_seed` → `verify_deploy` → open https://esa-project-2a7a33dfe3fc.herokuapp.com/
+
 ### GitHub and Heroku integration
 
 Production hosting uses **Heroku app `esa-project`**:
@@ -3597,7 +3669,7 @@ Home page carousel (`static/images/carousel/`):
 ## Author
 
 **Mohammed Sadek Hussain**  
-New City College — **Level 5 Website Application Development, Project 4** (Pass Criteria 4)
+New City College — **Level 5 Website Application Development, Project 4**
 
 This submission is the full-stack Django assessment project: multi-tenant school portal, RBAC, Stripe payments, and documented testing evidence. **Security testing** covers tenant isolation (automated API tests), session and JWT auth, CSRF on forms, Stripe webhook signature checks, HTTPS on Heroku, and OWASP-aligned session/CSRF guidance — see [Security](#security) and rows 1–12 in [Manual testing](#manual-testing).
 
