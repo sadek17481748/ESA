@@ -9,10 +9,11 @@ Maps files to CourseSubject tracks:
 Run locally against production DB:
   DATABASE_URL=$(heroku config:get DATABASE_URL -a esa-project) python manage.py seed_alnoor_worksheets
 
-On Heroku (after ps:copy WORKSHEETS folder):
-  heroku run python manage.py seed_alnoor_worksheets --dir WORKSHEETS -a esa-project
+On Heroku (manifest + Bukhari PDF download; maths/English link to sources):
+  heroku run python manage.py seed_alnoor_worksheets --assign-classes -a esa-project
 """
 import re
+import urllib.request
 from pathlib import Path
 
 from django.conf import settings
@@ -32,10 +33,45 @@ SOURCE_BUKHARI_BASE = (
 )
 
 BUKHARI_URLS = {
-    'sahihal-bukharivol.1-ahadith1-875.pdf': f'{SOURCE_BUKHARI_BASE}SahihAl-bukhariVol.1-Ahadith1-875.pdf',
-    'sahihal-bukharivol.2-ahadith876-1772.pdf': f'{SOURCE_BUKHARI_BASE}SahihAl-bukhariVol.2-Ahadith876-1772.pdf',
-    'sahihal-bukharivol.3-ahadith1773-2737.pdf': f'{SOURCE_BUKHARI_BASE}SahihAl-bukhariVol.3-Ahadith1773-2737.pdf',
+    'SahihAl-bukhariVol.1-Ahadith1-875.pdf': f'{SOURCE_BUKHARI_BASE}SahihAl-bukhariVol.1-Ahadith1-875.pdf',
+    'SahihAl-bukhariVol.2-Ahadith876-1772.pdf': f'{SOURCE_BUKHARI_BASE}SahihAl-bukhariVol.2-Ahadith876-1772.pdf',
+    'SahihAl-bukhariVol.3-Ahadith1773-2737.pdf': f'{SOURCE_BUKHARI_BASE}SahihAl-bukhariVol.3-Ahadith1773-2737.pdf',
 }
+
+WORKSHEET_MANIFEST = (
+    '11.pdf', '14.pdf', '17.pdf', '2.pdf', '5.pdf', '8.pdf',
+    'SahihAl-bukhariVol.1-Ahadith1-875.pdf',
+    'SahihAl-bukhariVol.2-Ahadith876-1772.pdf',
+    'SahihAl-bukhariVol.3-Ahadith1773-2737.pdf',
+    'Year-10-Algebra-Maths-Worksheet-Add-Subtract-Polynomials-clueylearning.com.au-1300182000.pdf',
+    'Year-10-Algebra-Maths-Worksheet-Multiply-Polynomials-clueylearning.com.au-1300182000.pdf',
+    'Year-2-Addition-Maths-Worksheet-Maths-Riddles-clueylearning.com.au-1300182000.pdf',
+    'Year-2-Maths-Worksheet-Place-the-numbers-in-order-clueylearning.com.au-1300182000.pdf',
+    'Year-3-Addition-Maths-Worksheet-Adding-2-digit-and-3-digit-numbers-clueylearning.com.au-1300182000.pdf',
+    'Year-3-Addition-Maths-Worksheet-Adding-two-2-digit-numbers-clueylearning.com.au-1300182000.pdf',
+    'Year-3-Multiplication-Maths-Worksheet-clueylearning.com.au-1300182000.pdf',
+    'Year-7-Addition-Maths-Worksheet-Adding-Negatives-clueylearning.com.au-1300182000.pdf',
+    'Year-7-Division-Maths-Worksheet-Short-Division-clueylearning.com.au-1300182000.pdf',
+    'Year-8-Algebra-Maths-Worksheet-Expanding-Brackets-clueylearning.com.au-1300182000.pdf',
+    'Year-8-Geometry-Maths-Worksheet-Graph-Linear-Equations-clueylearning.com.au-1300182000.pdf',
+    'Year-8-Measurement-Maths-Worksheet-Area-Circle-clueylearning.com.au-1300182000.pdf',
+    'Year-9-Algebra-Maths-Worksheet-Simultaneous-Equations-Substitutions-clueylearning.com.au-1300182000.pdf',
+    'Year-9-Geometry-Maths-Worksheet-Trigonometry-Finding-The-Unknown-Sides-Of-Right-Triangles-clueylearning.com.au-1300182000.pdf',
+    'Year-9-Measurement-Maths-Worksheet-Surface-Area-Volume-Cylinder-clueylearning.com.au-1300182000.pdf',
+    'Z0ZAQ1-Year-2-Addition-Maths-Worksheet-Greater-than-less-than-clueylearning.com.au-1300182000.pdf',
+    'common_spelling_errors_worksheet_1.pdf',
+    'common_spelling_errors_worksheet_2.pdf',
+    'comprehension_questions_victorian_workhouse.pdf',
+    'hpKqhM-comprehension_questions_victorian_workhouse.pdf',
+    'living_in_a_victorian_workhouse_vocabulary___sheet_1.pdf',
+    'living_in_a_victorian_workhouse_vocabulary___sheet_3.pdf',
+    'living_in_the_victorian_workhouse_reading_comprehension___text.pdf',
+    'newspaper_report_writing_dice_activity.pdf',
+    'plogging_proofreading_lower_ability_apostrophes_worksheet.pdf',
+    'plogging_proofreading_middle_ability_worksheet.pdf',
+    'spelling_and_punctuation_mixed_apostrophe_worksheet.pdf',
+    'worksheets-grammar.pdf',
+)
 
 
 def _human_title(filename: str) -> str:
@@ -43,6 +79,14 @@ def _human_title(filename: str) -> str:
     stem = re.sub(r'clueylearning\.com\.au-\d+', '', stem, flags=re.I)
     stem = re.sub(r'\s+', ' ', stem).strip()
     return stem[:200] or filename
+
+
+def _bukhari_pdf_url(filename: str) -> str:
+    key = filename.lower().replace(' ', '')
+    for manifest_key, url in BUKHARI_URLS.items():
+        if manifest_key.lower().replace(' ', '') in key or key in manifest_key.lower():
+            return url
+    return BUKHARI_URLS['sahihal-bukhariVol.3-Ahadith1773-2737.pdf']
 
 
 def _classify(filename: str):
@@ -55,16 +99,11 @@ def _classify(filename: str):
             vol = 'Volume 2'
         elif 'vol.3' in lower or 'vol3' in lower:
             vol = 'Volume 3'
-        url = BUKHARI_URLS.get(lower.replace(' ', ''), '')
-        if not url:
-            for key, val in BUKHARI_URLS.items():
-                if key in lower.replace(' ', ''):
-                    url = val
-                    break
+        url = _bukhari_pdf_url(lower)
         return (
             'Islamic Studies',
             f'Sahih al-Bukhari — {vol}',
-            url or f'{SOURCE_BUKHARI_BASE}SahihAl-bukhariVol.3-Ahadith1773-2737.pdf',
+            url,
             True,
         )
 
@@ -111,18 +150,21 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         root = Path(options['dir'])
-        if not root.is_dir():
-            self.stderr.write(self.style.ERROR(f'Folder not found: {root}'))
-            return
-
         school = School.objects.filter(name=SCHOOL_NAME).first()
         if not school:
             self.stderr.write(self.style.ERROR(f'School not found: {SCHOOL_NAME}'))
             return
 
-        pdfs = sorted(root.glob('*.pdf'))
-        if not pdfs:
-            self.stderr.write(self.style.WARNING(f'No PDFs in {root}'))
+        if root.is_dir():
+            filenames = sorted(p.name for p in root.glob('*.pdf'))
+        else:
+            self.stdout.write(self.style.WARNING(
+                f'Folder not found ({root}) — using built-in manifest ({len(WORKSHEET_MANIFEST)} worksheets)'
+            ))
+            filenames = list(WORKSHEET_MANIFEST)
+
+        if not filenames:
+            self.stderr.write(self.style.WARNING('No worksheets to seed'))
             return
 
         created = 0
@@ -130,9 +172,10 @@ class Command(BaseCommand):
         subject_cache = {}
         track_cache = {}
 
-        for path in pdfs:
-            subject_name, track_name, source_url, external_only = _classify(path.name)
-            title = _human_title(path.name)
+        for name in filenames:
+            path = root / name if root.is_dir() else None
+            subject_name, track_name, source_url, external_only = _classify(name)
+            title = _human_title(name)
 
             if subject_name not in subject_cache:
                 subject_cache[subject_name], _ = CourseSubject.objects.get_or_create(
@@ -168,15 +211,29 @@ class Command(BaseCommand):
                 changed = True
 
             if external_only:
-                url = BUKHARI_URLS.get(path.name.lower(), source_url)
+                url = _bukhari_pdf_url(name)
                 if material.external_url != url:
                     material.external_url = url
                     changed = True
-            elif path.is_file():
+                if not material.file and url:
+                    try:
+                        tmp = settings.MEDIA_ROOT / 'lms' / 'materials' / name
+                        tmp.parent.mkdir(parents=True, exist_ok=True)
+                        urllib.request.urlretrieve(url, tmp)
+                        with tmp.open('rb') as fh:
+                            material.file.save(name, File(fh), save=False)
+                        changed = True
+                    except OSError:
+                        pass
+            elif path and path.is_file():
                 with path.open('rb') as fh:
-                    material.file.save(path.name, File(fh), save=False)
+                    material.file.save(name, File(fh), save=False)
                 material.external_url = source_url
                 changed = True
+            else:
+                if material.external_url != source_url:
+                    material.external_url = source_url
+                    changed = True
 
             if changed or was_created:
                 material.save()
@@ -191,7 +248,7 @@ class Command(BaseCommand):
             self._assign_tracks(school)
 
         self.stdout.write(self.style.SUCCESS(
-            f'LMS worksheets: {created} created, {updated} updated ({len(pdfs)} PDFs in {root})'
+            f'LMS worksheets: {created} created, {updated} updated ({len(filenames)} worksheets)'
         ))
 
     def _assign_tracks(self, school):
