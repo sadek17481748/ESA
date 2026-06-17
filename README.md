@@ -622,6 +622,23 @@ Planned core roles:
 
 These were the **original aims** when ESA was scoped in May. They guided every sprint decision — including what to cut when time ran short.
 
+#### Why these goals exist
+
+Islamic supplementary schools and full-time madrasahs often run on a mix of spreadsheets, WhatsApp groups, paper registers, and disconnected payment links. Teachers re-type attendance into messages for parents; Hifz progress lives in private notebooks; fee reminders go out manually each term. That works at small scale but breaks down as classes grow, staff change, and parents expect the same digital experience they get from mainstream schools.
+
+ESA was scoped to **replace fragmentation with one tenant-aware platform** — not to replicate every feature of a national MIS, but to cover the workflows Islamic schools actually described in early research: registers, homework, Qur'an and Hifz tracking, teacher-verified reporting, parent messaging, and online fees. Each goal below maps to one of those pain points. Together they define what “success” meant before a single migration was written.
+
+#### What we were trying to achieve
+
+At a high level, the project aimed to prove four things by submission:
+
+1. **Technical competence** — a real Django + PostgreSQL application with authentication, APIs, payments, and deployment, not a prototype that only works on localhost.
+2. **Domain fit** — language and flows that make sense for madrasahs (Hifz sign-off, parent link codes, Islamic school terminology), not a generic school template with different labels.
+3. **Trust and safety** — parents and assessors can see *why* data on screen is credible (teacher approval, tenant isolation, audit-friendly design).
+4. **Professional delivery** — evidence an employer or examiner can follow: README, tests, wireframes, validation screenshots, and a live Heroku URL that survives a structured walkthrough.
+
+The numbered goals in the table are the **concrete checklist** derived from those four themes. If a feature did not support at least one of them, it was deferred to the buffer week or dropped.
+
 | # | Goal | Summary | Status on live site |
 |---|------|---------------|---------------------|
 | 1 | **Full-stack Django app** | Real web app with database, not just static pages — split into reusable apps (`accounts`, `payments`, `quran`, etc.) | **Done** — deployed on Heroku with PostgreSQL |
@@ -632,6 +649,29 @@ These were the **original aims** when ESA was scoped in May. They guided every s
 | 6 | **Stripe payments** | Parents pay fees online; money routes to the school's Stripe account | **Done** — Checkout + Connect + subscriptions (test mode) |
 | 7 | **Responsive, accessible UI** | Works on laptop and tablet (primary); readable contrast; keyboard basics | **Done** — see [How responsiveness was tested](#how-responsiveness-was-tested) |
 | 8 | **Documented, incremental build** | Small commits, README, tests, evidence for assessors | **Ongoing** — README, manual test table, GitHub history |
+
+#### How the goals depend on each other
+
+Several goals only make sense **in combination**. Multi-tenancy (goal 2) is meaningless without RBAC (goal 3): scoping data to a school is not enough if a parent account could open teacher URLs. Stripe (goal 6) depends on school admins existing as a role and on fee records created through normal CRUD (goal 4). Teacher sign-off (goal 5) depends on teachers having a authenticated session and on students/parents having *read-only* views of the same underlying records — otherwise “official” data and draft data look the same.
+
+The **full-stack** goal (1) was the enabler for everything else: static wireframes proved layout early, but goals 2–7 required migrations, middleware, webhooks, and background-safe queries on Heroku. The **documentation** goal (8) was treated as a first-class deliverable because this module grades process as well as product — commit history, test names, and validation screenshots are how an assessor verifies that the other seven goals were met deliberately, not accidentally.
+
+#### What we deliberately did not optimise for
+
+Keeping scope honest mattered as much as listing ambitions. ESA was **not** trying to be a parent-facing mobile app store product, a government census system, or a full learning-management replacement for Moodle. Native iOS/Android apps, real-time video lessons, automated Quran recitation marking, and multi-language RTL UI were noted as future work. The goals above were chosen so a **single developer** could reach a defensible MVP in eight weeks while still demonstrating advanced topics (payments, multi-tenancy, JWT APIs, PDF annotation).
+
+#### Measuring success against the goals
+
+For assessment, each goal has a simple “show me” test:
+
+- **Goal 1** — log in on Heroku; data persists after refresh; Django admin and API respond.
+- **Goal 2** — two schools seeded; school A admin cannot see school B students (covered in automated tests).
+- **Goal 3** — five demo accounts; each lands on a different dashboard with a different sidebar.
+- **Goal 4** — create a teacher, class, or fee; invalid input shows field errors, not a raw 500 page.
+- **Goal 5** — submit homework as student; parent does not see it as official until teacher approves / exam is finalised.
+- **Goal 6** — parent pays a fee with Stripe test card `4242…`; webhook marks payment complete.
+- **Goal 7** — resize browser or use DevTools device mode; Lighthouse and W3C evidence in README.
+- **Goal 8** — README walkthrough, GitHub Project board, and dated commits through May–July.
 
 The goals did **not** change mid-project — but **how** some features were implemented did (see [Scope creep](#scope-creep--what-changed-and-why) below). That is normal in a student project: the *intent* stayed the same; the *detail* was adjusted to fit the deadline.
 
@@ -1134,7 +1174,8 @@ ESA targets **WCAG AA** where practical for a student project:
 | **Current page** | Sidebar uses `aria-current="page"` for screen readers |
 | **Colour contrast** | Light text on dark surfaces; gold on black checked for button/link contrast |
 | **Form labels** | Explicit `<label>` elements tied to inputs |
-| **Alt text / decorative** | Decorative header geometry marked `aria-hidden="true"` |
+| **Alt text (images)** | Every meaningful `<img>` has an `alt` description for **screen readers** (text-to-speech). Homepage carousel photos describe the scene (e.g. “Students learning at London Islamic School”). README screenshots use markdown alt text: `![description](image.png)`. Decorative shapes use `aria-hidden="true"` instead of empty alt. |
+| **PDF / canvas** | Qur'an viewer `<canvas>` uses `role="img"` and a dynamic `aria-label` (“Juz X, page Y”) updated when the page changes |
 | **Language** | `<html lang="en">` set on all templates |
 
 **Known limits (honest):** the Qur'an PDF canvas and timetable drag-and-drop are pointer-heavy; keyboard-only use of those two tools is limited. Core flows (login, fees, messages, attendance marks) are keyboard accessible.

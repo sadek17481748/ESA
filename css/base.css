@@ -1126,16 +1126,29 @@ button.btn-primary:disabled,
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
-  display: flex;
+  z-index: 10000;
+  display: none;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 1rem;
   padding: 1rem 1.25rem;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
   background: var(--surface-up);
   border-top: 1px solid var(--border);
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
+  pointer-events: auto;
+}
+
+.cookie-banner.is-visible {
+  display: flex;
+}
+
+.cookie-banner .cookie-accept-btn {
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
 
 .cookie-banner p {

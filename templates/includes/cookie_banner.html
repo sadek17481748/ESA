@@ -1,17 +1,69 @@
-<div id="esa-cookie-banner" class="cookie-banner" hidden role="dialog" aria-label="Cookie notice">
-  <p>ESA uses essential cookies for login sessions. See our <a href="{% url 'pages:terms' %}">Terms &amp; Conditions</a>.</p>
-  <button type="button" class="btn-primary" id="esa-cookie-accept">Accept</button>
+<div id="esa-cookie-banner" class="cookie-banner" role="dialog" aria-modal="true" aria-label="Cookie notice" aria-describedby="esa-cookie-desc">
+  <p id="esa-cookie-desc">ESA uses essential cookies for login sessions. See our <a href="{% url 'pages:terms' %}">Terms &amp; Conditions</a>.</p>
+  <button type="button" class="btn-primary cookie-accept-btn" id="esa-cookie-accept" aria-label="Accept cookies and dismiss this notice">Accept</button>
 </div>
 <script>
 (function () {
-  var key = 'esa_cookie_accepted';
-  var banner = document.getElementById('esa-cookie-banner');
-  if (!banner) return;
-  if (localStorage.getItem(key) === '1') return;
-  banner.hidden = false;
-  document.getElementById('esa-cookie-accept')?.addEventListener('click', function () {
-    localStorage.setItem(key, '1');
-    banner.hidden = true;
-  });
+  var STORAGE_KEY = 'esa_cookie_accepted';
+
+  function storageSet() {
+    try {
+      localStorage.setItem(STORAGE_KEY, '1');
+      return true;
+    } catch (e) {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, '1');
+        return true;
+      } catch (e2) {
+        document.cookie = STORAGE_KEY + '=1; path=/; max-age=31536000; SameSite=Lax';
+        return true;
+      }
+    }
+  }
+
+  function storageGet() {
+    try {
+      if (localStorage.getItem(STORAGE_KEY) === '1') return true;
+    } catch (e) { /* private mode */ }
+    try {
+      if (sessionStorage.getItem(STORAGE_KEY) === '1') return true;
+    } catch (e2) { /* ignore */ }
+    return document.cookie.indexOf(STORAGE_KEY + '=1') !== -1;
+  }
+
+  function hideBanner(banner) {
+    banner.classList.remove('is-visible');
+    banner.setAttribute('aria-hidden', 'true');
+  }
+
+  function showBanner(banner) {
+    banner.classList.add('is-visible');
+    banner.setAttribute('aria-hidden', 'false');
+    var btn = document.getElementById('esa-cookie-accept');
+    if (btn) btn.focus();
+  }
+
+  function init() {
+    var banner = document.getElementById('esa-cookie-banner');
+    if (!banner) return;
+    if (storageGet()) {
+      hideBanner(banner);
+      return;
+    }
+    showBanner(banner);
+    banner.addEventListener('click', function (event) {
+      var target = event.target;
+      if (!target || target.id !== 'esa-cookie-accept') return;
+      event.preventDefault();
+      storageSet();
+      hideBanner(banner);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
 </script>

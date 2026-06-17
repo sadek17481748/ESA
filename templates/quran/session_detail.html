@@ -23,10 +23,10 @@
     {% if can_edit %}
     <div class="quran-highlight-tools">
       <span class="quran-tools-label">Highlighter</span>
-      <button type="button" class="quran-color-btn is-active" data-color="#fff59d" style="background:#fff59d" title="Yellow"></button>
-      <button type="button" class="quran-color-btn" data-color="#a5d6a7" style="background:#a5d6a7" title="Green"></button>
-      <button type="button" class="quran-color-btn" data-color="#90caf9" style="background:#90caf9" title="Blue"></button>
-      <button type="button" class="quran-color-btn" data-color="#f48fb1" style="background:#f48fb1" title="Pink"></button>
+      <button type="button" class="quran-color-btn is-active" data-color="#fff59d" style="background:#fff59d" title="Yellow" aria-label="Yellow highlighter"></button>
+      <button type="button" class="quran-color-btn" data-color="#a5d6a7" style="background:#a5d6a7" title="Green" aria-label="Green highlighter"></button>
+      <button type="button" class="quran-color-btn" data-color="#90caf9" style="background:#90caf9" title="Blue" aria-label="Blue highlighter"></button>
+      <button type="button" class="quran-color-btn" data-color="#f48fb1" style="background:#f48fb1" title="Pink" aria-label="Pink highlighter"></button>
       <button type="button" class="btn-secondary" id="quran-undo-highlight">Undo last</button>
       <span class="quran-save-status" id="quran-save-status" aria-live="polite"></span>
     </div>
@@ -35,7 +35,7 @@
 
   <div class="quran-canvas-scroll" id="quran-canvas-scroll">
   <div class="quran-canvas-wrap" id="quran-canvas-wrap">
-    <canvas id="quran-pdf-canvas"></canvas>
+    <canvas id="quran-pdf-canvas" role="img" aria-label="Qur'an mushaf page {{ para_number }}, page {{ page_number }}"></canvas>
     <div class="quran-highlight-layer" id="quran-highlight-layer"></div>
     {% if can_edit %}
     <div class="quran-drag-preview" id="quran-drag-preview" hidden></div>

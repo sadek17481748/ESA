@@ -114,6 +114,10 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     await page.render({ canvasContext: ctx, viewport }).promise;
     labelEl.textContent = `Juz ${paraNumber} · Page ${pageNumber} of ${pageCount}`;
+    canvas.setAttribute(
+      'aria-label',
+      `Qur'an mushaf juz ${paraNumber}, page ${pageNumber} of ${pageCount}`,
+    );
     syncOverlaySize();
     renderHighlights();
     setStatus('');
