@@ -888,7 +888,7 @@ The **LMS** (Learning Management System) is where schools store structured learn
 | **English** | Grammar & writing, Spelling, Reading & comprehension | [iSL Collective — English ESL worksheets](https://en.islcollective.com/english-esl-worksheets/search) |
 | **Islamic Studies** | Sahih al-Bukhari Vol. 1–3, Hadith reader excerpts | [Sahih al-Bukhari Vol. 3 (English PDF)](https://uploads.ahlesunnatpak.com/books/Saheh%20Al-Bukhari/english/SahihAl-bukhariVol.3-Ahadith1773-2737.pdf) — Vol. 1–2 on same host |
 
-Worksheet PDFs live in `WORKSHEETS/` locally (gitignored). On Heroku: `heroku ps:copy` each file, then `python manage.py seed_alnoor_worksheets --assign-classes`. Students open files from `/worksheets/` or `/lms/` (production serves uploads at `/lms/material/<id>/file/`).
+Worksheet PDFs live in `WORKSHEETS/` locally (gitignored). On Heroku run `python manage.py seed_alnoor_worksheets --assign-classes` — Bukhari volumes are downloaded; maths and English materials link to the Cluey / iSL Collective source pages. Students open materials from `/worksheets/` or `/lms/` (uploaded files at `/lms/material/<id>/file/`).
 
 ### Qur'an sessions (mushaf viewer)
 
