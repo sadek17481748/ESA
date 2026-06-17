@@ -73,6 +73,7 @@
   - [Automated tests](#automated-tests-local)
   - [How I committed changes to GitHub](#how-i-committed-changes-to-github-workflow-used)
 - [Deployment](#deployment)
+  - [GitHub setup and connecting the project](#github-setup-and-connecting-the-project)
   - [Terminal usage in this project](#terminal-usage-in-this-project)
   - [GitHub and Heroku integration](#github-and-heroku-integration)
   - [Deployment steps](#deployment-steps)
@@ -2377,6 +2378,83 @@ ESA is deployed on **Heroku** with a managed **PostgreSQL** database. The live a
 
 Source code is hosted on GitHub and connected to Heroku for automatic deploys when `main` is pushed. You can also deploy manually with the Heroku CLI.
 
+### GitHub setup and connecting the project
+
+ESA uses **Git** in the terminal and **GitHub** as the public remote (`origin`). Heroku was then **connected to that same GitHub repo** so pushes to `main` can deploy the live site. Full clone/setup steps are also in [GitHub setup and version control](#github-setup-and-version-control) under Development.
+
+#### 1. Create the repository on GitHub
+
+1. Open [github.com/new](https://github.com/new).
+2. Repository name: **ESA** (this project: `sadek17481748/ESA`).
+3. Visibility: **Public** (assessors can browse code and commit history).
+4. Do **not** add a README on GitHub if you already have local commits — avoids merge conflicts.
+5. Click **Create repository** and keep the empty-repo page open for the remote URL.
+
+#### 2. Initialise Git locally and make the first commit
+
+```bash
+cd /path/to/ESA
+git init
+git add .
+git commit -m "Initial Django project scaffold."
+```
+
+`.env`, `.venv/`, and `WORKSHEETS/` stay out of Git (listed in `.gitignore`).
+
+#### 3. Connect GitHub over HTTPS and push `main`
+
+```bash
+git remote add origin https://github.com/sadek17481748/ESA.git
+git branch -M main
+git push -u origin main
+```
+
+GitHub asks for credentials over HTTPS:
+
+- **Username:** your GitHub username.
+- **Password:** a **Personal Access Token** with `repo` scope (GitHub no longer accepts account passwords for `git push`).
+
+After the first successful push, macOS Keychain can remember the token. Check the link:
+
+```bash
+git remote -v
+# origin  https://github.com/sadek17481748/ESA.git (fetch)
+# origin  https://github.com/sadek17481748/ESA.git (push)
+```
+
+#### 4. How commits were pushed during the project
+
+Each feature was committed in **small steps** from the terminal (foundation → RBAC → payments → LMS, etc.):
+
+```bash
+git pull origin main
+git status
+git diff
+git add path/to/changed/files
+git commit -m "Short message — what changed and why."
+git push origin main
+```
+
+README-only updates and application code were often **separate commits** so assessors can tell documentation from code changes. The full history is on GitHub → **Commits**.
+
+#### 5. Connect Heroku to the GitHub repository
+
+After the Heroku app exists (`esa-project`):
+
+1. [Heroku Dashboard](https://dashboard.heroku.com/) → **esa-project** → **Deploy**.
+2. **Deployment method:** **GitHub** → **Connect to GitHub** (authorise in the browser).
+3. Search **`sadek17481748/ESA`** → **Connect**.
+4. **Automatic deploys** → branch **`main`** → **Enable Automatic Deploys**.
+
+From then on, `git push origin main` updates GitHub **and** triggers a Heroku build. For a direct deploy without waiting on GitHub integration:
+
+```bash
+heroku git:remote -a esa-project
+git push heroku main
+```
+
+See [GitHub and Heroku integration](#github-and-heroku-integration) below for config vars, `Procfile`, and post-deploy commands.
+
 ### Terminal usage in this project
 
 ESA was built almost entirely from the **terminal** (VS Code integrated terminal on macOS, plus the Heroku CLI). The same shell is used for local development, Git, tests, and production fixes — not only the first deploy.
@@ -3021,8 +3099,6 @@ Planned and executed checks for foundation, RBAC, Stripe, Qur'an, exams, and sig
 | 59 | Parent registration with link code | Open `/register/`, role **Parent**, enter school-issued **Student link code**, submit | Parent account created and child linked on first login | Registered **testparent** (`msadekhussain2001@gmail.com`) with code **6EC5367A** for Al-Noor | Pass | [register-parent-link-code](docs/images/manual-testing/register-parent-link-code.png) |
 | 60 | Parent — child linked on overview | Log in as linked parent | **Your children** shows linked student with class | **test student** appears on parent overview for class **2C** (attendance/homework cards load) | Pass | [parent-overview-child-linked](docs/images/manual-testing/parent-overview-child-linked.png) |
 | 61 | Teacher personal timetable → register | School admin assigns teacher on timetable slot; teacher opens **My timetable** | Teacher sees assigned lessons; clicking **Maths 2C** (etc.) opens class register | Teacher dashboard and `/timetable/` show assigned slots with **Take register** links; register opens for that class | Pass | [teacher-workspace-dashboard](docs/images/manual-testing/teacher-workspace-dashboard.png) |
-
-*(Row 35 appears with row 34 above; duplicate removed.)*
 
 ### Automated testing
 
@@ -3670,8 +3746,6 @@ Home page carousel (`static/images/carousel/`):
 
 **Mohammed Sadek Hussain**  
 New City College — **Level 5 Website Application Development, Project 4**
-
-This submission is the full-stack Django assessment project: multi-tenant school portal, RBAC, Stripe payments, and documented testing evidence. **Security testing** covers tenant isolation (automated API tests), session and JWT auth, CSRF on forms, Stripe webhook signature checks, HTTPS on Heroku, and OWASP-aligned session/CSRF guidance — see [Security](#security) and rows 1–12 in [Manual testing](#manual-testing).
 
 - GitHub: [sadek17481748/ESA](https://github.com/sadek17481748/ESA)
 - Live app: [esa-project on Heroku](https://esa-project-2a7a33dfe3fc.herokuapp.com/)
