@@ -18,3 +18,6 @@ staticfiles/
 
 # Media uploads
 media/
+
+# Local worksheet PDFs (seeded to Heroku via ps:copy — not in git)
+WORKSHEETS/

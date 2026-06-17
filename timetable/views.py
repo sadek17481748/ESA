@@ -32,10 +32,3 @@ class TimetableSlotViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
             from rest_framework.exceptions import ValidationError
             raise ValidationError({'end_time': 'End time must be after start time.'})
         serializer.save(school=self.request.user.school)
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — end_time before start_time was allowed
-# ---------------------------------------------------------------------------
-# def perform_create(self, serializer):
-#     serializer.save(school=self.request.user.school)

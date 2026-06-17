@@ -28,14 +28,3 @@ class TenantScopedModelMixin:
     """Placeholder for future model-level tenant helpers."""
 
     pass
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — wrong lookup, queryset always empty for teachers
-# ---------------------------------------------------------------------------
-# def get_queryset(self):
-#     qs = super().get_queryset()
-#     user = self.request.user
-#     if user.role == 'super_admin':
-#         return qs
-#     return qs.filter(school_id=user.school)

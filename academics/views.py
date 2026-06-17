@@ -3,6 +3,7 @@ academics/views.py
 Year groups, classes, and enrolment — school admin writes.
 """
 from rest_framework import viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 
 from core_app.mixins import TenantScopedQuerySetMixin
@@ -57,12 +58,5 @@ class ClassEnrollmentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
         student = serializer.validated_data['student']
         class_group = serializer.validated_data['class_group']
         if student.school_id != class_group.school_id:
-            raise PermissionError('Student and class must be in the same school.')
+            raise ValidationError({'student': 'Student and class must be in the same school.'})
         serializer.save()
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — enrolled student from another school
-# ---------------------------------------------------------------------------
-# def perform_create(self, serializer):
-#     serializer.save()

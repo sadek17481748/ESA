@@ -69,9 +69,3 @@ class EmailVerificationCode(models.Model):
 
     def __str__(self):
         return f'{self.user.username} — {self.code}'
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — super_admin could not save if school FK was still set
-# ---------------------------------------------------------------------------
-# def save(self, *args, **kwargs):
-#     super().save(*args, **kwargs)

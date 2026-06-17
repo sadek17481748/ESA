@@ -288,8 +288,3 @@ SUBSCRIPTION_PRICES = {
     'standard': 4900,
     'premium': 9900,
 }
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — /payments/ sent users to Django admin login
-# ---------------------------------------------------------------------------
-# LOGIN_URL = '/admin/login/'

@@ -14,4 +14,5 @@ urlpatterns = [
     path('complete/<int:material_id>/', views.lms_mark_complete, name='mark_complete'),
     path('submit/<int:material_id>/', views.lms_submit_material, name='submit_material'),
     path('review/<int:submission_id>/', views.lms_review_submission, name='review_submission'),
+    path('material/<int:material_id>/file/', views.lms_serve_material, name='material_file'),
 ]

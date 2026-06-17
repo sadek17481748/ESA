@@ -1,5 +1,9 @@
 """lms/views.py — school LMS portal."""
+import mimetypes
+import os
+
 from django.contrib import messages
+from django.http import FileResponse, Http404
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
@@ -19,6 +23,34 @@ from .models import (
     StudentMaterialProgress,
 )
 from .services import mark_material_progress, materials_for_student, student_track_summaries, tracks_for_class
+
+
+def _user_can_access_material(user, material):
+    if not user.is_authenticated or not user.school_id:
+        return False
+    if material.track.subject.school_id != user.school_id:
+        return False
+    if user.role in ('school_admin', 'teacher', 'student', 'parent'):
+        return True
+    return False
+
+
+@login_required
+def lms_serve_material(request, material_id):
+    """Serve uploaded LMS files in production (when S3 is not configured)."""
+    material = get_object_or_404(
+        CourseMaterial.objects.select_related('track__subject'),
+        pk=material_id,
+    )
+    if not _user_can_access_material(request.user, material):
+        raise Http404
+    if not material.file:
+        raise Http404
+    path = material.file.path
+    if not os.path.isfile(path):
+        raise Http404
+    content_type, _ = mimetypes.guess_type(path)
+    return FileResponse(open(path, 'rb'), content_type=content_type or 'application/pdf')
 
 
 def _ctx(request, title, meta):

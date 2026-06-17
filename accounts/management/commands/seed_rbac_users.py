@@ -43,10 +43,10 @@ class Command(BaseCommand):
             user.email_verified = True
             if created:
                 user.set_password(password)
-            user.save()
                 self.stdout.write(f'Created {username} ({role})')
             else:
                 self.stdout.write(f'Exists {username}')
+            user.save()
 
         teacher_user = User.objects.get(username='teacher_demo')
         TeacherProfile.objects.get_or_create(

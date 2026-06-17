@@ -24,9 +24,11 @@ class QuranSessionTests(TestCase):
         self.school = School.objects.create(name='Test School')
         self.teacher_user = User.objects.create_user(
             username='qt', password='x', role='teacher', school=self.school,
+            email='qt@esa.demo', email_verified=True,
         )
         self.student_user = User.objects.create_user(
             username='qs', password='x', role='student', school=self.school,
+            email='qs@esa.demo', email_verified=True,
         )
         self.teacher = TeacherProfile.objects.create(school=self.school, user=self.teacher_user)
         self.student = StudentProfile.objects.create(
@@ -57,9 +59,10 @@ class QuranSessionTests(TestCase):
     def test_teacher_can_create_mushaf_session(self):
         client = Client()
         client.force_login(self.teacher_user)
+        before = QuranSession.objects.filter(student=self.student).count()
         response = client.post('/quran/new/', {'student': self.student.pk})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(QuranSession.objects.filter(student=self.student).count(), 2)
+        self.assertEqual(QuranSession.objects.filter(student=self.student).count(), before + 1)
 
     def test_teacher_can_save_page_via_api(self):
         client = Client()

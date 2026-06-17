@@ -66,11 +66,3 @@ urlpatterns = [
 # dev only — uploaded media
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — uploaded files 404 in local dev (no media route)
-# ---------------------------------------------------------------------------
-# if settings.DEBUG:
-#     urlpatterns += [
-#         path('css/<path:path>', serve, {'document_root': settings.BASE_DIR / 'css'}),
-#     ]

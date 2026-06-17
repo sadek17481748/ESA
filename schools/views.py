@@ -33,16 +33,3 @@ class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
         if user.role == 'school_admin' and user.school_id:
             return qs.filter(pk=user.school_id)
         return qs.none()
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — school admin got empty list (filtered wrong field)
-# ---------------------------------------------------------------------------
-# def get_queryset(self):
-#     user = self.request.user
-#     qs = School.objects.all()
-#     if user.role == 'super_admin':
-#         return qs
-#     if user.role == 'school_admin':
-#         return qs.filter(name=user.school.name)
-#     return qs.none()

@@ -72,6 +72,9 @@ class Command(BaseCommand):
         sync_personal_accounts(school, stdout=self.stdout)
         sync_mr_mohammed_attendance_demo(school, stdout=self.stdout)
 
+        from django.core.management import call_command
+        call_command('seed_rbac_users', verbosity=0)
+
         self.stdout.write(self.style.SUCCESS(
             'Boot seed complete (fast). For full Y7–Y11 data run: '
             'python manage.py seed_alnoor_full_school'

@@ -23,12 +23,3 @@ class SubjectSerializer(serializers.ModelSerializer):
                 {'lead_teacher': 'Hifz and Alimiyah subjects need a lead teacher assigned.'}
             )
         return attrs
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — saved Hifz track without requiring lead_teacher
-# ---------------------------------------------------------------------------
-# class SubjectSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Subject
-#         fields = '__all__'

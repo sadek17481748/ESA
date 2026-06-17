@@ -32,12 +32,3 @@ def sign_off_submission(*, submission, teacher_profile, approve, note=''):
             link_path=f'/homework/submissions/{submission.pk}/',
         )
     return submission
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — any teacher could approve any submission
-# ---------------------------------------------------------------------------
-# def sign_off_submission(*, submission, teacher_profile, approve, note=''):
-#     submission.status = Submission.STATUS_APPROVED if approve else Submission.STATUS_REJECTED
-#     submission.save()
-#     return submission

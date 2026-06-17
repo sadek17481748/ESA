@@ -73,17 +73,3 @@ class StudentParentLinkViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet)
         if student.school_id != self.request.user.school_id:
             raise PermissionError('Student must belong to your school.')
         serializer.save()
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — parent register saved user without school FK
-# ---------------------------------------------------------------------------
-# user = User.objects.create_user(
-#     username=data['username'], email=data['email'], password=data['password'], role='parent',
-# )
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — linked parent to student from another tenant
-# ---------------------------------------------------------------------------
-# def perform_create(self, serializer):
-#     serializer.save()

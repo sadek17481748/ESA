@@ -104,14 +104,3 @@ class SubmissionViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
             resource_id=submission.pk, request=request,
         )
         return Response(SubmissionSerializer(submission).data)
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — submit action used IsTeacher so students got 403
-# ---------------------------------------------------------------------------
-# @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated, IsTeacher])
-# def submit(self, request, pk=None):
-#     submission = self.get_object()
-#     submission.status = Submission.STATUS_SUBMITTED
-#     submission.save()
-#     return Response(SubmissionSerializer(submission).data)

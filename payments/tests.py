@@ -109,6 +109,82 @@ class SchoolAdminFeesTests(TestCase):
         self.assertEqual(fee.status, FeeItem.STATUS_PAID)
 
 
+class ParentPaymentPortalTests(TestCase):
+    """Manual rows 12–13, 16–17 — parent fees, redirect, cancel, idempotent success."""
+
+    def setUp(self):
+        self.school = School.objects.create(name='Pay Portal School')
+        self.parent = User.objects.create_user(
+            username='pay_parent', password='pass', role='parent', school=self.school,
+            email='pay@feetest.example', email_verified=True,
+        )
+        ParentProfile.objects.create(school=self.school, user=self.parent)
+        other_parent = User.objects.create_user(
+            username='other_parent', password='pass', role='parent', school=self.school,
+        )
+        self.own_fee = FeeItem.objects.create(
+            school=self.school,
+            parent=self.parent,
+            child_name='Child A',
+            title='Term fee',
+            amount_pence=5000,
+            due_date=date.today(),
+        )
+        FeeItem.objects.create(
+            school=self.school,
+            parent=other_parent,
+            child_name='Child B',
+            title='Other fee',
+            amount_pence=3000,
+            due_date=date.today(),
+        )
+        self.client = Client()
+
+    def test_row_12_parent_sees_own_fees_only(self):
+        self.client.login(username='pay_parent', password='pass')
+        response = self.client.get(reverse('payments:fee_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Term fee')
+        self.assertNotContains(response, 'Other fee')
+
+    def test_row_13_unauthenticated_payments_redirect(self):
+        response = self.client.get(reverse('payments:fee_list'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/accounts/login/', response.url)
+
+    def test_row_16_stripe_cancel_page(self):
+        self.client.login(username='pay_parent', password='pass')
+        response = self.client.get(reverse('payments:cancel'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'cancelled')
+
+    def test_row_17_no_duplicate_payment_on_refresh(self):
+        from unittest.mock import patch
+        from payments.models import Payment
+
+        class FakeStripeSession:
+            id = 'cs_test_dup_1'
+            payment_status = 'paid'
+            amount_total = 5000
+            currency = 'gbp'
+            payment_intent = 'pi_test'
+            metadata = None
+
+            def __init__(self, fee_id):
+                self.metadata = {'fee_item_id': str(fee_id), 'payment_type': 'fee'}
+
+            def get(self, key, default=None):
+                return getattr(self, key, default)
+
+        self.client.login(username='pay_parent', password='pass')
+        session = FakeStripeSession(self.own_fee.pk)
+        with patch('payments.views.retrieve_checkout_session', return_value=session):
+            url = reverse('payments:success') + '?session_id=cs_test_dup_1'
+            self.client.get(url)
+            self.client.get(url)
+        self.assertEqual(Payment.objects.filter(stripe_session_id='cs_test_dup_1').count(), 1)
+
+
 class SubscriptionSyncTests(TestCase):
     def setUp(self):
         self.school = School.objects.create(name='Sub School', subscription_tier=School.TIER_FREE)

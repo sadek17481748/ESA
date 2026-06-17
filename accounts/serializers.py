@@ -50,26 +50,3 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — leaked password hash on /api/accounts/me/
-# ---------------------------------------------------------------------------
-# class UserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = (
-#             'id', 'username', 'email', 'password', 'first_name', 'last_name',
-#             'role', 'school', 'school_name',
-#         )
-
-# bug: register allowed student with no school — no validate() check
-# class RegisterSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ('username', 'email', 'password', 'role', 'school')
-#     def create(self, validated_data):
-#         password = validated_data.pop('password')
-#         user = User(**validated_data)
-#         user.set_password(password)
-#         user.save()
-#         return user

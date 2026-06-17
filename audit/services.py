@@ -28,17 +28,3 @@ def log_action(*, user, action, resource='', resource_id='', detail='', request=
         detail=detail,
         ip_address=ip,
     )
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — audit rows saved with school=None on login
-# ---------------------------------------------------------------------------
-# def log_action(*, user, action, resource='', resource_id='', detail='', request=None):
-#     return AuditLog.objects.create(
-#         school=None,
-#         user=user,
-#         action=action,
-#         resource=resource,
-#         resource_id=str(resource_id) if resource_id else '',
-#         detail=detail,
-#     )

@@ -11,9 +11,3 @@ def notify_user(*, user, school, notification_type, title, message, link_path=''
         message=message,
         link_path=link_path,
     )
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — notifications sent to wrong user id
-# ---------------------------------------------------------------------------
-# Notification.objects.create(user_id=None, title=title, message=message)

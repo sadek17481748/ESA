@@ -88,18 +88,3 @@ class StudentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
             )
             created += 1
         return Response({'created': created, 'errors': errors}, status=status.HTTP_201_CREATED)
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — CSV import ignored school and wrote to wrong tenant
-# ---------------------------------------------------------------------------
-# StudentProfile.objects.create(
-#     first_name=fn, last_name=ln, year_group=yg, admission_number=adm,
-# )
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — teacher saw students from every school
-# ---------------------------------------------------------------------------
-# class StudentViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
-#     def get_queryset(self):
-#         return StudentProfile.objects.all()

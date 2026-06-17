@@ -77,11 +77,3 @@ class IsSchoolStaff(RoleRequired):
         if not request.user or not request.user.is_authenticated:
             return False
         return request.user.role in ('school_admin', 'teacher', 'super_admin')
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — checked Django is_staff, not ESA school_admin role
-# ---------------------------------------------------------------------------
-# class IsSchoolAdmin(RoleRequired):
-#     def has_permission(self, request, view):
-#         return super().has_permission(request, view) and request.user.is_staff

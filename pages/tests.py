@@ -192,6 +192,7 @@ class HomePageTests(TestCase):
         school = School.objects.create(name=DEFAULT_SCHOOL_NAME)
         user = User.objects.create_user(
             username='homeuser', password='x', role='parent', school=school,
+            email='home@esa.demo', email_verified=True,
         )
         self.client.force_login(user)
         response = self.client.get(reverse('home'))
@@ -387,7 +388,7 @@ class AttendancePortalTests(TestCase):
         call_command('ensure_platform_seed')
         self.school = School.objects.get(name='Al-Noor Academy')
         self.admin = User.objects.get(username='schooladmin')
-        self.teacher = User.objects.get(username='mr_mohammed')
+        self.teacher = User.objects.get(username='teacher_demo')
         self.teacher_profile = TeacherProfile.objects.get(user=self.teacher)
         self.class_group = ClassGroup.objects.filter(school=self.school).first()
         self.subject = Subject.objects.filter(school=self.school).first()
@@ -490,7 +491,7 @@ class TeacherTimetablePortalTests(TestCase):
         from timetable.models import Timetable, TimetableSlot
 
         self.school = School.objects.get(name='Al-Noor Academy')
-        self.teacher_user = User.objects.get(username='mr_mohammed')
+        self.teacher_user = User.objects.get(username='teacher_demo')
         self.teacher_profile = TeacherProfile.objects.get(user=self.teacher_user)
         self.class_group = ClassGroup.objects.filter(school=self.school).first()
         self.subject = Subject.objects.filter(school=self.school, name='Maths').first()
@@ -560,3 +561,63 @@ class TeacherTimetablePortalTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Maths')
         self.assertContains(response, self.class_group.name)
+
+
+class PortalFeaturePageTests(TestCase):
+    """Manual rows 38–43, 48 — portal pages, validation, logout."""
+
+    def setUp(self):
+        call_command('seed_rbac_users')
+        self.school = School.objects.get(name='Al-Noor Academy')
+        self.teacher = User.objects.get(username='teacher_demo')
+        self.student = User.objects.get(username='student_demo')
+        self.parent = User.objects.get(username='parent_demo')
+
+    def test_row_38_attendance_page(self):
+        self.client.force_login(self.teacher)
+        response = self.client.get(reverse('pages:attendance'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Attendance')
+
+    def test_row_39_timetable_page(self):
+        self.client.force_login(self.teacher)
+        response = self.client.get(reverse('pages:timetable'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'timetable')
+
+    def test_row_40_worksheets_page(self):
+        self.client.force_login(self.student)
+        response = self.client.get(reverse('pages:worksheets'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_row_41_messages_page(self):
+        self.client.force_login(self.parent)
+        response = self.client.get(reverse('messaging:inbox'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_row_42_exams_page(self):
+        self.client.force_login(self.teacher)
+        response = self.client.get(reverse('pages:exams'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_row_43_register_validation_mismatched_passwords(self):
+        response = self.client.post(reverse('pages:register'), {
+            'school': self.school.pk,
+            'username': 'badpass',
+            'email': 'bad@test.com',
+            'first_name': 'A',
+            'last_name': 'B',
+            'role': 'parent',
+            'password1': 'securepass1',
+            'password2': 'different1',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'match')
+
+    def test_row_48_logout_clears_session(self):
+        self.client.force_login(self.parent)
+        response = self.client.get(reverse('logout'))
+        self.assertRedirects(response, reverse('home'), fetch_redirect_response=False)
+        response = self.client.get(reverse('payments:fee_list'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/accounts/login/', response.url)

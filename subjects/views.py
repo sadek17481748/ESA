@@ -22,10 +22,3 @@ class SubjectViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(school=self.request.user.school)
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — allowed Hifz subject without lead teacher check
-# ---------------------------------------------------------------------------
-# def perform_create(self, serializer):
-#     serializer.save(school=self.request.user.school, track='general')

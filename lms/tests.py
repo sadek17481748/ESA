@@ -15,10 +15,11 @@ User = get_user_model()
 class LmsPortalTests(TestCase):
     def setUp(self):
         call_command('ensure_platform_seed')
+        call_command('seed_alnoor_demo')
         self.school = School.objects.get(name='Al-Noor Academy')
         self.admin = User.objects.get(username='schooladmin')
-        self.teacher = User.objects.get(username='mr_mohammed')
-        self.student_user = User.objects.get(username='student_alnoor_01')
+        self.teacher = User.objects.filter(username='mr_mohammed').first() or User.objects.get(username='teacher_demo')
+        self.student_user = User.objects.filter(username='student_alnoor_01').first() or User.objects.get(username='student_demo')
         self.class_group = ClassGroup.objects.filter(school=self.school).first()
         self.student = StudentProfile.objects.get(user=self.student_user)
 

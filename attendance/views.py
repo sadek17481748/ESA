@@ -53,10 +53,3 @@ class AttendanceSessionViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet)
         log_action(user=request.user, action='create', resource='AttendanceSession',
                    resource_id=session.pk, request=request)
         return Response(AttendanceSessionSerializer(session).data, status=status.HTTP_201_CREATED)
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — created marks without checking student in class
-# ---------------------------------------------------------------------------
-# for m in marks_data:
-#     AttendanceMark.objects.create(session=session, student_id=m['student'], status=m['status'])

@@ -16,12 +16,14 @@ User = get_user_model()
 class MessagingPortalTests(TestCase):
     def setUp(self):
         call_command('ensure_platform_seed')
+        call_command('seed_alnoor_demo')
         self.school = School.objects.get(name='Al-Noor Academy')
-        self.parent = User.objects.get(username='parent_alnoor_01')
-        self.teacher = User.objects.get(username='mr_mohammed')
+        self.parent = User.objects.filter(username='parent_alnoor_01').first() or User.objects.get(username='parent_demo')
+        self.teacher = User.objects.filter(username='mr_mohammed').first() or User.objects.get(username='teacher_demo')
         self.admin = User.objects.get(username='schooladmin')
         self.super_admin = User.objects.get(username='super')
         self.teacher_profile = TeacherProfile.objects.get(user=self.teacher)
+        self.student = StudentProfile.objects.filter(school=self.school).first()
 
     def test_parent_opens_support_case(self):
         self.client.force_login(self.parent)

@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from lms.models import StudentMaterialProgress
 from messaging.models import SchoolConversation, SupportCase, TeacherReport
+from schools.models import School
 from students.models import StudentProfile
 
 User = get_user_model()
@@ -14,6 +15,8 @@ User = get_user_model()
 class AlNoorExamplesSeedTests(TestCase):
     def setUp(self):
         call_command('ensure_platform_seed')
+        call_command('seed_alnoor_examples')
+        self.school = School.objects.get(name='Al-Noor Academy')
 
     def test_test_accounts_exist_with_examples(self):
         parent = User.objects.get(username='test_parent')

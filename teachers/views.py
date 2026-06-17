@@ -52,11 +52,3 @@ class TeacherViewSet(TenantScopedQuerySetMixin, viewsets.ModelViewSet):
         log_action(user=request.user, action='create', resource='TeacherProfile',
                    resource_id=profile.pk, request=request)
         return Response(TeacherProfileSerializer(profile).data, status=status.HTTP_201_CREATED)
-
-
-# ---------------------------------------------------------------------------
-# BUGGY CODE (commented out) — teacher user created without school FK
-# ---------------------------------------------------------------------------
-# user = User.objects.create_user(
-#     username=data['username'], email=data['email'], password=data['password'], role='teacher',
-# )
