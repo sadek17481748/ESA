@@ -1,0 +1,17 @@
+<div id="esa-cookie-banner" class="cookie-banner" hidden role="dialog" aria-label="Cookie notice">
+  <p>ESA uses essential cookies for login sessions. See our <a href="{% url 'pages:terms' %}">Terms &amp; Conditions</a>.</p>
+  <button type="button" class="btn-primary" id="esa-cookie-accept">Accept</button>
+</div>
+<script>
+(function () {
+  var key = 'esa_cookie_accepted';
+  var banner = document.getElementById('esa-cookie-banner');
+  if (!banner) return;
+  if (localStorage.getItem(key) === '1') return;
+  banner.hidden = false;
+  document.getElementById('esa-cookie-accept')?.addEventListener('click', function () {
+    localStorage.setItem(key, '1');
+    banner.hidden = true;
+  });
+})();
+</script>

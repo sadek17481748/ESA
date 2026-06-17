@@ -38,10 +38,13 @@ urlpatterns = [
     path('timetable/create/', views.timetable_create, name='timetable_create'),
     path('timetable/update/', views.timetable_update, name='timetable_update'),
     path('timetable/delete/', views.timetable_delete, name='timetable_delete'),
+    path('timetable/restore/', views.timetable_restore, name='timetable_restore'),
     path('timetable/subject/create/', views.subject_create, name='subject_create'),
     path('timetable/class/create/', views.class_create, name='class_create'),
     path('worksheets/', views.page_worksheets, name='worksheets'),
     path('analytics/', views.page_analytics, name='analytics'),
     path('security/', views.security_page, name='security'),
+    path('contact/', views.contact_page, name='contact'),
+    path('terms/', views.terms_page, name='terms'),
     path('wireframes/', views.wireframe_page, name='wireframes'),
 ]

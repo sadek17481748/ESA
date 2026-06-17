@@ -509,3 +509,23 @@ class BehaviourLogForm(forms.Form):
         super().__init__(*args, **kwargs)
         from pages.behaviour_service import students_for_teacher
         self.fields['student'].queryset = students_for_teacher(school, teacher_user)
+
+
+class FooterContactForm(forms.Form):
+    """Public footer — opens a platform support case for super admin."""
+
+    name = forms.CharField(
+        max_length=120,
+        widget=forms.TextInput(attrs={'class': 'form-input', 'autocomplete': 'name'}),
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-input', 'autocomplete': 'email'}),
+    )
+    subject = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-input'}),
+    )
+    message = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-input', 'rows': 5}),
+    )
+

@@ -106,34 +106,45 @@
 
 <div class="split dash-split">
   <section id="subscriptions" class="dash-panel">
-    <h2 class="dash-panel-title">Subscriptions</h2>
+    <h2 class="dash-panel-title">Subscription records</h2>
     <div class="accent-bar"></div>
+    <p class="lead" style="margin:0 0 1rem;font-size:0.92rem;">All subscription checkout attempts tracked on the platform — current tier per school is in the table above.</p>
     <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
+            <th>School</th>
             <th>Plan</th>
-            <th>Schools</th>
-            <th>Price / mo</th>
-            <th>MRR share</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Admin</th>
+            <th>Paid</th>
+            <th>Receipt</th>
           </tr>
         </thead>
         <tbody>
-          {% for row in subscription_rows %}
+          {% for pay in subscription_payments %}
           <tr>
-            <td><strong>{{ row.label }}</strong></td>
-            <td>{{ row.school_count }}</td>
-            <td>{{ row.monthly_display }}</td>
-            <td>{{ row.mrr_contribution_display }}</td>
+            <td><strong>{{ pay.school.name }}</strong></td>
+            <td>{% if pay.tier == 'premium' %}Premium{% elif pay.tier == 'standard' %}Standard{% else %}Free{% endif %}</td>
+            <td>{{ pay.amount_display }}</td>
+            <td>
+              {% if pay.status == 'complete' %}
+                <span class="pill pill-ok">Complete</span>
+              {% elif pay.status == 'pending' %}
+                <span class="pill pill-warn">Pending</span>
+              {% else %}
+                <span class="pill">{{ pay.get_status_display }}</span>
+              {% endif %}
+            </td>
+            <td>{{ pay.admin.username }}</td>
+            <td>{% if pay.paid_at %}{{ pay.paid_at|date:"j M Y H:i" }}{% else %}—{% endif %}</td>
+            <td>{{ pay.receipt_reference|default:"—" }}</td>
           </tr>
+          {% empty %}
+          <tr><td colspan="7" class="placeholder-row">No subscription payments recorded yet.</td></tr>
           {% endfor %}
         </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="3"><strong>Total estimated MRR</strong></td>
-            <td><strong>{{ kpis.mrr_display }}</strong></td>
-          </tr>
-        </tfoot>
       </table>
     </div>
   </section>

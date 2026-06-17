@@ -1,11 +1,17 @@
 """
 core_app/home_leaderboards.py
 Weekly leaderboard data for the public homepage.
+
+Points (last 7 days):
+  - Homework completed (submitted or teacher-approved): +10 each
+  - Good attendance (present or late): +10 each
+
+Each student appears at most once, ranked by total score then reference number.
 """
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
-from django.db.models import Count, F, IntegerField, OuterRef, Subquery
+from django.db.models import Count, F, IntegerField, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -16,16 +22,22 @@ from students.models import StudentProfile
 
 User = get_user_model()
 
+HOMEWORK_POINTS = 10
+ATTENDANCE_POINTS = 10
+
 
 def _week_start():
     return timezone.now() - timedelta(days=7)
 
 
+def _student_reference(student):
+    """Public leaderboard identifier — unique per school."""
+    if student.admission_number:
+        return student.admission_number
+    return f'ESA-{student.school_id:04d}-{student.pk:05d}'
+
+
 def get_students_of_the_week(limit=10):
-    """
-    Rank students by activity in the last 7 days:
-    homework submitted/approved (3 pts each) + present/late attendance (1 pt each).
-    """
     since = _week_start()
     since_date = since.date()
 
@@ -54,22 +66,30 @@ def get_students_of_the_week(limit=10):
         StudentProfile.objects.filter(is_active=True)
         .select_related('school')
         .annotate(
-            homework_pts=Coalesce(Subquery(homework_sq, output_field=IntegerField()), 0),
-            attendance_pts=Coalesce(Subquery(attendance_sq, output_field=IntegerField()), 0),
+            homework_count=Coalesce(Subquery(homework_sq, output_field=IntegerField()), 0),
+            attendance_count=Coalesce(Subquery(attendance_sq, output_field=IntegerField()), 0),
         )
-        .annotate(week_score=F('homework_pts') * 3 + F('attendance_pts'))
-        .order_by('-week_score', 'last_name', 'first_name')[:limit]
+        .annotate(
+            homework_pts=F('homework_count') * HOMEWORK_POINTS,
+            attendance_pts=F('attendance_count') * ATTENDANCE_POINTS,
+        )
+        .annotate(week_score=F('homework_pts') + F('attendance_pts'))
+        .filter(week_score__gt=0)
+        .order_by('-week_score', 'admission_number', 'last_name', 'first_name')[:limit]
     )
 
     return [
         {
             'rank': i + 1,
+            'reference': _student_reference(s),
             'name': f'{s.first_name} {s.last_name}'.strip(),
             'school': s.school.name,
             'year_group': s.year_group or '—',
             'score': s.week_score,
-            'homework': s.homework_pts,
-            'attendance': s.attendance_pts,
+            'homework_pts': s.homework_pts,
+            'attendance_pts': s.attendance_pts,
+            'homework_count': s.homework_count,
+            'attendance_count': s.attendance_count,
         }
         for i, s in enumerate(rows)
     ]
@@ -83,7 +103,6 @@ def get_schools_of_the_week(limit=10):
     since = _week_start()
     since_date = since.date()
 
-    # Separate subqueries avoid a multi-join Count explosion on large tenants.
     new_users_sq = (
         User.objects.filter(school_id=OuterRef('pk'), date_joined__gte=since)
         .values('school_id')
@@ -100,7 +119,7 @@ def get_schools_of_the_week(limit=10):
         .values('c')[:1]
     )
     student_total_sq = (
-        StudentProfile.objects.filter(school_id=OuterRef('pk'))
+        StudentProfile.objects.filter(school_id=OuterRef('pk'), is_active=True)
         .values('school_id')
         .annotate(c=Count('id'))
         .values('c')[:1]
@@ -116,6 +135,7 @@ def get_schools_of_the_week(limit=10):
         .annotate(
             week_score=F('new_users') * 5 + F('weekly_sessions') * 2 + F('student_total'),
         )
+        .filter(week_score__gt=0)
         .order_by('-week_score', 'name')[:limit]
     )
 

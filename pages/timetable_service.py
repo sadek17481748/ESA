@@ -96,7 +96,18 @@ def list_live_timetables(school):
     return Timetable.objects.filter(school=school, is_active=True).annotate(
         slot_count=Count('slots'),
     ).select_related(
-        'class_group', 'class_group__teacher', 'class_group__teacher__user',
+        'class_group', 'class_group__year_group', 'class_group__teacher', 'class_group__teacher__user',
+    ).order_by('-updated_at', 'name')
+
+
+def list_archived_timetables(school):
+    """Inactive timetables — school admin can restore to live."""
+    from django.db.models import Count
+
+    return Timetable.objects.filter(school=school, is_active=False).annotate(
+        slot_count=Count('slots'),
+    ).select_related(
+        'class_group', 'class_group__year_group',
     ).order_by('-updated_at', 'name')
 
 

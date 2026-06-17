@@ -14,7 +14,6 @@
   <a href="#benefits">Benefits</a>
   <a href="#leaderboards">Leaderboards</a>
   <a href="#pricing">Pricing</a>
-  <a href="{% url 'pages:security' %}">Security</a>
   <a href="{% url 'login' %}">Log in</a>
   <a class="btn-outline" href="{% url 'pages:register_school' %}">Register your school</a>
 {% endif %}
@@ -107,11 +106,11 @@
         </figcaption>
       </figure>
     </div>
-    <div class="carousel-dots" role="tablist" aria-label="Carousel slides">
-      <label for="carousel-1" role="tab" aria-label="Attendance"></label>
-      <label for="carousel-2" role="tab" aria-label="Hifz progress"></label>
-      <label for="carousel-3" role="tab" aria-label="Parent portal"></label>
-      <label for="carousel-4" role="tab" aria-label="School admin"></label>
+    <div class="carousel-dots" aria-label="Carousel slides">
+      <label for="carousel-1"><span class="sr-only">Attendance slide</span></label>
+      <label for="carousel-2"><span class="sr-only">Hifz progress slide</span></label>
+      <label for="carousel-3"><span class="sr-only">Parent portal slide</span></label>
+      <label for="carousel-4"><span class="sr-only">School admin slide</span></label>
     </div>
   </div>
 </section>
@@ -119,34 +118,36 @@
 <section class="leaderboard-section" id="leaderboards">
   <div class="section-head">
     <h2>Students of the week</h2>
-    <p class="lead">Top 10 students by homework and attendance activity over the last 7 days.</p>
+    <p class="lead">Top 10 students by points in the last 7 days — homework completed (+10 each) and good attendance (+10 each). Each student appears once by reference number.</p>
   </div>
   <div class="table-wrap">
     <table class="data-table leaderboard-table">
       <thead>
         <tr>
           <th>#</th>
+          <th>Ref</th>
           <th>Student</th>
           <th>School</th>
           <th>Year</th>
           <th>Homework</th>
           <th>Attendance</th>
-          <th>Score</th>
+          <th>Points</th>
         </tr>
       </thead>
       <tbody>
         {% for row in students_of_week %}
         <tr>
           <td><span class="rank-badge{% if row.rank <= 3 %} rank-top{% endif %}">{{ row.rank }}</span></td>
+          <td><code>{{ row.reference }}</code></td>
           <td><strong>{{ row.name }}</strong></td>
           <td>{{ row.school }}</td>
           <td>{{ row.year_group }}</td>
-          <td>{{ row.homework }}</td>
-          <td>{{ row.attendance }}</td>
+          <td>{{ row.homework_count }} <span class="muted-inline">(+{{ row.homework_pts }})</span></td>
+          <td>{{ row.attendance_count }} <span class="muted-inline">(+{{ row.attendance_pts }})</span></td>
           <td><strong>{{ row.score }}</strong></td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="placeholder-row">No student activity yet this week — check back soon.</td></tr>
+        <tr><td colspan="8" class="placeholder-row">No student activity yet this week — check back soon.</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -402,7 +403,7 @@
     </details>
     <details class="faq-item">
       <summary>Is our school data kept separate?</summary>
-      <p>Yes. ESA is multi-tenant — each school’s users, classes, and records are scoped to that school only. <a href="{% url 'pages:security' %}">Read our security overview →</a></p>
+      <p>Yes. ESA is multi-tenant — each school’s users, classes, and records are scoped to that school only. Security controls are documented in the project README.</p>
     </details>
     <details class="faq-item">
       <summary>What about fee payments?</summary>

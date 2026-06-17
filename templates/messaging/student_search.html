@@ -3,12 +3,12 @@
 <section class="panel">
   <p><a href="{% url 'messaging:inbox' %}">← Messages</a></p>
   <h2 style="margin-top:0.5rem;">Find student</h2>
-  <p class="lead">Search all students at your school by first name, last name, or admission number.</p>
+  <p class="lead">Search by first name, last name, full name, class (e.g. 7A), admission ref, or portal username.</p>
   <div class="accent-bar"></div>
 
   <form method="get" class="msg-search-form" action="{% url 'messaging:student_search' %}">
-    <label for="q" class="sr-only">Student name</label>
-    <input type="search" id="q" name="q" value="{{ query }}" class="form-input" placeholder="e.g. Amina or Hassan" autofocus>
+    <label for="q" class="sr-only">Student search</label>
+    <input type="search" id="q" name="q" value="{{ query }}" class="form-input" placeholder="e.g. Amina Hassan, 7A, ANO-7A-001" autofocus>
     <button type="submit" class="btn-primary">Search</button>
   </form>
 

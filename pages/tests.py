@@ -198,12 +198,10 @@ class HomePageTests(TestCase):
         self.assertContains(response, 'Welcome back')
         self.assertNotContains(response, 'Subscription plans for schools')
 
-    def test_security_page_is_public(self):
+    def test_security_page_redirects_to_readme_anchor(self):
         response = self.client.get(reverse('pages:security'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Security on ESA')
-        self.assertContains(response, 'Multi-tenant isolation')
-        self.assertContains(response, 'Stripe Checkout')
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('readme-security', response.url)
 
     def test_wireframes_page_is_public(self):
         response = self.client.get(reverse('pages:wireframes'))

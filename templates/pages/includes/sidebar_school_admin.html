@@ -17,4 +17,5 @@
   <a href="{% url 'lms:hub' %}"{% if current_portal_url == 'hub' %} aria-current="page"{% endif %}>LMS</a>
   {% include "pages/includes/sidebar_messages_link.html" %}
   <a href="{% url 'messaging:student_search' %}"{% if current_portal_url == 'student_search' %} aria-current="page"{% endif %}>Find student</a>
+  <a href="{% url 'pages:school_admin_students' %}"{% if current_portal_url == 'school_admin_students' %} aria-current="page"{% endif %}>Link codes</a>
 </nav>

@@ -108,7 +108,7 @@ Assessor-facing links and evidence paths:
 |----------|--------------|
 | **Source repository** | https://github.com/sadek17481748/ESA |
 | **Live deployment** | https://esa-project-2a7a33dfe3fc.herokuapp.com/ |
-| **Security overview (public)** | https://esa-project-2a7a33dfe3fc.herokuapp.com/security/ |
+| **Security overview** | [Security](#readme-security) in this README |
 | **Bug tracker (GitHub Project board)** | https://github.com/users/sadek17481748/projects/8/views/1 |
 | **Wireframes (main pack)** | **[https://esa-project-2a7a33dfe3fc.herokuapp.com/wireframes/](https://esa-project-2a7a33dfe3fc.herokuapp.com/wireframes/)** · [PDF](docs/ESA-wireframes.pdf) · [Balsamiq](https://balsamiq.cloud/so6babk/pveanf2) |
 | **ERD / data model** | [Data model and ERD](#data-model-and-erd-entity-relationships) |
@@ -2025,7 +2025,7 @@ Parent school fees and school subscriptions use **Stripe Checkout** in test mode
 7. **Heroku:** push keys without committing them:
 
    ```bash
-   bash scripts/sync_stripe_to_heroku.sh
+   heroku config:set STRIPE_SECRET_KEY=sk_test_... STRIPE_PUBLISHABLE_KEY=pk_test_... -a esa-project
    ```
 
    Or set manually: `heroku config:set STRIPE_PUBLISHABLE_KEY="pk_test_…" STRIPE_SECRET_KEY="sk_test_…" -a esa-project`
@@ -2056,7 +2056,7 @@ ESA sends platform alerts (registrations, payments, messages) through **Gmail SM
    python manage.py send_test_email
    ```
 
-5. Push to Heroku: `bash scripts/sync_email_to_heroku.sh` then `heroku run python manage.py send_test_email -a esa-project`.
+5. Push to Heroku: set `EMAIL_*` config vars with `heroku config:set`, then `heroku run python manage.py send_test_email -a esa-project`.
 
 Full step-by-step screenshots and troubleshooting are in [Connecting Gmail for platform email notifications](#connecting-gmail-for-platform-email-notifications).
 
@@ -2411,8 +2411,7 @@ Secrets are stored as **Config Vars** in the Heroku Dashboard → **Settings**, 
 ```bash
 heroku config:set SECRET_KEY="…" DEBUG=False -a esa-project
 heroku config:set STRIPE_PUBLISHABLE_KEY="pk_test_…" STRIPE_SECRET_KEY="sk_test_…" -a esa-project
-bash scripts/sync_stripe_to_heroku.sh    # from local .env
-bash scripts/sync_email_to_heroku.sh     # Gmail SMTP vars
+heroku config:set EMAIL_HOST_USER=... EMAIL_HOST_PASSWORD=... -a esa-project
 ```
 
 `DATABASE_URL` is injected automatically by the Heroku Postgres add-on. Never commit `.env` — `.gitignore` blocks it.
@@ -2434,7 +2433,7 @@ web: python manage.py migrate --noinput && python manage.py ensure_platform_seed
 | `git push heroku` → Invalid credentials | Run `heroku login`, or use `git push https://heroku:$(heroku auth:token)@git.heroku.com/esa-project.git main` |
 | GitHub push works but Heroku unchanged | Check **Deploy → Automatic deploys** is enabled for `main` |
 | Config change stuck on “release executing” | Ensure `Procfile` has no hanging `release:` hook; redeploy latest `main` |
-| Stripe / email not working on live site | Run `bash scripts/sync_stripe_to_heroku.sh` and `bash scripts/sync_email_to_heroku.sh` after `heroku login` |
+| Stripe / email not working on live site | Run `heroku config:set` for Stripe and Gmail SMTP vars after `heroku login` |
 | View live logs | `heroku logs --tail -a esa-project` |
 
 ### Deployment FAQ
@@ -2667,7 +2666,7 @@ You should receive `[ESA] Test email` in the platform Gmail inbox. If SMTP is no
 After `heroku login`, push the same values from your local `.env` to Heroku config vars:
 
 ```bash
-bash scripts/sync_email_to_heroku.sh
+heroku config:set EMAIL_HOST_USER=... EMAIL_HOST_PASSWORD=... -a esa-project
 ```
 
 Then verify on the live dyno:
@@ -2705,7 +2704,7 @@ Participants can still opt in or out of personal message alerts via the checkbox
 
 #### Troubleshooting Gmail on Heroku
 
-- **“Email not configured”** — `EMAIL_HOST_USER` or `EMAIL_HOST_PASSWORD` is missing on the dyno. Re-run `bash scripts/sync_email_to_heroku.sh`.
+- **“Email not configured”** — `EMAIL_HOST_USER` or `EMAIL_HOST_PASSWORD` is missing on the dyno. Re-run `heroku config:set EMAIL_HOST_USER=... EMAIL_HOST_PASSWORD=... -a esa-project`.
 - **Authentication failed** — App Password is wrong or 2-Step Verification is off. Generate a new App Password and update config vars.
 - **Emails in spam** — Check the Spam folder for `[ESA]` subjects; mark as “Not spam” once.
 - **Never rotate App Passwords in Git** — only in `.env` (gitignored) and Heroku Config Vars.
@@ -2927,7 +2926,7 @@ python manage.py test payments
 | 15 | `test_super_admin_dashboard_loads` | Super Admin dashboard returns 200 | `pages/tests.py` |
 | 16 | `test_parent_cannot_access_super_admin_dashboard` | Parent blocked from Super Admin area | `pages/tests.py` |
 | 17 | `test_super_login_lands_on_super_admin_dashboard` | Super Admin login goes to correct dashboard | `pages/tests.py` |
-| 18 | `test_security_page_is_public` | `/security/` loads without login | `pages/tests.py` |
+| 18 | `test_security_page_redirects_to_readme_anchor` | `/security/` redirects to README anchor | `pages/tests.py` |
 | 19 | `test_wireframes_page_is_public` | `/wireframes/` loads without login | `pages/tests.py` |
 | 20 | `test_school_admin_subscription_keeps_sidebar_and_school_name` | Subscription page keeps school branding | `pages/tests.py` |
 | **Portal — school admin & timetable** ||||
@@ -3120,42 +3119,171 @@ Reproduce with logins in [Demo walkthrough](#demo-walkthrough) and [Al-Noor Acad
 
 | # | Feature / task | AI tool used | What it helped with | What I changed manually |
 |---|---------------|--------------|--------------------|-----------------------|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
-| 4 | | | | |
-| 5 | | | | |
-| 6 | | | | |
-| 7 | | | | |
-| 8 | | | | |
-| 9 | | | | |
-| 10 | | | | |
+| 1 | README prose & spell-check | ChatGPT / Cursor | Grammar, spelling, and clearer section headings across the assessor README | Rewrote technical claims to match what the code actually does |
+| 2 | Homepage carousel HTML validation | Cursor | Spotted invalid `role` / `aria-label` on carousel `<label>` elements from W3C errors | Replaced with `sr-only` text and removed forbidden attributes |
+| 3 | Super admin dashboard 500 (Heroku) | Cursor | Identified expensive multi-join `Count` queries exhausting Postgres temp storage | Rewrote stats with correlated subqueries in `super_admin_stats.py` |
+| 4 | Homepage leaderboard timeout | Cursor | Same query-pattern issue on `get_schools_of_the_week()` | Refactored to subqueries in `home_leaderboards.py` |
+| 5 | CSS W3C parse errors | Cursor | Found orphaned rules after `.live-timetable-row-actions` in `base.css` | Merged properties into the correct selector block |
+| 6 | `seed_alnoor_full_school` dummy accounts | ChatGPT | Generated realistic Muslim names and bulk username patterns when hand-typing 300+ logins was too slow | Verified uniqueness, school scoping, and passwords in `docs/alnoor-academy-logins.csv` |
+| 7 | Timetable builder inline JavaScript | Cursor | Drafted fetch/CSRF boilerplate for archive and save actions | Tested drag-and-drop grid behaviour and fixed edge cases in the browser |
+| 8 | Qur'an PDF viewer (`quran_viewer.js`) | Cursor | First pass at PDF.js canvas render and highlight coordinate maths | Adjusted zoom, resize handling, and save payload format after manual testing |
+| 9 | User stories & acceptance criteria | ChatGPT | Suggested wording for RBAC and parent-linking stories | Trimmed to match implemented features only |
+| 10 | Manual test checklist rows | ChatGPT | Expanded edge-case ideas (tenant isolation, Stripe webhook duplicates) | Marked pass/fail only after I ran the steps myself |
 
 ### Lighthouse testing
 
-Lighthouse reports will be generated for key pages and screenshots stored in `docs/images/validation/`.
+**What this checks:** [Google Lighthouse](https://developer.chrome.com/docs/lighthouse/overview/) audits a live page in Chrome and scores it **0–100** in four areas — **Performance** (load speed), **Accessibility** (contrast, labels, keyboard use), **Best practices** (security headers, console errors), and **SEO** (meta tags, crawlability). Scores of **90–100** are green (good), **50–89** amber (needs work), **0–49** red.
+
+Reports were generated in **Chrome DevTools → Lighthouse** (desktop, logged-in where required) against the live Heroku deployment on **17 June 2026**. Full PDF exports are in [`docs/lighthouse-reports/`](docs/lighthouse-reports/); screenshots below show the summary scores from each report.
+
+**How to read the results:** All captured pages scored **90+ in every category** — the app loads quickly on Heroku (FCP/LCP under 1 s) and follows modern web practices. The only non-perfect scores are **Accessibility 93–95** on the landing and teacher pages (gold link contrast) and **SEO 90–91** (minor meta/heading suggestions). These are improvement hints, not failures.
+
+**Summary**
+
+| Page | URL | Performance | Accessibility | Best practices | SEO |
+|------|-----|-------------|---------------|----------------|-----|
+| Landing page | `/` | 100 | 93 | 100 | 91 |
+| Teacher dashboard | `/dashboard/teacher/` | 100 | 95 | 100 | 90 |
+| Super Admin dashboard | `/dashboard/super-admin/` | 100 | 100 | 100 | 90 |
+
+**Notes**
+
+- The Teacher dashboard was run twice (`schooladmin.pdf` and `teacher-lighthouse.pdf` on the Desktop); both target `/dashboard/teacher/` with the same category scores. The second run is shown in the table; the first is included below for completeness.
+- Landing-page **Accessibility (93)** flagged contrast on some gold-on-dark links — worth a future pass, but scores remain in the green band.
+- **Login**, **School admin**, **Student**, and **Parent** dashboards were not re-run in this batch; add rows when you capture them.
+
+#### Landing page (`/`)
+
+Performance **100** · Accessibility **93** · Best practices **100** · SEO **91** · FCP **0.5 s** · LCP **0.5 s**
+
+![Lighthouse — landing page](docs/images/validation/lighthouse-homepage.png)
+
+#### Teacher dashboard (`/dashboard/teacher/`)
+
+Performance **100** · Accessibility **95** · Best practices **100** · SEO **90** · FCP **0.5 s** · LCP **0.5 s**
+
+![Lighthouse — teacher dashboard](docs/images/validation/lighthouse-teacher.png)
+
+Additional run (same page, earlier capture — file was saved as `schooladmin.pdf` on the Desktop):
+
+![Lighthouse — teacher dashboard (first run)](docs/images/validation/lighthouse-teacher-run1.png)
+
+#### Super Admin dashboard (`/dashboard/super-admin/`)
+
+Performance **100** · Accessibility **100** · Best practices **100** · SEO **90** · FCP **0.6 s** · LCP **0.6 s**
+
+![Lighthouse — super admin dashboard](docs/images/validation/lighthouse-super-admin.png)
 
 | Page | Performance | Accessibility | Best Practices | SEO | Screenshot |
 |------|------------|---------------|----------------|-----|------------|
-| Landing page | | | | | |
-| Login | | | | | |
-| Super Admin dashboard | | | | | |
-| Teacher dashboard | | | | | |
-| Student dashboard | | | | | |
-| Parent dashboard | | | | | |
+| Landing page | 100 | 93 | 100 | 91 | Above |
+| Login | — | — | — | — | Not captured |
+| Super Admin dashboard | 100 | 100 | 100 | 90 | Above |
+| Teacher dashboard | 100 | 95 | 100 | 90 | Above |
+| School admin dashboard | — | — | — | — | Not captured |
+| Student dashboard | — | — | — | — | Not captured |
+| Parent dashboard | — | — | — | — | Not captured |
 
 ### HTML, CSS and JS validation
 
-| Validator | File / URL | Result | Screenshot |
-|-----------|-----------|--------|------------|
-| W3C HTML | | | |
-| W3C CSS | | | |
-| JSHint | | | |
+**What this checks:** The [W3C Nu HTML Checker](https://validator.w3.org/nu/) confirms pages use valid, standards-compliant markup (correct nesting, allowed attributes, accessible patterns). The [W3C CSS Validator](https://jigsaw.w3.org/css-validator/) checks stylesheet syntax. [JSHint](https://jshint.com/) statically analyses JavaScript for likely bugs and style issues. Together they show the HTML/CSS/JS source meets web standards — separate from Lighthouse, which tests the *running* page in a browser.
+
+Pages were checked against the live Heroku deployment (`https://esa-project-2a7a33dfe3fc.herokuapp.com/`).
+
+**How to read the results**
+
+| Tool | Pass | Fail / warning | What it means for ESA |
+|------|------|----------------|------------------------|
+| **W3C HTML** | Green “no errors” banner | Red error list with line numbers | Invalid markup (e.g. forbidden ARIA on `<label>`) — **fixed** on the homepage carousel. Login and dashboards already passed. |
+| **W3C CSS** | No parse errors | Red “parse error” lines | Real syntax bugs — **fixed** (orphaned rules in `base.css`). Yellow **variable warnings** are normal when using `var(--tokens)`; the validator cannot resolve them. |
+| **JSHint** | No issues (with ES11 config) | Warnings about `const` / `async` | Usually means JSHint was set to old JavaScript (ES5). The Qur’an viewer uses modern ES11 syntax; with `.jshintrc` it passes cleanly. |
+
+**Summary**
+
+| Check | Pages tested | Result |
+|-------|--------------|--------|
+| W3C HTML | Landing, login, school-admin dashboard, parent dashboard | Login and both dashboards pass with no errors. The landing page initially reported 8 errors on the homepage carousel (invalid `role` / `aria-label` on `<label>` elements) — fixed in `templates/home.html`. |
+| W3C CSS | Super-admin, school-admin, and parent dashboards | Each page reported **4 parse errors** in `css/base.css` (orphaned rules around line 1556) — fixed. **251 warnings** about CSS custom properties (`var(--…)`) are expected: the validator cannot statically check variables. |
+| JSHint | `static/js/quran_viewer.js` | **Pass** with project `.jshintrc` (`esversion: 11`). Default JSHint settings show 95 ES-version warnings — not code bugs (see below). |
+
+#### W3C HTML validation
+
+**What passed:** Login, school-admin, and parent dashboards returned a green *“No errors or warnings”* banner — the rendered HTML is valid.
+
+**What failed (then fixed):** The landing page reported **8 errors** on four carousel dot `<label>` elements. W3C rules forbid `role="tab"` and `aria-label` on a `<label>` that is already tied to an `<input>` via `for`. Fix: remove those attributes and use visually hidden text (`<span class="sr-only">`) instead.
+
+**Landing page** (`/`) — initial run (carousel labels; fixed in code):
+
+![W3C HTML — landing page initial check (8 carousel label errors)](docs/images/validation/w3c-html-home-initial.png)
+
+**Login** (`/accounts/login/`) — no errors or warnings:
+
+![W3C HTML — login page pass](docs/images/validation/w3c-html-login-pass.png)
+
+**School admin dashboard** (`/dashboard/school-admin/`) — no errors or warnings:
+
+![W3C HTML — school admin dashboard pass](docs/images/validation/w3c-html-school-admin-pass.png)
+
+**Parent dashboard** (`/dashboard/parent/`) — no errors or warnings:
+
+![W3C HTML — parent dashboard pass](docs/images/validation/w3c-html-parent-pass.png)
+
+#### W3C CSS validation
+
+**What failed (then fixed):** All three dashboard checks reported the same **4 parse errors** on consecutive lines in `css/base.css` — CSS properties without a selector (a copy-paste slip after `.live-timetable-row-actions`). That breaks the validator’s parser; fixing the selector clears all four errors.
+
+**What is only a warning:** The **251 warnings** repeat on almost every line that uses `var(--bg)`, `var(--gold)`, etc. ESA’s design system relies on CSS custom properties; the W3C tool flags them as *“not statically checked”* but they work correctly in browsers.
+
+All three dashboard checks pull styles from `css/base.css`. Screenshots below were taken before the parse-error fix; code is corrected in the repo.
+
+**Super admin dashboard** (`/dashboard/super-admin/`):
+
+![W3C CSS — super admin dashboard](docs/images/validation/w3c-css-super-admin.png)
+
+**School admin dashboard** (`/dashboard/school-admin/`):
+
+![W3C CSS — school admin dashboard](docs/images/validation/w3c-css-school-admin.png)
+
+**Parent dashboard** (`/dashboard/parent/`):
+
+![W3C CSS — parent dashboard](docs/images/validation/w3c-css-parent.png)
+
+**What the CSS warnings mean:** lines flagged with *“Due to their dynamic nature, CSS variables are currently not statically checked”* are not bugs — they refer to `var(--brand)`, `var(--muted)`, and other design tokens in `base.css`. The W3C tool does not resolve custom properties at validation time.
+
+#### JSHint
+
+**What this checks:** JSHint reads JavaScript source files and flags probable errors (undefined variables, missing semicolons, unsafe patterns). ESA has **one standalone JS file** — `static/js/quran_viewer.js` (Qur’an PDF viewer: zoom, highlights, save). Other pages use small inline `<script>` blocks inside Django templates; those cannot be pasted into JSHint until rendered because they contain `{% url %}` and `{{ csrf_token }}` tags.
+
+**File checked:** `static/js/quran_viewer.js` (37 functions, median complexity 2)
+
+| Setting | Result |
+|---------|--------|
+| [jshint.com](https://jshint.com/) default (ES5) | **95 warnings** — every `const`, `let`, `async`, and `?.` flagged as “available in ES6+” |
+| Project [`.jshintrc`](.jshintrc) with `"esversion": 11` | **Pass — no issues** |
+
+**How to read the screenshot:** The 95 warnings in the image below are **configuration warnings**, not logic bugs. JSHint defaults to ES5; the Qur’an viewer is written in modern JavaScript. After setting `esversion: 11` in `.jshintrc` (or the Configure panel on jshint.com), the file passes with no warnings.
+
+![JSHint — quran_viewer.js on jshint.com (default ES5 settings show 95 ES-version warnings)](docs/images/validation/jshint-quran-viewer-default.png)
+
+To reproduce a clean pass locally:
+
+```bash
+npx jshint@2.13.6 static/js/quran_viewer.js
+```
 
 ---
-## Security
+## Security {#readme-security}
 
-ESA security is documented for assessors in this README and on the live site at **[/security/](https://esa-project-2a7a33dfe3fc.herokuapp.com/security/)** (public page, no login required).
+ESA security is documented in this README for assessors (the former public `/security/` page now redirects here). ESA is built for Islamic schools handling sensitive student, family, and payment data — security is layered across authentication, tenant isolation, payments, and audit logging.
+
+### How ESA protects your school
+
+| Area | Summary |
+|------|---------|
+| **Multi-tenant isolation** | Each school is a separate tenant. Staff from one madrasa cannot see another school’s students, fees, or messages. |
+| **Role-based access (RBAC)** | Five roles — Super Admin, School Admin, Teacher, Student, Parent — each see only pages their role allows. |
+| **Teacher sign-off** | Exam results, homework approval, and Hifz progress become official only after teacher verification. |
+| **Secure payments** | Parents pay through **Stripe Checkout**; card details never touch ESA. Schools receive payouts via **Stripe Connect**. |
 
 ### Multi-tenant data isolation
 
@@ -3191,9 +3319,16 @@ Exam results, homework approval, and Hifz progress require teacher verification 
 
 - **CSRF** — all HTML forms include `{% csrf_token %}`; only the Stripe webhook is `@csrf_exempt` (signature-checked instead).
 - **HTTPS** — Heroku SSL with `SECURE_PROXY_SSL_HEADER` and `CSRF_TRUSTED_ORIGINS`.
-- **Secrets management** — `.env` gitignored; production uses Heroku Config Vars (`sync_stripe_to_heroku.sh`, `sync_email_to_heroku.sh`).
+- **Secrets management** — `.env` gitignored; production uses Heroku Config Vars (`heroku config:set` for Stripe and email keys).
 - **CORS** — `django-cors-headers` restricts browser API origins.
 - **Audit logging** — `AuditLog` records logins, registrations, CRUD, and sign-offs with user, school, IP, and timestamp.
+
+### Data flow (simplified)
+
+1. **Browser request** — user visits a URL with a session cookie.
+2. **Middleware** — security, session, CSRF, authentication, and email-verification checks run first.
+3. **Role & tenant gate** — the view confirms role and scopes queries to `request.user.school`.
+4. **PostgreSQL** — only rows for that tenant and role are read or written.
 
 ### Operational recommendations
 
@@ -3205,27 +3340,167 @@ Exam results, homework approval, and Hifz progress require teacher verification 
 ---
 ## Sources and references
 
-Technical and external documentation. **Design research, wireframes, and ERD** are documented in [Design → Design inspiration and references](#design-inspiration-and-references).
+**70 sources** used while building ESA — official documentation, YouTube tutorials, GitHub examples with similar patterns, and ed-tech products reviewed for UX. Each entry notes **what it informed** in this codebase. **Design research, wireframes, and ERD** are also covered in [Design → Design inspiration and references](#design-inspiration-and-references).
 
-### ERD and schema design references
+| Type | Count |
+|------|------:|
+| YouTube tutorials | 15 |
+| Official documentation | 39 |
+| Articles & guides | 5 |
+| GitHub / open-source code | 7 |
+| Design assets (ERD) | 2 |
+| Live site & validation tools | 2 |
+| **Total** | **70** |
 
-- [ESA ERD — Lucidchart (editable)](https://lucid.app/lucidchart/62056323-bc35-429d-9476-90fb23a6d72b/edit?viewport_loc=-4270%2C-6278%2C9116%2C6296%2C0_0&invitationId=inv_17fdce9f-7187-414c-abc1-64e8fe297051)
-- Exported image: [`docs/erd.png`](docs/erd.png)
+---
 
-### Feature resources
+### Django & Python fundamentals (1–12)
 
-https://esa-project-2a7a33dfe3fc.herokuapp.com/
+| # | Source | Type | Used in ESA for |
+|---|--------|------|-----------------|
+| 1 | [Corey Schafer — Django Tutorial for Beginners (playlist)](https://www.youtube.com/playlist?list=PL-osiE80TeTuHq0snFTqksI5LZEjDBeKt) | YouTube | Project layout, `manage.py`, apps, URL routing — basis for `core/`, `pages/`, `accounts/` |
+| 2 | [Corey Schafer — Django Models](https://www.youtube.com/watch?v=aukJJjhGGIY) | YouTube | ORM models in `accounts`, `schools`, `attendance`, `exams` |
+| 3 | [Corey Schafer — Django Views and URLs](https://www.youtube.com/watch?v=hlcFsK8sm_I) | YouTube | Function-based portal views in `pages/views.py` |
+| 4 | [Corey Schafer — Class-Based Views](https://www.youtube.com/watch?v=P5a3CSf9PiY) | YouTube | Patterns for DRF viewsets and generic list/detail views |
+| 5 | [Corey Schafer — User Registration & Login](https://www.youtube.com/watch?v=qJzZCqA-sMg) | YouTube | `/accounts/login/`, `/register/`, password validators |
+| 6 | [Dennis Ivy — Django CRUD Application (playlist)](https://www.youtube.com/playlist?list=PL4cUxeRECcu77sEKjNnWJtYjGwTdO4gf) | YouTube | CRUD for teachers, classes, fees, homework |
+| 7 | [Traversy Media — Python Django Crash Course](https://www.youtube.com/watch?v=e1IyzVyrLSU) | YouTube | Quick MVT refresher before multi-app structure |
+| 8 | [Tech With Tim — Django Tutorial](https://www.youtube.com/watch?v=6thQc40YhGw) | YouTube | Templates, static files, `{% extends %}` in `templates/base/` |
+| 9 | [freeCodeCamp — Django for Everybody (Dr. Chuck)](https://www.youtube.com/watch?v=o0XbH4Kk7AE) | YouTube | Forms, CSRF, session auth concepts |
+| 10 | [Django documentation](https://docs.djangoproject.com/) | Docs | Settings, middleware, migrations, admin — primary reference |
+| 11 | [Django — Writing your first Django app](https://docs.djangoproject.com/en/stable/intro/) | Docs | Polls tutorial structure adapted for `pages` app |
+| 12 | [Real Python — Django Tutorials](https://realpython.com/tutorials/django/) | Articles | Forms, `get_object_or_404`, testing patterns |
 
-### Django and DRF
+---
 
-- [Django documentation](https://docs.djangoproject.com/)
-- [Django REST framework](https://www.django-rest-framework.org/)
-- [SimpleJWT](https://django-rest-framework-simplejwt.readthedocs.io/)
+### Django REST Framework & API (13–18)
 
-### PostgreSQL
+| # | Source | Type | Used in ESA for |
+|---|--------|------|-----------------|
+| 13 | [Django REST framework documentation](https://www.django-rest-framework.org/) | Docs | Serialisers, viewsets, permissions in `api/` |
+| 14 | [Very Academy — Django REST Framework (playlist)](https://www.youtube.com/playlist?list=PLbGui_ZYuxihapQLJsJYkKaXG0bcdSd0q) | YouTube | JWT-protected API endpoints, browsable API during dev |
+| 15 | [SimpleJWT documentation](https://django-rest-framework-simplejwt.readthedocs.io/) | Docs | `/api/token/`, refresh rotation in `core/settings.py` |
+| 16 | [Django REST — Authentication](https://www.django-rest-framework.org/api-guide/authentication/) | Docs | `IsAuthenticated` default + per-view permissions |
+| 17 | [Django REST — Serializers](https://www.django-rest-framework.org/api-guide/serializers/) | Docs | Nested student/parent serialisation |
+| 18 | [django-cors-headers (GitHub)](https://github.com/adamchainz/django-cors-headers) | GitHub | CORS config for future SPA / mobile clients |
 
-- [PostgreSQL documentation](https://www.postgresql.org/docs/)
-- [Heroku Postgres](https://devcenter.heroku.com/articles/heroku-postgresql)
+---
+
+### Authentication, roles & security (19–26)
+
+| # | Source | Type | Used in ESA for |
+|---|--------|------|-----------------|
+| 19 | [Django — Customising authentication](https://docs.djangoproject.com/en/stable/topics/auth/customizing/) | Docs | Custom `User` model with `role` field in `accounts/` |
+| 20 | [Django — Password management](https://docs.djangoproject.com/en/stable/topics/auth/passwords/) | Docs | PBKDF2 hashing, validators on register |
+| 21 | [Django — Password reset](https://docs.djangoproject.com/en/stable/topics/auth/default/#django-contrib-auth-views-passwordresetview) | Docs | `/accounts/password-reset/` flow |
+| 22 | [Corey Schafer — Django Permissions](https://www.youtube.com/watch?v=Sd7CLcqwYXs) | YouTube | `@role_required` decorator pattern on portal views |
+| 23 | [OWASP — Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) | Article | `SESSION_COOKIE_SECURE`, logout, session expiry |
+| 24 | [OWASP — CSRF Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) | Article | `{% csrf_token %}` on all forms; webhook exempt pattern |
+| 25 | [Django — Deployment checklist (security)](https://docs.djangoproject.com/en/stable/howto/deployment/checklist/) | Docs | `SECURE_PROXY_SSL_HEADER`, `CSRF_TRUSTED_ORIGINS` on Heroku |
+| 26 | [ESA Security section](README.md#readme-security) | Docs | Assessor-facing summary of controls implemented |
+
+---
+
+### PostgreSQL, data modelling & multi-tenant patterns (27–35)
+
+| # | Source | Type | Used in ESA for |
+|---|--------|------|-----------------|
+| 27 | [PostgreSQL documentation](https://www.postgresql.org/docs/) | Docs | Indexes, constraints, local dev with Postgres |
+| 28 | [Heroku Postgres](https://devcenter.heroku.com/articles/heroku-postgresql) | Docs | Production database, `DATABASE_URL` via `dj-database-url` |
+| 29 | [ESA ERD — Lucidchart (editable)](https://lucid.app/lucidchart/62056323-bc35-429d-9476-90fb23a6d72b/edit?viewport_loc=-4270%2C-6278%2C9116%2C6296%2C0_0&invitationId=inv_17fdce9f-7187-414c-abc1-64e8fe297051) | Design | Tenant, user, exam, payment relationships before migrations |
+| 30 | Exported ERD image: [`docs/erd.png`](docs/erd.png) | Design | Cardinality reference for assessors |
+| 31 | [Django — Multi-database](https://docs.djangoproject.com/en/stable/topics/db/multi-db/) | Docs | Single DB with `school_id` scoping (shared-schema multi-tenancy) |
+| 32 | [django-tenants docs (reviewed)](https://django-tenants.readthedocs.io/) | Docs | Compared schema-per-tenant vs ESA’s `TenantMiddleware` approach |
+| 33 | [GitHub — TareqMonwer/Django-School-Management](https://github.com/TareqMonwer/Django-School-Management) | GitHub | Payments, admissions, class assignment — compared feature scope |
+| 34 | [GitHub — abhi-v-10/School-Management](https://github.com/abhi-v-10/School-Management) | GitHub | Five-role dashboards, parent–student linking, messaging patterns |
+| 35 | [Django — QuerySet optimisation](https://docs.djangoproject.com/en/stable/topics/db/optimization/) | Docs | `select_related` / subqueries on leaderboards and super-admin stats |
+
+---
+
+### Stripe payments & subscriptions (36–41)
+
+| # | Source | Type | Used in ESA for |
+|---|--------|------|-----------------|
+| 36 | [Stripe — Checkout documentation](https://docs.stripe.com/payments/checkout) | Docs | Parent fee payments, school subscription upgrades |
+| 37 | [Stripe — Connect OAuth](https://docs.stripe.com/connect/oauth-reference) | Docs | Per-school Stripe Connect onboarding in fees module |
+| 38 | [Stripe — Webhooks](https://docs.stripe.com/webhooks) | Docs | `POST /payments/webhook/` signature verification |
+| 39 | [Stripe Python SDK](https://github.com/stripe/stripe-python) | GitHub | `stripe` package in `requirements.txt`, checkout sessions |
+| 40 | [Test a Stripe integration (Stripe Docs)](https://docs.stripe.com/testing) | Docs | Test cards, webhook CLI during development |
+| 41 | [TestDriven.io — Django Stripe Checkout](https://testdriven.io/blog/django-stripe-checkout/) | Article | Checkout redirect + success/cancel URL pattern |
+
+---
+
+### Email, notifications & messaging (42–46)
+
+| # | Source | Type | Used in ESA for |
+|---|--------|------|-----------------|
+| 42 | [Django — Sending email](https://docs.djangoproject.com/en/stable/topics/email/) | Docs | SMTP via Gmail App Password; verification codes |
+| 43 | [Django — `send_mail` and HTML email](https://docs.djangoproject.com/en/stable/topics/email/#send-mail) | Docs | Six-digit verification, password reset messages |
+| 44 | [Real Python — Django Email](https://realpython.com/django-send-email/) | Article | `EMAIL_HOST`, TLS settings in `.env` / Heroku config |
+| 45 | [Django — Messaging framework (patterns)](https://docs.djangoproject.com/en/stable/ref/contrib/messages/) | Docs | Flash messages; thread UI modelled in `messaging/` app |
+| 46 | [Django — Signals](https://docs.djangoproject.com/en/stable/topics/signals/) | Docs | Post-save hooks for notifications and audit log entries |
+
+---
+
+### HTML, CSS, JavaScript & responsive UI (47–54)
+
+| # | Source | Type | Used in ESA for |
+|---|--------|------|-----------------|
+| 47 | [MDN — HTML elements reference](https://developer.mozilla.org/en-US/docs/Web/HTML/Element) | Docs | Semantic markup in `templates/` |
+| 48 | [MDN — CSS Grid](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout) | Docs | Dashboard grids, timetable builder layout |
+| 49 | [MDN — CSS custom properties](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties) | Docs | `--bg`, `--gold`, `--muted` tokens in `css/base.css` |
+| 50 | [Kevin Powell — CSS responsive design (playlist)](https://www.youtube.com/playlist?list=PL4cUxeRECcu5yL6YSmQ6fNnpKrOsdG90) | YouTube | Breakpoints at 768px / 900px, mobile sidebar |
+| 51 | [Traversy Media — HTML Crash Course](https://www.youtube.com/watch?v=UB1O30fR-EE) | YouTube | Forms, labels, accessibility basics |
+| 52 | [Traversy Media — CSS Crash Course](https://www.youtube.com/watch?v=yfoY53QXEnI) | YouTube | Flexbox for `.app-shell`, `.sidebar`, cards |
+| 53 | [JSHint documentation](https://jshint.com/docs/) | Docs | Linting `static/js/quran_viewer.js` (see [JSHint](#jshint)) |
+| 54 | [W3C — Nu HTML Checker](https://validator.w3.org/nu/) & [CSS Validator](https://jigsaw.w3.org/css-validator/) | Tools | Validation evidence in [HTML, CSS and JS validation](#html-css-and-js-validation) |
+
+---
+
+### Qur'an viewer, PDF.js & feature-specific code (55–59)
+
+| # | Source | Type | Used in ESA for |
+|---|--------|------|-----------------|
+| 55 | [Mozilla PDF.js](https://mozilla.github.io/pdf.js/) | Docs | Mushaf rendering in `static/js/quran_viewer.js` |
+| 56 | [PDF.js — Getting started](https://github.com/mozilla/pdf.js/wiki/Frequently-Asked-Questions) | GitHub | Canvas render, worker URL, page navigation |
+| 57 | [MDN — Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) | Docs | Highlight overlay coordinates on PDF pages |
+| 58 | [MDN — Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) | Docs | AJAX save for highlights and timetable grid |
+| 59 | [Django — Class-based views (forms)](https://docs.djangoproject.com/en/stable/topics/class-based-views/generic-editing/) | Docs | Hifz sign-off, exam finalise, homework approval views |
+
+---
+
+### Deployment, Heroku & DevOps (60–65)
+
+| # | Source | Type | Used in ESA for |
+|---|--------|------|-----------------|
+| 60 | [Heroku — Django deployment guide](https://devcenter.heroku.com/articles/django-app-configuration) | Docs | `Procfile`, `gunicorn`, `ALLOWED_HOSTS` |
+| 61 | [Heroku — Config Vars](https://devcenter.heroku.com/articles/config-vars) | Docs | Stripe keys, `DATABASE_URL`, email secrets |
+| 62 | [WhiteNoise documentation](https://whitenoise.readthedocs.io/) | Docs | Static file serving for `css/`, `static/` on Heroku |
+| 63 | [django-environ (GitHub)](https://github.com/joke2k/django-environ) | GitHub | `.env` loading in `core/settings.py` |
+| 64 | [Corey Schafer — Deploy Django to Heroku](https://www.youtube.com/watch?v=6DI_5Riuonw) | YouTube | Buildpack, collectstatic, release phase |
+| 65 | [GitHub Actions / Heroku deploy (Heroku Docs)](https://devcenter.heroku.com/articles/github-integration) | Docs | Auto-deploy from `main` branch |
+
+---
+
+### Testing, quality & project workflow (66–70)
+
+| # | Source | Type | Used in ESA for |
+|---|--------|------|-----------------|
+| 66 | [Django — Testing tools](https://docs.djangoproject.com/en/stable/topics/testing/) | Docs | `python manage.py test` — tenant isolation, auth, payments |
+| 67 | [Google Lighthouse documentation](https://developer.chrome.com/docs/lighthouse/overview/) | Docs | Performance / a11y scores — [Lighthouse testing](#lighthouse-testing) |
+| 68 | [Chrome DevTools — Device mode](https://developer.chrome.com/docs/devtools/device-mode) | Docs | Responsive screenshots in `docs/images/validation/` |
+| 69 | [GitHub — Git documentation](https://docs.github.com/en/get-started/using-git) | Docs | Branching, commits, PR workflow |
+| 70 | [Prior project — bookly (Flask bookstore)](https://github.com/sadek17481748/bookly) | GitHub | README testing matrix, manual checklist, validation evidence structure reused for ESA |
+
+---
+
+### Ed-tech & Islamic school UX research (cross-referenced)
+
+These informed **terminology, sidebar order, and parent flows** — detailed write-up in [Design inspiration and references](#design-inspiration-and-references). They are counted within the research phase rather than as separate numbered code sources:
+
+- UK supplementary-school portals and madrasah management products (registration, Hifz views, fee ledgers)
+- [Balsamiq wireframe board](https://balsamiq.cloud/so6babk/pveanf2) — low-fidelity flows before Django templates
+- Carousel image credits below
 
 ### Images used in this project
 

@@ -137,19 +137,46 @@ def enrich_conversations_for_admin(conversations, school):
 
 
 def search_students_by_name(school, query, *, limit=50):
-    """School admin student lookup by first, last name, or admission number."""
+    """School admin student lookup — name tokens, ref no., class, or portal username."""
     term = (query or '').strip()
     if not term:
         return []
 
-    matches = StudentProfile.objects.filter(
-        school=school,
-        is_active=True,
-    ).filter(
-        Q(first_name__icontains=term)
-        | Q(last_name__icontains=term)
-        | Q(admission_number__icontains=term),
-    ).select_related('user').order_by('last_name', 'first_name')[:limit]
+    qs = StudentProfile.objects.filter(school=school, is_active=True).select_related('user')
+
+    if term.isdigit() and len(term) >= 3:
+        qs = qs.filter(
+            Q(admission_number__icontains=term)
+            | Q(user__username__icontains=term)
+        )
+    else:
+        tokens = [t for t in term.split() if t]
+        if len(tokens) >= 2:
+            qs = qs.filter(
+                Q(first_name__icontains=tokens[0], last_name__icontains=tokens[-1])
+                | Q(first_name__icontains=tokens[-1], last_name__icontains=tokens[0])
+                | Q(first_name__icontains=term)
+                | Q(last_name__icontains=term)
+            )
+        else:
+            qs = qs.filter(
+                Q(first_name__icontains=term)
+                | Q(last_name__icontains=term)
+                | Q(admission_number__icontains=term)
+                | Q(user__username__icontains=term)
+                | Q(year_group__icontains=term)
+            )
+
+    from academics.models import ClassEnrollment
+
+    class_matches = ClassEnrollment.objects.filter(
+        class_group__school=school,
+        class_group__name__icontains=term,
+    ).values_list('student_id', flat=True)
+    if class_matches:
+        qs = qs | StudentProfile.objects.filter(pk__in=class_matches, is_active=True)
+
+    matches = qs.distinct().order_by('last_name', 'first_name')[:limit]
 
     ctx = build_school_messaging_context(school)
     results = []

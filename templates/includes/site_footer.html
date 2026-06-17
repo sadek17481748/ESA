@@ -1,0 +1,24 @@
+<footer class="site-footer">
+  <p>ESA — Education &amp; Schooling Applications</p>
+  <p class="footer-links">
+    <a href="{% url 'pages:contact' %}">Contact us</a>
+    ·
+    <a href="{% url 'pages:terms' %}">Terms &amp; Conditions</a>
+    {% if not user.is_authenticated %}
+    ·
+    <a href="{% url 'pages:register_school' %}">Register a school</a>
+    ·
+    <a href="{% url 'pages:register' %}">Parent / student sign-up</a>
+    ·
+    <a href="{% url 'login' %}">Log in</a>
+    {% endif %}
+  </p>
+  <p class="footer-social">
+    <a href="https://github.com/sadek17481748/ESA" rel="noopener noreferrer" target="_blank" aria-label="ESA on GitHub">GitHub</a>
+    ·
+    <a href="https://www.linkedin.com/" rel="noopener noreferrer" target="_blank" aria-label="ESA on LinkedIn">LinkedIn</a>
+    ·
+    <a href="https://www.youtube.com/" rel="noopener noreferrer" target="_blank" aria-label="ESA on YouTube">YouTube</a>
+  </p>
+</footer>
+{% include "includes/cookie_banner.html" %}

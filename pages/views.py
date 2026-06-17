@@ -71,6 +71,7 @@ from .timetable_service import (
     create_subject,
     create_timetable,
     get_or_create_default_timetable,
+    list_archived_timetables,
     list_live_timetables,
     list_school_subjects,
     list_timetables,
@@ -360,6 +361,7 @@ def page_timetable(request):
     ).order_by('year_group__sort_order', 'name')
 
     live_timetables = list(list_live_timetables(school)) if school else []
+    archived_timetables = list(list_archived_timetables(school)) if school and is_school_admin else []
     teachers = teachers_for_json(school) if school else []
 
     timetable = None
@@ -412,6 +414,7 @@ def page_timetable(request):
     page_meta = {
         'hub': 'Add year groups, build timetables, and manage live schedules.',
         'live': 'All published timetables — open to edit or archive.',
+        'archived': 'Archived timetables — restore to live when needed.',
         'build': 'Drag subjects onto the grid and assign teachers, then save.',
         'mine': 'Your assigned lessons — click a class to take the register.',
     }.get(view_mode, '')
@@ -423,6 +426,7 @@ def page_timetable(request):
         'classes': classes,
         'class_group': class_group,
         'live_timetables': live_timetables,
+        'archived_timetables': archived_timetables,
         'timetables': timetables,
         'timetable': timetable,
         'subjects': subjects,
@@ -564,6 +568,30 @@ def timetable_delete(request):
         resource='Timetable',
         resource_id=timetable.pk,
         detail=f'Archived timetable {name}',
+        request=request,
+    )
+    return JsonResponse({'ok': True})
+
+
+@role_required('school_admin')
+@require_POST
+def timetable_restore(request):
+    school = request.user.school
+    try:
+        payload = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    timetable = get_object_or_404(Timetable, pk=payload.get('timetable_id'), school=school)
+    name = timetable.name
+    timetable.is_active = True
+    timetable.save(update_fields=['is_active'])
+    log_action(
+        user=request.user,
+        action=AuditLog.ACTION_UPDATE,
+        resource='Timetable',
+        resource_id=timetable.pk,
+        detail=f'Restored timetable {name} to live',
         request=request,
     )
     return JsonResponse({'ok': True})
@@ -895,6 +923,8 @@ def page_quran(request):
 def page_subscription(request):
     if request.user.role == 'school_admin':
         return redirect('payments:subscription')
+    if request.user.role == 'super_admin':
+        return redirect('pages:dashboard_super_admin#subscriptions')
     return _portal_page(
         request,
         'pages/features/subscription.html',
@@ -1016,8 +1046,72 @@ def public_student_link(request, code):
 
 
 def security_page(request):
-    """Public security overview — no login required."""
-    return render(request, 'pages/security.html')
+    """Legacy URL — security content lives in the README for assessors."""
+    return redirect(f'{reverse("home")}#readme-security')
+
+
+def contact_page(request):
+    """Footer contact — creates a support case for the super admin queue."""
+    from accounts.models import User
+    from messaging.models import SupportCase, SupportMessage
+    from messaging.services import generate_case_number
+
+    from .forms import FooterContactForm
+
+    if request.method == 'POST':
+        form = FooterContactForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            username_base = data['email'].split('@')[0].replace('.', '_')[:40]
+            username = username_base
+            suffix = 1
+            while User.objects.filter(username=username).exists():
+                suffix += 1
+                username = f'{username_base}_{suffix}'
+
+            user = request.user if request.user.is_authenticated else None
+            if not user:
+                user, _ = User.objects.get_or_create(
+                    email=data['email'].lower(),
+                    defaults={
+                        'username': username,
+                        'first_name': data['name'].split()[0][:80] if data['name'] else '',
+                        'last_name': ' '.join(data['name'].split()[1:])[:80] if data['name'] else '',
+                        'role': 'parent',
+                    },
+                )
+                user.set_unusable_password()
+                user.save(update_fields=['password'])
+
+            body = data['message']
+            if not request.user.is_authenticated:
+                body = f"From: {data['name']} <{data['email']}>\n\n{body}"
+
+            case = SupportCase.objects.create(
+                case_number=generate_case_number(),
+                opened_by=user,
+                subject=data['subject'],
+            )
+            SupportMessage.objects.create(case=case, sender=user, body=body)
+            messages.success(
+                request,
+                f'Thank you — your message was sent to the ESA team (case {case.case_number}).',
+            )
+            return redirect('pages:contact')
+    else:
+        initial = {}
+        if request.user.is_authenticated:
+            initial = {
+                'name': request.user.get_full_name() or request.user.username,
+                'email': request.user.email,
+            }
+        form = FooterContactForm(initial=initial)
+
+    return render(request, 'pages/contact.html', {'form': form})
+
+
+def terms_page(request):
+    return render(request, 'pages/terms.html')
 
 
 def wireframe_page(request):

@@ -11,7 +11,7 @@ from django.utils import timezone
 
 from audit.models import AuditLog
 from parents.models import ParentProfile
-from payments.models import Payment
+from payments.models import Payment, SubscriptionPayment
 from schools.models import School
 from students.models import StudentProfile
 from teachers.models import TeacherProfile
@@ -106,18 +106,10 @@ def build_super_admin_dashboard_context():
         .order_by('-created_at')[:15]
     )
 
-    subscription_rows = []
-    for tier, _ in School.TIER_CHOICES:
-        count = tier_counts.get(tier, 0)
-        subscription_rows.append({
-            'tier': tier,
-            'label': TIER_LABELS[tier],
-            'school_count': count,
-            'monthly_pence': TIER_MONTHLY_PENCE[tier],
-            'monthly_display': _format_gbp(TIER_MONTHLY_PENCE[tier]),
-            'mrr_contribution_pence': count * TIER_MONTHLY_PENCE[tier],
-            'mrr_contribution_display': _format_gbp(count * TIER_MONTHLY_PENCE[tier]),
-        })
+    subscription_payments = list(
+        SubscriptionPayment.objects.select_related('school', 'admin')
+        .order_by('-created_at')[:100]
+    )
 
     return {
         'generated_at': now,
@@ -137,7 +129,7 @@ def build_super_admin_dashboard_context():
             'payments_count': payment_totals['payment_count'] or 0,
         },
         'role_totals': role_totals,
-        'subscription_rows': subscription_rows,
+        'subscription_payments': subscription_payments,
         'schools': schools,
         'recent_users': recent_users,
         'recent_audit': recent_audit,
